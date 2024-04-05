@@ -26,7 +26,6 @@ Lancer les commandes ci-dessous dans l'ordre donnée.
 
 
 ```bash
-  yarn
-  yarn dev
+  docker compose up --detach --build
 ```
     
