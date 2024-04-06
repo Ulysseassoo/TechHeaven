@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
 import { sendConfirmationEmail } from "../utils/mailer.mjs";
-import { generateConfirmationToken, verifyUserToken } from "../utils/jwt.mjs";
+import { generateConfirmationToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
@@ -127,4 +127,28 @@ router.post("/verify", verifyValidator, async (req, res) => {
         });
     }
 })
+
+router.post("/auth", async (req, res) => {
+	const { email, password } = req.body;
+	const user = await db.user.findUnique({ where: { email } });
+
+	if (!user) {
+		return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
+	}
+
+    if(!user.has_confirmed_account) {
+		return res.status(401).json({ status: 401, message: "L'utilisateur n'a pas validé son compte" });
+    }
+
+	const validPassword = await bcrypt.compare(password, user.password);
+
+	if (!validPassword) {
+		return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
+	}
+
+	const token = generateSessionToken(user.id);
+
+	return res.status(200).json({ status: 200, data: token });
+});
+
 export default router;
