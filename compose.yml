@@ -3,7 +3,7 @@
     
     services:
       client:
-        image: node:18.0.0-alpine
+        image: node:20.0.0-alpine
         user: node
         entrypoint: sh -c
         working_dir: /home/node
@@ -14,13 +14,13 @@
           - ./front:/home/node
     
       server:
-        image: node:18.0.0-alpine
+        image: node:20.0.0-alpine
         user: node
         tty: true
         stdin_open: true
         working_dir: /home/node
         entrypoint: sh -c
-        command: '"npm install && npm run start"'
+        command: '"npm install && npx prisma migrate dev && npm run dev"'
         ports:
           - 8000:8000
         volumes:
