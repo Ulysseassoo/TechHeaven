@@ -39,4 +39,29 @@ export const sendNotificationEmail = async (userEmail) => {
     }
 }
 
+export const sendPasswordRenewalNotification = async (userEmail) => {
+    // Changer le lien
+    const mailOptions = {
+        from: COMPANY_MAIL,
+        to: userEmail,
+        subject: 'Demande de renouvellement de mot de passe',
+        html: `
+        <h1>Changement de mot de passe requis</h1>
+        <p>Bonjour,</p>
+        <p>Nous vous contactons pour vous informer qu'il est nécessaire de changer votre mot de passe pour des raisons de sécurité. Il est recommandé de changer régulièrement votre mot de passe pour protéger votre compte.</p>
+        <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
+        <p><a href="https://www.techheaven.com/changer-mot-de-passe">Changer mon mot de passe</a></p>
+        <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
+        <p>Merci,</p>
+        <p>L'équipe de techheaven.com</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        throw Error("Erreur lors de l\'envoi de l\'email");
+    }
+}
+
 export default transporter;
