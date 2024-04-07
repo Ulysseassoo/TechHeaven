@@ -1,10 +1,10 @@
 import express from "express";
-import { authValidator, verifyValidator } from "../validator/userValidator.mjs";
+import { authValidator, resetPasswordValidator, verifyValidator } from "../validator/userValidator.mjs";
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
-import { sendConfirmationEmail, sendNotificationEmail } from "../utils/mailer.mjs";
-import { generateConfirmationToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
+import { sendConfirmationEmail, sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
+import { generateConfirmationToken, generatePasswordResetToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
@@ -90,7 +90,7 @@ router.post("/verify", verifyValidator, async (req, res) => {
     try {
         await verifyUserToken(token, async (err, decodedToken) => {
             if (err) {
-                res.status(401).json({ message: 'Token invalide ou expiré.' });
+                return res.status(401).json({ status: 401, message: 'Token invalide ou expiré.' });
             } else {
                 if (decodedToken.type === 'confirmation') {
                     const userId = decodedToken.userId;
@@ -175,7 +175,189 @@ router.post("/auth", async (req, res) => {
 
     const token = generateSessionToken(user.id);
 
+    db.user.update({
+        where: {
+            id: user.id,
+        },
+        data: {
+            number_connexion_attempts: 0
+        }
+    })
+
     return res.status(200).json({ status: 200, data: token });
 });
+
+router.post("/reset/password", resetPasswordValidator, async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(401).send({
+            status: 401,
+            message: errors.formatWith(({ msg, path }) => {
+                return {
+                    msg,
+                    path
+                }
+            }).array()
+        });
+    }
+
+    const { email } = req.body;
+    try {
+
+        const existingUser = await db.user.findUnique({
+            where: {
+                email,
+            },
+        });
+
+        if(!existingUser) {
+            return res.status(200).json({ status: 200, message: "Ok" });
+        }
+
+        const token = generatePasswordResetToken(existingUser.id)
+        await sendPasswordResetEmail(existingUser.email, token)
+        await db.passwordRecovery.upsert({
+            where: {
+                user_id: existingUser.id,
+            },
+            create: {
+                verification_code: token,
+                code_validation_time: "1h",
+                user_id: existingUser.id,
+                last_request: new Date()
+            },
+            update: {
+                verification_code: token,
+                last_request: new Date()
+            }
+        })
+        return res.status(200).json({ status: 200, message: "Ok" });
+
+    } catch (error) {
+        console.log(error)
+        return res.status(401).send({
+            status: 401,
+            message: error,
+        });
+    }
+})
+
+router.post("/verify/code", verifyValidator, async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(401).send({
+            status: 401,
+            message: errors.formatWith(({ msg, path }) => {
+                return {
+                    msg,
+                    path
+                }
+            }).array()
+        });
+    }
+
+    const { token } = req.body;
+    try {
+        await verifyUserToken(token, async (err, decodedToken) => {
+            if (err) {
+                res.status(401).json({ message: 'Token invalide ou expiré.' });
+            } else {
+                if (decodedToken.type === 'reset') {
+                    const userId = decodedToken.userId;
+
+                    const user = await db.user.findUnique({
+                        where: {
+                            id: userId,
+                        }
+                    })
+
+                    if (user !== undefined) {
+                        res.status(200).json({ status: 200, message: 'Ok' });
+                    } else {
+                        res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+                    }
+                } else {
+                    res.status(401).json({ message: 'Token invalide.' });
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error,
+        });
+    }
+})
+
+router.post("/changePassword", async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(401).send({
+            status: 401,
+            message: errors.formatWith(({ msg, path }) => {
+                return {
+                    msg,
+                    path
+                }
+            }).array()
+        });
+    }
+
+    const { oldPassword, password, token } = req.body;
+
+    try {
+        await verifyUserToken(token, async (err, decodedToken) => {
+            if (err) {
+                res.status(401).json({ message: 'Token invalide ou expiré.' });
+            } else {
+                if (decodedToken.type === 'reset') {
+                    const userId = decodedToken.userId;
+
+                    const user = await db.user.findUnique({
+                        where: {
+                            id: userId,
+                        }
+                    })
+
+                    if (user !== undefined) {
+                        const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+                        if (!isMatch) {
+                            return res.status(400).json({ status: 400, message: 'Ancien mot de passe incorrect' });
+                        }
+
+                        const salt = bcrypt.genSaltSync(10);
+                        const passwordEncrypted = bcrypt.hashSync(password, salt);
+
+                        await db.user.update({
+                            where: {
+                                id: user.id
+                            },
+                            data: {
+                                password: passwordEncrypted,
+                                last_updated_password: new Date(),
+                            },
+                        });
+
+                        return res.status(200).json({ status: 200, message: 'Mot de passe mis à jour avec succès.' });
+
+                    } else {
+                        return res.status(401).json({ status: 401, message: 'Token invalide.' });
+                    }
+                } else {
+                    return res.status(401).json({ message: 'Token invalide.' });
+                }
+            }
+        });
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error,
+        });
+    }
+})
 
 export default router;

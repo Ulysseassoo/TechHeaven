@@ -1,12 +1,11 @@
 import nodemailer from "nodemailer";
+import { COMPANY_MAIL } from "../constants/index.mjs";
 
 const transporter = nodemailer.createTransport({
     host: 'localhost',
     port: 1025,
     secure: false,
 });
-
-const COMPANY_MAIL = "techheaven@support.com";
 
 export const sendConfirmationEmail = async (userEmail, token) => {
     // TODO Changez le lien avec celui en front
@@ -51,6 +50,29 @@ export const sendPasswordRenewalNotification = async (userEmail) => {
         <p>Nous vous contactons pour vous informer qu'il est nécessaire de changer votre mot de passe pour des raisons de sécurité. Il est recommandé de changer régulièrement votre mot de passe pour protéger votre compte.</p>
         <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
         <p><a href="https://www.techheaven.com/changer-mot-de-passe">Changer mon mot de passe</a></p>
+        <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
+        <p>Merci,</p>
+        <p>L'équipe de techheaven.com</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        throw Error("Erreur lors de l\'envoi de l\'email");
+    }
+}
+
+export const sendPasswordResetEmail = async (userEmail, token) => {
+    // Changer le lien
+    const mailOptions = {
+        from: COMPANY_MAIL,
+        to: userEmail,
+        subject: 'Demande de réintialisation de mot de passe',
+        html: `
+        <h1>Réintialiser votre mot de passe</h1>
+        <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
+        <p><a href="https://www.techheaven.com/reset/password/${token}">Changer mon mot de passe</a></p>
         <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
         <p>Merci,</p>
         <p>L'équipe de techheaven.com</p>

@@ -12,6 +12,12 @@ export const generateSessionToken = (userId) => {
     return token;
 }
 
+export const generatePasswordResetToken = (userId) => {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    const token = jwt.sign({ userId, type: "reset" }, JWT_SECRET, { expiresIn: '1h' });
+    return token;
+}
+
 export const verifyUserToken = async (token, callback) => {
     return jwt.verify(token, process.env.JWT_SECRET, callback)
 }

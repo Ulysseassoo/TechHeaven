@@ -63,7 +63,7 @@ model Preference {
 
 model PasswordRecovery {
   id                   Int       @id @default(autoincrement())
-  code_validation_time String?
+  code_validation_time DateTime?
   last_request         DateTime?
   verification_code    String?
   User                 User      @relation(fields: [user_id], references: [id])
