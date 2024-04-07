@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id                        String            @id @default(uuid()) @unique
+  id                        String            @id @unique @default(uuid())
   firstname                 String?
   lastname                  String?
   email                     String            @unique @db.VarChar(255)
@@ -25,6 +25,7 @@ model User {
   created_at                DateTime          @default(now())
   last_updated_password     DateTime?
   number_connexion_attempts Int               @default(0)
+  blocked_until             DateTime?
   addresses                 Address[]
   preferences               Preference[]
   passwordRecovery          PasswordRecovery?

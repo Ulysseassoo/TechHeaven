@@ -3,7 +3,7 @@ import { authValidator, verifyValidator } from "../validator/userValidator.mjs";
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
-import { sendConfirmationEmail } from "../utils/mailer.mjs";
+import { sendConfirmationEmail, sendNotificationEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
 
 const router = express.Router();
@@ -90,34 +90,34 @@ router.post("/verify", verifyValidator, async (req, res) => {
     try {
         await verifyUserToken(token, async (err, decodedToken) => {
             if (err) {
-              res.status(401).json({ message: 'Token invalide ou expiré.' });
+                res.status(401).json({ message: 'Token invalide ou expiré.' });
             } else {
-              if (decodedToken.type === 'confirmation') {
-                const userId = decodedToken.userId;
-        
-                const user = await db.user.findUnique({
-                    where: {
-                        id: userId,
-                    }
-                })
-                
-                if(user !== undefined) {
-                    await db.user.update({
+                if (decodedToken.type === 'confirmation') {
+                    const userId = decodedToken.userId;
+
+                    const user = await db.user.findUnique({
                         where: {
-                            id: userId
-                        },
-                        data: {
-                            has_confirmed_account: true,
+                            id: userId,
                         }
                     })
-    
-                    res.status(200).json({ status: 200, message: 'Compte confirmé avec succès.' });
+
+                    if (user !== undefined) {
+                        await db.user.update({
+                            where: {
+                                id: userId
+                            },
+                            data: {
+                                has_confirmed_account: true,
+                            }
+                        })
+
+                        res.status(200).json({ status: 200, message: 'Compte confirmé avec succès.' });
+                    } else {
+                        res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+                    }
                 } else {
-                    res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+                    res.status(401).json({ message: 'Token invalide pour la confirmation de compte.' });
                 }
-              } else {
-                res.status(401).json({ message: 'Token invalide pour la confirmation de compte.' });
-              }
             }
         });
     } catch (error) {
@@ -129,26 +129,53 @@ router.post("/verify", verifyValidator, async (req, res) => {
 })
 
 router.post("/auth", async (req, res) => {
-	const { email, password } = req.body;
-	const user = await db.user.findUnique({ where: { email } });
+    const { email, password } = req.body;
+    const user = await db.user.findUnique({ where: { email } });
 
-	if (!user) {
-		return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
-	}
-
-    if(!user.has_confirmed_account) {
-		return res.status(401).json({ status: 401, message: "L'utilisateur n'a pas validé son compte" });
+    if (!user) {
+        return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
     }
 
-	const validPassword = await bcrypt.compare(password, user.password);
+    if (!user.has_confirmed_account) {
+        return res.status(401).json({ status: 401, message: "L'utilisateur n'a pas validé son compte" });
+    }
 
-	if (!validPassword) {
-		return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
-	}
+    if(user.blocked_until !== null && user.blocked_until > Date.now() ) {
+        return res.status(403).json({ status: 403, message: 'Trop de tentatives de connexion. Votre compte est temporairement bloqué.' });
+    }
 
-	const token = generateSessionToken(user.id);
+    const validPassword = await bcrypt.compare(password, user.password);
 
-	return res.status(200).json({ status: 200, data: token });
+    if (!validPassword) {
+        if (user.number_connexion_attempts >= 3) {
+            await db.user.update({
+                where: {
+                    id: user.id,
+                }, data: {
+                    blocked_until: new Date(Date.now() + 15 * 60 * 1000),
+                    number_connexion_attempts: 0,
+                }
+            });
+
+            await sendNotificationEmail(user.email);
+
+            return res.status(403).json({ status: 403, message: 'Trop de tentatives de connexion. Votre compte est temporairement bloqué.' });
+        }
+
+        await db.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                number_connexion_attempts: user.number_connexion_attempts + 1
+            }
+        })
+        return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
+    }
+
+    const token = generateSessionToken(user.id);
+
+    return res.status(200).json({ status: 200, data: token });
 });
 
 export default router;
