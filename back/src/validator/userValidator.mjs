@@ -1,5 +1,15 @@
 import { body } from "express-validator";
 
+export const userValidator = [
+    body('firstname').optional().isString(),
+    body('lastname').optional().isString(),
+    body('email').optional().isEmail(),
+    body('phone').optional().isString(),
+    body('password').optional().isString(),
+    body('role').optional().isString(),
+    body('has_confirmed_account').optional().isBoolean(),
+];
+
 export const authValidator = [
     body("email").isEmail(),
     body("firstname").isLength({ min: 2 }),

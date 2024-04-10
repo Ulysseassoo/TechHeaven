@@ -5,6 +5,7 @@ import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
 import { sendConfirmationEmail, sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken, generatePasswordResetToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
+import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authentication.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
@@ -69,6 +70,65 @@ router.post("/users", authValidator, async (req, res) => {
         });
     }
 });
+
+router.get("/users/:id", shouldBeAdmin, async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                id,
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: user
+        })
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error,
+        });
+    }
+})
+
+router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
+    const id = req.params.id
+
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                id,
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+        }
+
+        await db.user.delete({
+            where: {
+                id
+            }
+        })
+
+        return res.status(200).json({
+            status: 200,
+            message: "Ok"
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(401).send({
+            status: 401,
+            message: error,
+        });
+    }
+})
 
 router.post("/verify", verifyValidator, async (req, res) => {
     const errors = validationResult(req);
@@ -140,7 +200,7 @@ router.post("/auth", async (req, res) => {
         return res.status(401).json({ status: 401, message: "L'utilisateur n'a pas validé son compte" });
     }
 
-    if(user.blocked_until !== null && user.blocked_until > Date.now() ) {
+    if (user.blocked_until !== null && user.blocked_until > Date.now()) {
         return res.status(403).json({ status: 403, message: 'Trop de tentatives de connexion. Votre compte est temporairement bloqué.' });
     }
 
@@ -173,7 +233,7 @@ router.post("/auth", async (req, res) => {
         return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
     }
 
-    const token = generateSessionToken(user.id);
+    const token = generateSessionToken(user.id, user.role);
 
     db.user.update({
         where: {
@@ -211,7 +271,7 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
             },
         });
 
-        if(!existingUser) {
+        if (!existingUser) {
             return res.status(200).json({ status: 200, message: "Ok" });
         }
 
@@ -291,7 +351,7 @@ router.post("/verify/code", verifyValidator, async (req, res) => {
     }
 })
 
-router.post("/changePassword", async (req, res) => {
+router.post("/change/password", async (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -327,6 +387,12 @@ router.post("/changePassword", async (req, res) => {
 
                         if (!isMatch) {
                             return res.status(400).json({ status: 400, message: 'Ancien mot de passe incorrect' });
+                        }
+
+                        const isSamePassword = await bcrypt.compare(oldPassword, password)
+
+                        if (isSamePassword) {
+                            return res.status(400).json({ status: 400, message: "Le nouveau mot de passe doit être différent de l'ancien" });
                         }
 
                         const salt = bcrypt.genSaltSync(10);
