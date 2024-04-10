@@ -136,6 +136,14 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
                 firstname,
                 lastname,
                 phone: phone ?? null
+            },
+            select: {
+                email: true,
+                firstname: true,
+                lastname: true,
+                created_at: true,
+                id: true,
+                phone: true,
             }
         })
 
