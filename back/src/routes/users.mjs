@@ -1,5 +1,5 @@
 import express from "express";
-import { authValidator, resetPasswordValidator, verifyValidator } from "../validator/userValidator.mjs";
+import { authValidator, resetPasswordValidator, userValidator, verifyValidator } from "../validator/userValidator.mjs";
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
@@ -88,6 +88,60 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
         return res.status(200).json({
             status: 200,
             data: user
+        })
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error,
+        });
+    }
+})
+
+router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
+    const id = req.params.id
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(401).send({
+            status: 401,
+            message: errors.formatWith(({ msg, path }) => {
+                return {
+                    msg,
+                    path
+                }
+            }).array()
+        });
+    }
+
+    const { email, firstname, lastname, phone } = req.body;
+
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                id,
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+        }
+
+        const updatedUser = await db.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                email,
+                firstname,
+                lastname,
+                phone: phone ?? null
+            }
+        })
+
+        return res.status(200).json({
+            status: 200,
+            data: updatedUser
         })
     } catch (error) {
         return res.status(401).send({
