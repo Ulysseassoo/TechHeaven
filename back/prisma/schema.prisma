@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                        String            @id @unique @default(uuid())
+  firstname                 String?
+  lastname                  String?
+  email                     String            @unique @db.VarChar(255)
+  phone                     String?
+  password                  String
+  role                      String
+  has_confirmed_account     Boolean           @default(false)
+  created_at                DateTime          @default(now())
+  last_updated_password     DateTime?
+  number_connexion_attempts Int               @default(0)
+  blocked_until             DateTime?
+  addresses                 Address[]
+  preferences               Preference[]
+  passwordRecovery          PasswordRecovery?
+}
+
+model Address {
+  id          Int     @id
+  city        String
+  country     String
+  postal_code String
+  other       String?
+  address     String
+  is_selected String
+  user        User    @relation(fields: [user_id], references: [id])
+  user_id     String
+}
+
+model Alert {
+  id          Int          @id @default(autoincrement())
+  name        String
+  type        String
+  param       String?
+  preferences Preference[]
+}
+
+model Preference {
+  user_id  String
+  alert_id Int
+  status   Boolean
+  user     User    @relation(fields: [user_id], references: [id])
+  alert    Alert   @relation(fields: [alert_id], references: [id])
+
+  @@id([user_id, alert_id])
+}
+
+model PasswordRecovery {
+  id                   Int       @id @default(autoincrement())
+  code_validation_time DateTime?
+  last_request         DateTime?
+  verification_code    String?
+  User                 User      @relation(fields: [user_id], references: [id])
+  user_id              String    @unique
+}
