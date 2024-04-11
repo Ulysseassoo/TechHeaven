@@ -2,8 +2,8 @@ import nodemailer from "nodemailer";
 import { COMPANY_MAIL } from "../constants/index.mjs";
 
 const transporter = nodemailer.createTransport({
-    host: 'localhost',
-    port: 1025,
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
     secure: false,
 });
 
