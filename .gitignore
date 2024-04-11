@@ -1,2 +1,3 @@
 .wakatime-project
 package-lock.json
+.env
