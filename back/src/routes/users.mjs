@@ -5,7 +5,8 @@ import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
 import { sendConfirmationEmail, sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken, generatePasswordResetToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
-import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authentication.mjs";
+import { shouldBeAdmin } from "../middlewares/authentication.mjs";
+import { anonymizeUserData } from "../utils/anonym.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
@@ -173,15 +174,20 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
         }
 
-        await db.user.delete({
+        if (user.deleted_at !== undefined) {
+            return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+        }
+
+        await db.user.update({
             where: {
                 id
-            }
+            }, 
+            data: anonymizeUserData()
         })
 
         return res.status(200).json({
             status: 200,
-            message: "Ok"
+            message: "Compte supprimé avec succès"
         })
     } catch (error) {
         console.log(error)
