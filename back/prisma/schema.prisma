@@ -74,9 +74,12 @@ model PasswordRecovery {
 
 
 model Product {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String
-  price       Float
-  quantity    Int
+  id               Int       @id @default(autoincrement())
+  name             String
+  description      String
+  brand            String
+  price            Float
+  promo            Float?
+  photo            String?
+  stock_quantity   Int
 }
