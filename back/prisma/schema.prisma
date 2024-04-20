@@ -70,3 +70,13 @@ model PasswordRecovery {
   User                 User      @relation(fields: [user_id], references: [id])
   user_id              String    @unique
 }
+
+
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  quantity    Int
+}
