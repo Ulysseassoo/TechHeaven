@@ -1,17 +1,13 @@
-// import { ThemeDefinition, createVuetify } from "vuetify";
+import { ThemeDefinition } from "vuetify";
 
-// const customTheme: ThemeDefinition = {
-//     dark: false,
-//     colors: {
-//         background: '#FFFFFF',
-//     },
-// }
+const customTheme: ThemeDefinition = {
+  dark: false,
+  colors: {
+    primary: '#3281ED',
+    secondary: '#331B55',
+    tertiary: "#181C1F",
+    background: '#FCFCFC'
+  },
+}
 
-// export const theme  = ({
-//     theme: {
-//       defaultTheme: 'customTeheme',
-//       themes: {
-//         customTheme,
-//       },
-//     },
-//   })
+export default customTheme;

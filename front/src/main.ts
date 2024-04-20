@@ -5,10 +5,17 @@ import './style.css'
 import 'vuetify/styles'
 import App from './App.vue'
 import { createVuetify } from 'vuetify'
+import customTheme from './plugins/vuetify'
 
 const vuetify = createVuetify({
   components,
-  directives
+  directives,
+  theme: {
+    defaultTheme: "customTheme",
+    themes: {
+      customTheme
+    }
+  }
 })
 
 createApp(App).use(vuetify).mount('#app')
