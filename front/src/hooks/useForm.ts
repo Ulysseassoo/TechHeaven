@@ -23,14 +23,14 @@ export const useForm = <T>(options: useFormOptions<T>) => {
     const serverError = ref<string | undefined>(undefined);
     const currentRequestCancellation = ref<CancelTokenSource | null>(null);
 
-  // Annulation de la requête en cours
-  const cancelRequest = () => {
-     if (currentRequestCancellation.value) {
-      currentRequestCancellation.value.cancel('Request cancelled');
-      isSubmitting.value = false;
-      currentRequestCancellation.value = null;
+    // Annulation de la requête en cours
+    const cancelRequest = () => {
+        if (currentRequestCancellation.value) {
+            currentRequestCancellation.value.cancel('Request cancelled');
+            isSubmitting.value = false;
+            currentRequestCancellation.value = null;
+        }
     }
-  }
 
     const resetErrors = () => {
         for (const key in errors) {
@@ -54,25 +54,25 @@ export const useForm = <T>(options: useFormOptions<T>) => {
     }
 
     const applyTransforms = <T>(data: T, transformFunctions: OptionalTransform<T> | undefined): T => {
-        if(!transformFunctions) {
+        if (!transformFunctions) {
             return data;
         }
-        
+
         const transformedData = {} as T;
-      
+
         for (const key in data) {
-          const transformFunction = transformFunctions[key];
-          const value = data[key];
-      
-          if (transformFunction) {
-            transformedData[key] = transformFunction(value);
-          } else {
-            transformedData[key] = value;
-          }
+            const transformFunction = transformFunctions[key];
+            const value = data[key];
+
+            if (transformFunction) {
+                transformedData[key] = transformFunction(value);
+            } else {
+                transformedData[key] = value;
+            }
         }
-      
+
         return transformedData;
-      };
+    };
 
     const handleSubmit = async () => {
         isSubmitting.value = true;
@@ -81,11 +81,11 @@ export const useForm = <T>(options: useFormOptions<T>) => {
             validationSchema.parse(data.value);
             serverError.value = undefined;
             resetErrors()
-            
+
             // Transformer les données
             const transformedData = applyTransforms(data.value, transform)
             // Creér le token
-            const config : AxiosRequestConfig = {}
+            const config: AxiosRequestConfig = {}
             currentRequestCancellation.value = axios.CancelToken.source()
             config.cancelToken = currentRequestCancellation.value.token
             // Appel à la fonction de soumission du formulaire
@@ -107,6 +107,10 @@ export const useForm = <T>(options: useFormOptions<T>) => {
             }
         } finally {
             isSubmitting.value = false;
+            // remove server error
+            setTimeout(() => {
+                serverError.value = undefined;
+            }, 3000)
         }
     }
 
