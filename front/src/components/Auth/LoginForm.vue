@@ -89,6 +89,15 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
         @input="validateField('password')"
         class="mb-3"
       ></VTextField>
+      <VCard
+        class="mb-12"
+        color="surface-variant"
+        variant="tonal"
+      >
+        <VCardText class="text-medium-emphasis text-caption">
+          Warning: After 3 consecutive failed login attempts, you account will be temporarily locked for three hours. If you must login now, you can also click "Forgot login password?" below to reset the login password.
+        </VCardText>
+      </VCard>
       <Stack align="center" justify="center" direction="column" margin="1.3rem" gap="0.4rem">
         <VBtn
           color="primary"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DividerWithText from "../components/DividerWithText.vue";
 import ArrowLeft from "../components/Icons/ArrowLeft.vue";
-import LoginForm from "../components/Auth/LoginForm.vue";
+import RegisterForm from "../components/Auth/RegisterForm.vue";
 import Stack from "../components/Stack.vue";
 import Google from "../components/Icons/Google.vue";
 import Apple from "../components/Icons/Apple.vue";
@@ -17,7 +17,9 @@ const navigateBack = () => {
 
 <template>
   <div class="container">
-    <!-- <img class="image-container" src="../assets/login.jpg" /> -->
+    <div class="image-container">
+      <img src="../assets/login.jpg" />
+    </div>
     <div class="superior-container">
       <div class="login-container">
         <Stack
@@ -34,58 +36,58 @@ const navigateBack = () => {
         </Stack>
         <h1>Welcome to our website !</h1>
         <DividerWithText container-class="mt-12 mb-8 relative" content="Continue With" />
-        <Stack
-          align="center"
-          justify="center"
-          direction="column"
-          margin="1rem"
-          gap="1.2rem"
-        >
+        <Stack align="center" justify="center" direction="row" margin="1rem" gap="1.2rem">
           <VBtn
-            width="100%"
+            flex="1"
             height="55px"
             flat
             color="primary"
             variant="outlined"
-            style="text-transform: none"
+            style="
+              text-transform: none;
+              align-items: center;
+              justify-content: center;
+              display: flex;
+            "
           >
-            Login with Google
-            <template v-slot:prepend>
-              <Google width="25px" height="25px" />
-            </template>
+            <Google width="30px" height="30px" />
           </VBtn>
           <VBtn
-            width="100%"
+            flex="1"
             height="55px"
             flat
             color="primary"
             variant="outlined"
-            style="text-transform: none"
+            style="
+              text-transform: none;
+              align-items: center;
+              justify-content: center;
+              display: flex;
+            "
           >
-            <template v-slot:prepend>
-              <Apple width="25px" height="25px" />
-            </template>
-            Login with Apple</VBtn
-          >
+            <Apple width="30px" height="30px" />
+          </VBtn>
           <VBtn
-            width="100%"
+            flex="1"
             height="55px"
             flat
             color="primary"
             variant="outlined"
-            style="text-transform: none"
+            style="
+              text-transform: none;
+              align-items: center;
+              justify-content: center;
+              display: flex;
+            "
           >
-            <template v-slot:prepend>
-              <Facebook width="25px" height="25px" />
-            </template>
-            Login with Facebook</VBtn
-          >
+            <Facebook width="30px" height="30px" />
+          </VBtn>
         </Stack>
         <DividerWithText
           container-class="mt-8 mb-12 relative"
           content="Or log yourself"
         />
-        <LoginForm />
+        <RegisterForm />
       </div>
     </div>
   </div>

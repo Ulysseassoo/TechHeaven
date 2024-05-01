@@ -8,12 +8,11 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendConfirmationEmail = async (userEmail, token) => {
-    // TODO Changez le lien avec celui en front
     const mailOptions = {
         from: COMPANY_MAIL,
         to: userEmail,
         subject: 'Confirmation de votre compte',
-        html: `<p>Merci de vous être inscrit! Veuillez cliquer sur le lien suivant pour confirmer votre compte :</p><a href="https://techheaven.com/confirmation?token=${token}">Confirmer</a>`
+        html: `<p>Merci de vous être inscrit! Veuillez cliquer sur le lien suivant pour confirmer votre compte :</p><a href="${process.env.WEBSITE_URL}/confirmation?token=${token}">Confirmer</a>`
     };
 
     try {
@@ -39,7 +38,6 @@ export const sendNotificationEmail = async (userEmail) => {
 }
 
 export const sendPasswordRenewalNotification = async (userEmail) => {
-    // Changer le lien
     const mailOptions = {
         from: COMPANY_MAIL,
         to: userEmail,
@@ -49,7 +47,7 @@ export const sendPasswordRenewalNotification = async (userEmail) => {
         <p>Bonjour,</p>
         <p>Nous vous contactons pour vous informer qu'il est nécessaire de changer votre mot de passe pour des raisons de sécurité. Il est recommandé de changer régulièrement votre mot de passe pour protéger votre compte.</p>
         <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
-        <p><a href="https://www.techheaven.com/changer-mot-de-passe">Changer mon mot de passe</a></p>
+        <p><a href="${process.env.WEBSITE_URL}/changer-mot-de-passe">Changer mon mot de passe</a></p>
         <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
         <p>Merci,</p>
         <p>L'équipe de techheaven.com</p>
@@ -64,7 +62,6 @@ export const sendPasswordRenewalNotification = async (userEmail) => {
 }
 
 export const sendPasswordResetEmail = async (userEmail, token) => {
-    // Changer le lien
     const mailOptions = {
         from: COMPANY_MAIL,
         to: userEmail,
@@ -72,7 +69,7 @@ export const sendPasswordResetEmail = async (userEmail, token) => {
         html: `
         <h1>Réintialiser votre mot de passe</h1>
         <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
-        <p><a href="https://www.techheaven.com/reset/password/${token}">Changer mon mot de passe</a></p>
+        <p><a href="${process.env.WEBSITE_URL}/reset/password/${token}">Changer mon mot de passe</a></p>
         <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
         <p>Merci,</p>
         <p>L'équipe de techheaven.com</p>

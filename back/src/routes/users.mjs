@@ -13,7 +13,6 @@ const router = express.Router();
 router.post("/users", authValidator, async (req, res) => {
     try {
         const errors = validationResult(req);
-
         if (!errors.isEmpty()) {
             return res.status(401).send({
                 status: 401,
@@ -54,7 +53,6 @@ router.post("/users", authValidator, async (req, res) => {
                 email: true,
                 firstname: true,
                 lastname: true,
-                created_at: true,
                 id: true
             }
         });

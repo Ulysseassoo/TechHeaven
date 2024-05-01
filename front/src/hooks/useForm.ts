@@ -38,6 +38,12 @@ export const useForm = <T>(options: useFormOptions<T>) => {
         }
     };
 
+    const resetFields = () => {
+        data.value = {
+            ...initialValues
+        }
+    };
+
     const validateField = <K extends keyof T>(field: K) => {
         const validated = validationSchema.safeParse(data.value);
         if (!validated.success) {
@@ -90,6 +96,7 @@ export const useForm = <T>(options: useFormOptions<T>) => {
             config.cancelToken = currentRequestCancellation.value.token
             // Appel à la fonction de soumission du formulaire
             await onSubmit(transformedData, config);
+            resetFields()
         } catch (error: any) {
             if (error instanceof ZodError) {
                 error.errors.forEach((err) => {

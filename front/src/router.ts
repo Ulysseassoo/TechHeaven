@@ -1,11 +1,13 @@
 import { RouteRecordName, createRouter, createWebHistory } from "vue-router"
 import HomeView from './pages/HomeView.vue'
 import LoginView from './pages/LoginView.vue'
+import RegisterView from './pages/RegisterView.vue'
 import NotFoundView from './pages/NotFoundView.vue'
 
 const routes = [
     { path: '/', name: "Home", component: HomeView },
     { path: '/login', name: "Login", component: LoginView },
+    { path: '/register', name: "Register", component: RegisterView },
     { path: '/:pathMatch(.*)', name: "NotFound", component: NotFoundView }
 ]
 
