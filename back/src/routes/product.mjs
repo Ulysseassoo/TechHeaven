@@ -1,0 +1,101 @@
+import express from "express";
+import { validationResult } from "express-validator";
+import { db } from "../utils/db.server.mjs";
+import { shouldBeAdmin } from "../middlewares/authentication.mjs";
+
+const router = express.Router();
+
+// Créer un nouveau produit
+router.post("/products", shouldBeAdmin, async (req, res) => {
+    try {
+        const { name, description, price, quantity } = req.body;
+
+        const product = await db.product.create({
+            data: {
+                name,
+                description,
+                price,
+                quantity
+            }
+        });
+
+        return res.status(201).json({ status: 201, data: product });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la création du produit", error: error.message });
+    }
+});
+
+// Récupérer tous les produits
+router.get("/products", async (req, res) => {
+    try {
+        const products = await db.product.findMany();
+
+        return res.status(200).json({ status: 200, data: products });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la récupération des produits", error: error.message });
+    }
+});
+
+// Récupérer un produit par son ID
+router.get("/products/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const product = await db.product.findUnique({
+            where: {
+                id: parseInt(id)
+            }
+        });
+
+        if (!product) {
+            return res.status(404).json({ status: 404, message: "Produit non trouvé" });
+        }
+
+        return res.status(200).json({ status: 200, data: product });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la récupération du produit", error: error.message });
+    }
+});
+
+// Mettre à jour un produit
+router.put("/products/:id", shouldBeAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, price, quantity } = req.body;
+
+        const updatedProduct = await db.product.update({
+            where: {
+                id: parseInt(id)
+            },
+            data: {
+                name,
+                description,
+                price,
+                quantity
+            }
+        });
+
+        return res.status(200).json({ status: 200, data: updatedProduct });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la mise à jour du produit", error: error.message });
+    }
+});
+
+// Supprimer un produit
+router.delete("/products/:id", shouldBeAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await db.product.delete({
+            where: {
+                id: parseInt(id)
+            }
+        });
+
+        return res.status(200).json({ status: 200, message: "Produit supprimé avec succès" });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la suppression du produit", error: error.message });
+    }
+});
+
+export default router;
