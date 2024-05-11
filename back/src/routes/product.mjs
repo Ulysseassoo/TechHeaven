@@ -23,16 +23,19 @@ router.get("/stock-total", async (req, res) => {
 });
 
 // Créer un nouveau produit
-router.post("/products", shouldBeAdmin, async (req, res) => {
+router.post("/products",  shouldBeAdmin,async (req, res) => {
     try {
-        const { name, description, price, quantity } = req.body;
+        const { name, description, price, brand, stock_quantity, lowStockAlert } = req.body;
 
         const product = await db.product.create({
             data: {
                 name,
                 description,
                 price,
-                quantity
+                brand,
+                stock_quantity,
+                lowStockAlert
+
             }
         });
 
@@ -78,7 +81,7 @@ router.get("/products/:id", async (req, res) => {
 router.put("/products/:id", shouldBeAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, quantity } = req.body;
+        const { name, description, price, brand, stock_quantity, lowStockAlert } = req.body;
 
         const updatedProduct = await db.product.update({
             where: {
@@ -88,7 +91,9 @@ router.put("/products/:id", shouldBeAdmin, async (req, res) => {
                 name,
                 description,
                 price,
-                quantity
+                brand,
+                stock_quantity,
+                lowStockAlert
             }
         });
 
