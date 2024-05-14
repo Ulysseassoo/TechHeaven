@@ -9,14 +9,7 @@ const validationSchema = z.object({
   email: z.string().email("L'email doit être valide."),
   password: z
     .string()
-    .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
-    .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule.")
-    .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
-    .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
-    .regex(
-      /[!@#$%^&*(),.?":{}|<>]/,
-      "Le mot de passe doit contenir au moins un symbole."
-    ),
+    .min(1, "Le mot de passe doit contenir au moins 1 caractères.")
 });
 
 const router = useRouter();
@@ -76,6 +69,7 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
         v-model="data.email"
         :error="!!errors.email"
         :error-messages="errors.email"
+        type="text"
         @input="validateField('email')"
         class="mb-3"
       ></VTextField>
@@ -86,9 +80,10 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
         v-model="data.password"
         :error="!!errors.password"
         :error-messages="errors.password"
+        type="password"
         @input="validateField('password')"
-        class="mb-3"
       ></VTextField>
+      <div style="display: flex; flex-direction: row-reverse; margin-bottom: 0.4rem;"><RouterLink to="/forgot-password" style="color: black;">Forgot password ?</RouterLink></div>
       <VCard
         class="mb-12"
         color="surface-variant"
