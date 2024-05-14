@@ -6,23 +6,6 @@ import { shouldBeAdmin } from "../middlewares/authentication.mjs";
 const router = express.Router();
 
 
-// Route pour calculer le total des produits restants
-router.get("/stock-total", async (req, res) => {
-    try {
-        const products = await db.product.findMany();
-        let totalStock = 0;
-
-        products.forEach((product) => {
-            totalStock += product.stock_quantity;
-        });
-
-        return res.status(200).json({ status: 200, totalStock });
-    } catch (error) {
-        return res.status(500).json({ status: 500, message: "Erreur lors du calcul du total du stock", error: error.message });
-    }
-});
-
-
 // Middleware pour vérifier et mettre à jour l'alerte de fin de stock
 const checkLowStockAlert = async (productId) => {
     const product = await db.product.findUnique({
