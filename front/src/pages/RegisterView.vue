@@ -7,12 +7,19 @@ import Google from "../components/Icons/Google.vue";
 import Apple from "../components/Icons/Apple.vue";
 import Facebook from "../components/Icons/Facebook.vue";
 import { useRouter } from "vue-router";
+import { onMounted } from 'vue'
 
 const router = useRouter();
 
 const navigateBack = () => {
   router.push("/");
 };
+
+onMounted(() => {
+  window.scrollTo(0, 0)
+})
+
+
 </script>
 
 <template>
@@ -85,7 +92,7 @@ const navigateBack = () => {
         </Stack>
         <DividerWithText
           container-class="mt-8 mb-12 relative"
-          content="Or log yourself"
+          content="Or register yourself"
         />
         <RegisterForm />
       </div>

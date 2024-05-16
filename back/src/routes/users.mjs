@@ -222,16 +222,20 @@ router.post("/verify", verifyValidator, async (req, res) => {
                     })
 
                     if (user !== undefined) {
-                        await db.user.update({
-                            where: {
-                                id: userId
-                            },
-                            data: {
-                                has_confirmed_account: true,
-                            }
-                        })
-
-                        res.status(200).json({ status: 200, message: 'Compte confirmé avec succès.' });
+                        if(!user.has_confirmed_account) {
+                            await db.user.update({
+                                where: {
+                                    id: userId
+                                },
+                                data: {
+                                    has_confirmed_account: true,
+                                }
+                            })
+    
+                            res.status(200).json({ status: 200, message: 'Compte confirmé avec succès.' });
+                        } else {
+                            res.status(400).json({ status: 400, message: 'Le compte a déjà été confirmé' });
+                        }
                     } else {
                         res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
                     }

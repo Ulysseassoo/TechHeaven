@@ -3,7 +3,6 @@ import Stack from "../Stack.vue";
 import { z } from "zod";
 import axios, { AxiosRequestConfig } from "axios";
 import { useForm } from "../../hooks/useForm";
-import { useRouter } from "vue-router";
 import { computed, ref } from "vue";
 
 const validationSchema = z.object({

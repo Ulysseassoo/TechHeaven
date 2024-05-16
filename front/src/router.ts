@@ -1,13 +1,15 @@
-import { RouteRecordName, createRouter, createWebHistory } from "vue-router"
+import { RouteRecordName, RouteRecordRaw, createRouter, createWebHistory } from "vue-router"
 import HomeView from './pages/HomeView.vue'
 import LoginView from './pages/LoginView.vue'
 import RegisterView from './pages/RegisterView.vue'
 import NotFoundView from './pages/NotFoundView.vue'
+import ConfirmationView from './pages/ConfirmationView.vue'
 
-const routes = [
+const routes : RouteRecordRaw[] = [
     { path: '/', name: "Home", component: HomeView },
-    { path: '/login', name: "Login", component: LoginView },
+    { path: '/login', name: "Login", component: LoginView, props: (route) => route.query.hasConfirmedAccount },
     { path: '/register', name: "Register", component: RegisterView },
+    { path: '/confirmation', name: "Confirmation", component: ConfirmationView },
     { path: '/:pathMatch(.*)', name: "NotFound", component: NotFoundView }
 ]
 

@@ -15,7 +15,7 @@ interface useFormOptions<T> {
     transform?: OptionalTransform<T>
 }
 
-export const useForm = <T>(options: useFormOptions<T>) => {
+export const useForm = <T extends Object>(options: useFormOptions<T>) => {
     const { initialValues, validationSchema, onSubmit, transform } = options;
     const data = ref(initialValues)
     const errors = reactive({} as Record<keyof T, string | null>);
@@ -39,8 +39,13 @@ export const useForm = <T>(options: useFormOptions<T>) => {
     };
 
     const resetFields = () => {
+        const emptyValues = Object.fromEntries(
+            Object.keys(initialValues).map(key => [key, ''])
+        );
+
+        // @ts-ignore
         data.value = {
-            ...initialValues
+            ...emptyValues
         }
     };
 
@@ -89,6 +94,7 @@ export const useForm = <T>(options: useFormOptions<T>) => {
             resetErrors()
 
             // Transformer les données
+            // @ts-ignore
             const transformedData = applyTransforms(data.value, transform)
             // Creér le token
             const config: AxiosRequestConfig = {}
