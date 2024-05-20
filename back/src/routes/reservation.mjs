@@ -5,6 +5,34 @@ import { db } from "../utils/db.server.mjs";
 
 const router = express.Router();
 
+// Fonction pour annuler automatiquement les réservations en attente depuis plus de 15 minutes
+async function annulerReservations() {
+    try {
+        // Récupérer toutes les réservations en attente depuis plus de 15 minutes
+        const reservations = await db.reservation.findMany({
+            where: {
+                createdAt: { lte: new Date(Date.now() - 15 * 60 * 1000) } // Rechercher les réservations créées il y a plus de 15 minutes
+            }
+        });
+
+        // Parcourir les réservations trouvées et les annuler
+        for (const reservation of reservations) {
+            await db.reservation.update({
+                where: { id: reservation.id },
+                data: { status: "annulée" } // Mettre à jour le statut de la réservation à "annulée"
+            });
+        }
+
+        console.log(`${reservations.length} réservations ont été automatiquement annulées.`);
+    } catch (error) {
+        console.error("Erreur lors de l'annulation automatique des réservations :", error);
+    }
+}
+
+// Exécuter la fonction d'annulation automatique des réservations à intervalles réguliers
+setInterval(annulerReservations, 15 * 60 * 1000); // Exécuter toutes les 15 minutes (en millisecondes)
+
+
 // Créer une nouvelle réservation
 router.post("/reservations", async (req, res) => {
     try {
