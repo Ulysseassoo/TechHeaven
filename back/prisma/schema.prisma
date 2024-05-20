@@ -31,6 +31,7 @@ model User {
   addresses                 Address[]
   preferences               Preference[]
   passwordRecovery          PasswordRecovery?
+  reservations              Reservation[]
 }
 
 model Address {
@@ -90,4 +91,14 @@ model Product {
   lowStockAlert   Boolean    @default(false)
   categoryId      Int?
   category        Category? @relation(fields: [categoryId], references: [id])
+  reservations     Reservation[]
+}
+
+model Reservation {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  productId  Int
+  quantity   Int
+  user       User     @relation(fields: [userId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
 }
