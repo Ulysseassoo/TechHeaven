@@ -2,10 +2,12 @@ import nodemailer from "nodemailer";
 import { COMPANY_MAIL } from "../constants/index.mjs";
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
+    host: process.env.SMTP_HOST || 'localhost',
+    port: process.env.SMTP_PORT || 1025,
     secure: false,
 });
+    console.log("🚀 ~ process.env.SMTP_PORT:", process.env.SMTP_PORT)
+    console.log("🚀 ~ process.env.SMTP_HOST:", process.env.SMTP_HOST)
 
 export const sendConfirmationEmail = async (userEmail, token) => {
     const mailOptions = {
@@ -18,6 +20,7 @@ export const sendConfirmationEmail = async (userEmail, token) => {
     try {
         await transporter.sendMail(mailOptions);
     } catch (error) {
+        console.log(error)
         throw Error("Erreur lors de l\'envoi de l\'email");
     }
 }

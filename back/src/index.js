@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import UserRoute from "./routes/users.mjs"
 import cron from "node-cron";
-import { db } from "./utils/db.server.mjs";
+import { postgresqlDb } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
 
 
@@ -24,8 +24,8 @@ app.use(cors());
 app.use("/api/", UserRoute);
 
 const checkPasswordRenewal = async () => {
-  const accountsToRenew = await db.user.findMany();
-
+  const accountsToRenew = await postgresqlDb.user.findMany();
+  
   for (let i = 0; i < accountsToRenew.length; i++) {
     const user = accountsToRenew[i];
     
