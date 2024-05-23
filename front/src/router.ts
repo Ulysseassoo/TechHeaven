@@ -4,12 +4,14 @@ import LoginView from './pages/LoginView.vue'
 import RegisterView from './pages/RegisterView.vue'
 import NotFoundView from './pages/NotFoundView.vue'
 import ConfirmationView from './pages/ConfirmationView.vue'
+import ResetPasswordView from "./pages/ResetPasswordView.vue"
 
 const routes : RouteRecordRaw[] = [
     { path: '/', name: "Home", component: HomeView },
     { path: '/login', name: "Login", component: LoginView, props: (route) => route.query.hasConfirmedAccount },
     { path: '/register', name: "Register", component: RegisterView },
     { path: '/confirmation', name: "Confirmation", component: ConfirmationView },
+    { path: '/forgot-password', name: "ResetPassword", component: ResetPasswordView },
     { path: '/:pathMatch(.*)', name: "NotFound", component: NotFoundView }
 ]
 

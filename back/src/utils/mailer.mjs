@@ -6,8 +6,6 @@ const transporter = nodemailer.createTransport({
     port: process.env.SMTP_PORT || 1025,
     secure: false,
 });
-    console.log("🚀 ~ process.env.SMTP_PORT:", process.env.SMTP_PORT)
-    console.log("🚀 ~ process.env.SMTP_HOST:", process.env.SMTP_HOST)
 
 export const sendConfirmationEmail = async (userEmail, token) => {
     const mailOptions = {
@@ -20,7 +18,6 @@ export const sendConfirmationEmail = async (userEmail, token) => {
     try {
         await transporter.sendMail(mailOptions);
     } catch (error) {
-        console.log(error)
         throw Error("Erreur lors de l\'envoi de l\'email");
     }
 }
@@ -64,15 +61,14 @@ export const sendPasswordRenewalNotification = async (userEmail) => {
     }
 }
 
-export const sendPasswordResetEmail = async (userEmail, token) => {
+export const sendPasswordResetEmail = async (userEmail, code) => {
     const mailOptions = {
         from: COMPANY_MAIL,
         to: userEmail,
         subject: 'Demande de réintialisation de mot de passe',
         html: `
         <h1>Réintialiser votre mot de passe</h1>
-        <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
-        <p><a href="${process.env.WEBSITE_URL}/reset/password/${token}">Changer mon mot de passe</a></p>
+        <p>Pour changer votre mot de passe, veuillez renseigner le code suivant : ${code}</p>
         <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
         <p>Merci,</p>
         <p>L'équipe de techheaven.com</p>

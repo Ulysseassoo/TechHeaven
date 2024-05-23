@@ -8,6 +8,38 @@ const replaceIdWithPostgresId = (data) => {
     return data;
 }
 
+const prepareDataForUpsert = ({ where, create }) => {
+    const { postgresId, user_id, ...restWhere } = where;
+    const { user_id: user_id_create, ...restCreate } = create;
+
+    const wherePostgres = {
+        ...restWhere,
+        user_id: postgresId,
+    };
+
+    const createPostgres = {
+        ...restCreate,
+        user_id: postgresId,
+    };
+
+    const whereMongo = {
+        ...restWhere,
+        user_id,
+    };
+
+    const createMongo = {
+        ...restCreate,
+        user_id: user_id_create,
+    };
+
+    return {
+        wherePostgres,
+        createPostgres,
+        whereMongo,
+        createMongo,
+    };
+};
+
 export const createData = async ({
     model,
     data,
@@ -82,15 +114,17 @@ export const upsertData = async ({
     update,
 }) => {
     try {
+        const { wherePostgres, createPostgres, whereMongo, createMongo } = prepareDataForUpsert({ where, create });
+
         const result = await postgresqlDb[model].upsert({
-            where,
-            create,
+            where: wherePostgres,
+            create: createPostgres,
             update
         });
 
         await mongoDb[model].upsert({
-            where: replaceIdWithPostgresId(where),
-            create,
+            where: whereMongo,
+            create: createMongo,
             update
         });
 
