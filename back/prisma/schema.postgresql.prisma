@@ -89,5 +89,6 @@ model Product {
   photo          String?
   stock_quantity Int
   categoryId     String?
+  lowStockAlert  Boolean   @default(false)
   category       Category? @relation(fields: [categoryId], references: [id])
 }

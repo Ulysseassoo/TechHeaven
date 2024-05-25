@@ -5,6 +5,29 @@ import { createData, deleteData, getIdMapping, updateData } from "../utils/sync.
 import { productValidator } from "../validator/productValidator.mjs";
 import { mongoDb } from "../utils/db.server.mjs";
 
+// Middleware pour vérifier et mettre à jour l'alerte de fin de stock
+const checkLowStockAlert = async (productId) => {
+    const product = await db.product.findUnique({
+        where: {
+            id: productId
+        }
+    });
+
+    const lowStockThreshold = 25; // Seuil de stock bas
+
+    if (product && product.stock_quantity <= lowStockThreshold) {
+        // Mettre à jour le champ lowStockAlert
+        await db.product.update({
+            where: {
+                id: productId
+            },
+            data: {
+                lowStockAlert: true
+            }
+        });
+    }
+};
+
 const router = express.Router();
 
 // Créer un nouveau produit
@@ -32,8 +55,10 @@ router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
                 name,
                 description,
                 price,
+                brand,
                 stock_quantity,
-                brand
+                lowStockAlert
+
             }
         });
 
@@ -78,10 +103,10 @@ router.get("/products/:id", async (req, res) => {
 });
 
 // Mettre à jour un produit
-router.put("/products/:id", shouldBeAdmin, productValidator, shouldBeAdmin, async (req, res) => {
+router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) => {
     const { id } = req.params;
 
-    const { name, description, price, stock_quantity } = req.body;
+    const { name, description, price, brand, stock_quantity, lowStockAlert } = req.body;
 
     try {
         const { mongoId } = await getIdMapping(id)
@@ -105,13 +130,40 @@ router.put("/products/:id", shouldBeAdmin, productValidator, shouldBeAdmin, asyn
                 name,
                 description,
                 price,
-                stock_quantity
+                brand,
+                stock_quantity,
+                lowStockAlert
             }
         });
 
         return res.status(200).json({ status: 200, data: updatedProduct });
     } catch (error) {
         return res.status(500).json({ status: 500, message: "Erreur lors de la mise à jour du produit", error: error.message });
+    }
+});
+
+// Route pour mettre à jour la quantité en stock d'un produit
+router.put("/products/:id/stock", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { quantity } = req.body;
+
+        // Mettre à jour la quantité en stock
+        await db.product.update({
+            where: {
+                id: parseInt(id)
+            },
+            data: {
+                stock_quantity: quantity
+            }
+        });
+
+        // Vérifier et mettre à jour l'alerte de fin de stock
+        await checkLowStockAlert(parseInt(id));
+
+        return res.status(200).json({ status: 200, message: "Quantité en stock mise à jour avec succès" });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la mise à jour de la quantité en stock", error: error.message });
     }
 });
 

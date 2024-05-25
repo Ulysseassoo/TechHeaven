@@ -83,6 +83,7 @@ model Product {
   promo          Float?
   photo          String?
   stock_quantity Int
+  lowStockAlert  Boolean   @default(false)
   categoryId     String?   @db.ObjectId
   category       Category? @relation(fields: [categoryId], references: [id])
 }
