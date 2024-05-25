@@ -1,7 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
-  output   = "./generated/mongodb-client"
+  output        = "./generated/mongodb-client"
 }
 
 datasource db {
@@ -11,7 +11,6 @@ datasource db {
 
 model User {
   id                        String            @id @default(auto()) @map("_id") @db.ObjectId
-  postgresId                String            @unique
   firstname                 String?
   lastname                  String?
   email                     String            @unique
@@ -20,6 +19,7 @@ model User {
   role                      String
   has_confirmed_account     Boolean           @default(false)
   created_at                DateTime          @default(now())
+  deleted_at                DateTime?
   last_updated_password     DateTime?
   number_connexion_attempts Int               @default(0)
   blocked_until             DateTime?
@@ -36,7 +36,7 @@ model Address {
   other       String?
   address     String
   is_selected String
-  user_id     String  @db.ObjectId // Foreign key to reference User
+  user_id     String  @db.ObjectId
   user        User    @relation(fields: [user_id], references: [id])
 }
 
@@ -49,12 +49,12 @@ model Alert {
 }
 
 model Preference {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  user_id   String  @db.ObjectId
-  alert_id  String  @db.ObjectId
-  status    Boolean
-  user      User    @relation(fields: [user_id], references: [id])
-  alert     Alert   @relation(fields: [alert_id], references: [id])
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  user_id  String  @db.ObjectId
+  alert_id String  @db.ObjectId
+  status   Boolean
+  user     User    @relation(fields: [user_id], references: [id])
+  alert    Alert   @relation(fields: [alert_id], references: [id])
 
   @@unique([user_id, alert_id])
 }
@@ -66,4 +66,28 @@ model PasswordRecovery {
   verification_code    String?
   user_id              String    @unique @db.ObjectId
   User                 User      @relation(fields: [user_id], references: [id])
+}
+
+model Category {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  products Product[] @relation(fields: [], references: [])
+}
+
+model Product {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  description    String
+  brand          String
+  price          Float
+  promo          Float?
+  photo          String?
+  stock_quantity Int
+  categoryId     String?   @db.ObjectId
+  category       Category? @relation(fields: [categoryId], references: [id])
+}
+
+model IdMapping {
+  postgresId String @unique
+  mongoId    String @id @map("_id") @db.ObjectId
 }

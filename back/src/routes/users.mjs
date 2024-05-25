@@ -1,5 +1,5 @@
 import express from "express";
-import { authValidator, resetPasswordValidator, userValidator, verifyValidator, changePasswordValidator } from "../validator/userValidator.mjs";
+import { authValidator, resetPasswordValidator, userValidator, verifyValidator, changePasswordValidator, confirmAccountValidator } from "../validator/userValidator.mjs";
 import bcrypt from "bcryptjs";
 import moment from 'moment';
 import { validationResult } from "express-validator";
@@ -7,7 +7,8 @@ import { mongoDb, postgresqlDb } from "../utils/db.server.mjs";
 import { sendConfirmationEmail, sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
-import { createData, deleteData, updateData, upsertData } from "../utils/sync.mjs";
+import { createData, getIdMapping, updateData, upsertData } from "../utils/sync.mjs";
+import { anonymizeUserData } from "../utils/anonym.mjs";
 
 const generateRandomCode = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -89,9 +90,11 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
     try {
+        const { mongoId } = await getIdMapping(id)
+
         const user = await mongoDb.user.findUnique({
             where: {
-                postgresId: id,
+                id: mongoId,
             }
         })
 
@@ -106,7 +109,7 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     } catch (error) {
         return res.status(401).send({
             status: 401,
-            message: error,
+            message: error.message || error,
         });
     }
 })
@@ -131,9 +134,11 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
     const { email, firstname, lastname, phone } = req.body;
 
     try {
+        const { mongoId } = await getIdMapping(id)
+
         const user = await mongoDb.user.findUnique({
             where: {
-                postgresId: id,
+                id: mongoId
             }
         })
 
@@ -144,7 +149,7 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
         const updatedUser = await updateData({
             model: "user",
             where: {
-                id: user.postgresId
+                id: mongoId
             },
             data: {
                 email,
@@ -169,7 +174,7 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
     } catch (error) {
         return res.status(401).send({
             status: 401,
-            message: error,
+            message: error.message || error,
         });
     }
 })
@@ -178,9 +183,11 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
     try {
+        const { mongoId } = await getIdMapping(id)
+
         const user = await mongoDb.user.findUnique({
             where: {
-                postgresId: id,
+                id: mongoId,
             }
         })
 
@@ -188,16 +195,21 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
         }
 
-        await deleteData({
+        if (user.deleted_at !== null) {
+            return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+        }
+
+        await updateData({
             model: "user",
             where: {
-                id
-            }
+                id: mongoId
+            },
+            data: anonymizeUserData()
         })
 
         return res.status(200).json({
             status: 200,
-            message: "Ok"
+            message: "Compte supprimé avec succès"
         })
     } catch (error) {
         return res.status(401).send({
@@ -207,7 +219,7 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.post("/verify", verifyValidator, async (req, res) => {
+router.post("/verify", confirmAccountValidator, async (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -232,9 +244,12 @@ router.post("/verify", verifyValidator, async (req, res) => {
                 if (decodedToken.type === 'confirmation') {
                     const userId = decodedToken.userId;
 
+                    const { mongoId } = await getIdMapping(userId)
+
+
                     const user = await mongoDb.user.findUnique({
                         where: {
-                            postgresId: userId,
+                            id: mongoId,
                         }
                     })
 
@@ -243,7 +258,7 @@ router.post("/verify", verifyValidator, async (req, res) => {
                             await updateData({
                                 model: "user",
                                 where: {
-                                    id: userId
+                                    id: mongoId
                                 },
                                 data: {
                                     has_confirmed_account: true,
@@ -293,7 +308,7 @@ router.post("/auth", async (req, res) => {
             await updateData({
                 model: "user",
                 where: {
-                    id: user.postgresId,
+                    id: user.id,
                 },
                 data: {
                     blocked_until: new Date(Date.now() + 15 * 60 * 1000),
@@ -309,7 +324,7 @@ router.post("/auth", async (req, res) => {
         await updateData({
             model: "user",
             where: {
-                id: user.postgresId,
+                id: user.id,
             },
             data: {
                 number_connexion_attempts: user.number_connexion_attempts + 1
@@ -323,7 +338,7 @@ router.post("/auth", async (req, res) => {
     updateData({
         model: "user",
         where: {
-            id: user.postgresId,
+            id: user.id,
         },
         data: {
             number_connexion_attempts: 0
@@ -367,7 +382,6 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
             model: "passwordRecovery",
             where: {
                 user_id: existingUser.id,
-                postgresId: existingUser.postgresId,
             },
             create: {
                 verification_code: code,
@@ -476,7 +490,7 @@ router.post("/change/password", changePasswordValidator, async (req, res) => {
             }
         })
 
-        if(!user) {
+        if (!user) {
             return res.status(400).json({ status: 400, message: "L'utilisateur est inexistant" });
         }
 
@@ -506,7 +520,7 @@ router.post("/change/password", changePasswordValidator, async (req, res) => {
         await updateData({
             model: "user",
             where: {
-                id: user.postgresId
+                id: user.id
             },
             data: {
                 password: passwordEncrypted,

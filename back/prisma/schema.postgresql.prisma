@@ -5,9 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
-  output   = "./generated/postgresql-client"
+  output        = "./generated/postgresql-client"
 }
 
 datasource db {
@@ -25,6 +25,7 @@ model User {
   role                      String
   has_confirmed_account     Boolean           @default(false)
   created_at                DateTime          @default(now())
+  deleted_at                DateTime?
   last_updated_password     DateTime?
   number_connexion_attempts Int               @default(0)
   blocked_until             DateTime?
@@ -34,7 +35,7 @@ model User {
 }
 
 model Address {
-  id          Int     @id
+  id          String  @id @unique @default(uuid())
   city        String
   country     String
   postal_code String
@@ -46,7 +47,7 @@ model Address {
 }
 
 model Alert {
-  id          Int          @id @default(autoincrement())
+  id          String       @id @unique @default(uuid())
   name        String
   type        String
   param       String?
@@ -55,7 +56,7 @@ model Alert {
 
 model Preference {
   user_id  String
-  alert_id Int
+  alert_id String
   status   Boolean
   user     User    @relation(fields: [user_id], references: [id])
   alert    Alert   @relation(fields: [alert_id], references: [id])
@@ -64,10 +65,29 @@ model Preference {
 }
 
 model PasswordRecovery {
-  id                   Int       @id @default(autoincrement())
+  id                   String    @id @unique @default(uuid())
   code_validation_time DateTime?
   last_request         DateTime?
   verification_code    String?
   User                 User      @relation(fields: [user_id], references: [id])
   user_id              String    @unique
+}
+
+model Category {
+  id       String    @id @unique @default(uuid())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id             String    @id @unique @default(uuid())
+  name           String
+  description    String
+  brand          String
+  price          Float
+  promo          Float?
+  photo          String?
+  stock_quantity Int
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
 }

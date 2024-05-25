@@ -24,6 +24,11 @@ export const authValidator = [
         .withMessage('Le mot de passe doit contenir au moins un symbole.')
 ];
 
+export const confirmAccountValidator = [
+    body("token").isJWT()
+
+]
+
 export const verifyValidator = [
     body("code").isString().isLength({ min: 1 }),
     body("email").isEmail()
