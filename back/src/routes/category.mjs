@@ -16,7 +16,7 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
                 name
             }
         });
-
+ 
         return res.status(201).json({ status: 201, data: category });
     } catch (error) {
         return res.status(500).json({ status: 500, message: "Erreur lors de la création de la catégorie", error: error.message });

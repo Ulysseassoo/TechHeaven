@@ -5,17 +5,69 @@ import { shouldBeAdmin } from "../middlewares/authentication.mjs";
 
 const router = express.Router();
 
-// Créer un nouveau produit
-router.post("/products", shouldBeAdmin, async (req, res) => {
+
+// Middleware pour vérifier et mettre à jour l'alerte de fin de stock
+const checkLowStockAlert = async (productId) => {
+    const product = await db.product.findUnique({
+        where: {
+            id: productId
+        }
+    });
+
+    const lowStockThreshold = 25; // Seuil de stock bas
+
+    if (product && product.stock_quantity <= lowStockThreshold) {
+        // Mettre à jour le champ lowStockAlert
+        await db.product.update({
+            where: {
+                id: productId
+            },
+            data: {
+                lowStockAlert: true
+            }
+        });
+    }
+};
+
+// Route pour mettre à jour la quantité en stock d'un produit
+router.put("/products/:id/stock", async (req, res) => {
     try {
-        const { name, description, price, quantity } = req.body;
+        const { id } = req.params;
+        const { quantity } = req.body;
+
+        // Mettre à jour la quantité en stock
+        await db.product.update({
+            where: {
+                id: parseInt(id)
+            },
+            data: {
+                stock_quantity: quantity
+            }
+        });
+
+        // Vérifier et mettre à jour l'alerte de fin de stock
+        await checkLowStockAlert(parseInt(id));
+
+        return res.status(200).json({ status: 200, message: "Quantité en stock mise à jour avec succès" });
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: "Erreur lors de la mise à jour de la quantité en stock", error: error.message });
+    }
+});
+
+// Créer un nouveau produit
+router.post("/products",  shouldBeAdmin,async (req, res) => {
+    try {
+        const { name, description, price, brand, stock_quantity, lowStockAlert } = req.body;
 
         const product = await db.product.create({
             data: {
                 name,
                 description,
                 price,
-                quantity
+                brand,
+                stock_quantity,
+                lowStockAlert
+
             }
         });
 
@@ -61,7 +113,7 @@ router.get("/products/:id", async (req, res) => {
 router.put("/products/:id", shouldBeAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, quantity } = req.body;
+        const { name, description, price, brand, stock_quantity, lowStockAlert } = req.body;
 
         const updatedProduct = await db.product.update({
             where: {
@@ -71,7 +123,9 @@ router.put("/products/:id", shouldBeAdmin, async (req, res) => {
                 name,
                 description,
                 price,
-                quantity
+                brand,
+                stock_quantity,
+                lowStockAlert
             }
         });
 
