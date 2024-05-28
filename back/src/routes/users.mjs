@@ -385,13 +385,13 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
             },
             create: {
                 verification_code: code,
-                code_validation_time: moment().utc().add(1, 'h').toDate(),
+                code_validation_time: moment().utc().add(5, 'min').toDate(),
                 user_id: existingUser.id,
                 last_request: moment().utc()
             },
             update: {
                 verification_code: code,
-                code_validation_time: moment().utc().add(1, 'h').toDate(),
+                code_validation_time: moment().utc().add(5, 'min').toDate(),
                 last_request: moment().utc()
             }
         })
