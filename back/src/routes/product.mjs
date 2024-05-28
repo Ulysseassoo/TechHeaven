@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
 import { createData, deleteData, getIdMapping, updateData } from "../utils/sync.mjs";
 import { productValidator } from "../validator/productValidator.mjs";
-import { mongoDb } from "../utils/db.server.mjs";
+import { mongoDb, postgresqlDb } from "../utils/db.server.mjs";
 
 // Middleware pour vérifier et mettre à jour l'alerte de fin de stock
 const checkLowStockAlert = async (productId) => {
@@ -149,7 +149,7 @@ router.put("/products/:id/stock", async (req, res) => {
         const { quantity } = req.body;
 
         // Mettre à jour la quantité en stock
-        await db.product.update({
+        await postgresqlDb.product.update({
             where: {
                 id: parseInt(id)
             },
