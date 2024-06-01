@@ -86,4 +86,28 @@ export const sendPasswordResetEmail = async (userEmail, token) => {
     }
 }
 
+export const sendInvoiceEmail = async (userEmail, invoice) => {
+    const mailOptions = {
+        from: COMPANY_MAIL,
+        to: userEmail,
+        subject: 'Votre Facture',
+        html: `
+        <h1>Votre Facture</h1>
+        <p>Bonjour,</p>
+        <p>Merci pour votre achat. Vous trouverez ci-dessous les détails de votre facture :</p>
+        <p>${invoice.details}</p>
+        <p>Montant total : ${invoice.amount}</p>
+        <p>Merci,</p>
+        <p>L'équipe de techheaven.com</p>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        throw new Error("Erreur lors de l'envoi de la facture par email");
+    }
+}
+
+
 export default transporter;

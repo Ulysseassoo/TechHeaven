@@ -2,6 +2,7 @@ import express from 'express';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { db } from '../utils/db.server.mjs';
+import { sendInvoiceEmail } from '../utils/mailer.mjs';
 
 const router = express.Router();
 
@@ -77,77 +78,28 @@ router.get('/invoices/:id/pdf', async (req, res) => {
     }
 });
 
-
-
-//////////////////////////////////////////////////////////
-/* Revoir la partie SEND MAIL problème de config google !! 
-//////////////////////////////////////////////////////////
-
 // Envoyer la facture par email
-router.post('/invoices/:id/email', async (req, res) => {
+router.post('/invoices/:invoiceId/email', async (req, res) => {
     try {
-        const { id } = req.params;
-
-        // Récupérer la facture
+        const invoiceId = parseInt(req.params.invoiceId, 10);
         const invoice = await db.invoice.findUnique({
-            where: { id: parseInt(id) },
-            include: { user: true, product: true }
+            where: { id: invoiceId },
+            include: { user: true },
         });
 
         if (!invoice) {
-            return res.status(404).json({ status: 404, message: "Facture non trouvée" });
+            return res.status(404).json({ status: 404, message: 'Invoice not found' });
         }
 
-        // Configurer Nodemailer
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: 'jphayek@yopmail.com',
-                pass: 'Jphayek123456@'
-            }
+        await sendInvoiceEmail(invoice.user.email, {
+            details: `Facture #${invoice.id}\nProduits: ...`,
+            amount: invoice.amount,
         });
 
-        // Générer le PDF
-        const doc = new PDFDocument();
-        let buffers = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', async () => {
-            let pdfData = Buffer.concat(buffers);
-
-            // Envoyer l'email avec la pièce jointe PDF
-            const mailOptions = {
-                from: 'jphayek@yopmail.com',
-                to: invoice.user.email,
-                subject: `Facture ${id}`,
-                text: `Bonjour, veuillez trouver ci-joint la facture ${id}.`,
-                attachments: [{
-                    filename: `invoice_${id}.pdf`,
-                    content: pdfData
-                }]
-            };
-
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    return res.status(500).json({ status: 500, message: "Erreur lors de l'envoi de l'email", error: error.message });
-                } else {
-                    return res.status(200).json({ status: 200, message: "Email envoyé avec succès", info });
-                }
-            });
-        });
-
-        doc.fontSize(25).text(`Facture ${id}`, { align: 'center' });
-        doc.fontSize(18).text(`Utilisateur: ${invoice.user.email}`);
-        doc.text(`Produit: ${invoice.product.name}`);
-        doc.text(`Quantité: ${invoice.quantity}`);
-        doc.text(`Montant: ${invoice.amount} EUR`);
-        doc.text(`Status: ${invoice.status}`);
-        doc.end();
+        res.status(200).json({ status: 200, message: 'Invoice email sent successfully' });
     } catch (error) {
-        return res.status(500).json({ status: 500, message: "Erreur lors de l'envoi de la facture par email", error: error.message });
+        res.status(500).json({ status: 500, message: 'Error sending invoice email', error: error.message });
     }
 });
-
-
-*/
 
 export default router;
