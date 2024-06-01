@@ -7,6 +7,8 @@ import categoryRoutes from "./routes/category.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
+import { connect } from 'mongoose';
+
 
 
 dotenv.config();
@@ -32,10 +34,10 @@ const checkPasswordRenewal = async () => {
 
   for (let i = 0; i < accountsToRenew.length; i++) {
     const user = accountsToRenew[i];
-    
+
     const lastPasswordChange = new Date(user.last_updated_password);
     const sixtyDaysAgo = new Date();
-    
+
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
     if (lastPasswordChange <= sixtyDaysAgo) {
@@ -51,6 +53,13 @@ cron.schedule('0 0 * * *', () => {
   console.log('Exécution de la vérification du renouvellement du mot de passe...');
   checkPasswordRenewal();
 });
+
+// Connect to mongo database
+connect(process.env.DATABASE_URL_MONGODB, {
+  useNewUrlParser: true,
+})
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 
 app.listen(PORT, "0.0.0.0", () => {
