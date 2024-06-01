@@ -5,8 +5,10 @@ import UserRoute from "./routes/users.mjs"
 import productRoutes from "./routes/product.mjs";
 import categoryRoutes from "./routes/category.mjs";
 import cron from "node-cron";
-import { postgresqlDb } from "./utils/db.server.mjs";
+import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
+import { connect } from 'mongoose';
+
 
 
 dotenv.config();
@@ -28,14 +30,14 @@ app.use("/api", productRoutes);
 app.use("/api", categoryRoutes);
 
 const checkPasswordRenewal = async () => {
-  const accountsToRenew = await postgresqlDb.user.findMany();
-  
+  const accountsToRenew = await db.user.findMany();
+
   for (let i = 0; i < accountsToRenew.length; i++) {
     const user = accountsToRenew[i];
-    
+
     const lastPasswordChange = new Date(user.last_updated_password);
     const sixtyDaysAgo = new Date();
-    
+
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
     if (lastPasswordChange <= sixtyDaysAgo) {
@@ -51,6 +53,13 @@ cron.schedule('0 0 * * *', () => {
   console.log('Exécution de la vérification du renouvellement du mot de passe...');
   checkPasswordRenewal();
 });
+
+// Connect to mongo database
+connect(process.env.DATABASE_URL_MONGODB, {
+  useNewUrlParser: true,
+})
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 
 app.listen(PORT, "0.0.0.0", () => {

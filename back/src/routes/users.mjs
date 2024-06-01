@@ -3,12 +3,13 @@ import { authValidator, resetPasswordValidator, userValidator, verifyValidator, 
 import bcrypt from "bcryptjs";
 import moment from 'moment';
 import { validationResult } from "express-validator";
-import { mongoDb, postgresqlDb } from "../utils/db.server.mjs";
+import { db } from "../utils/db.server.mjs";
 import { sendConfirmationEmail, sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
 import { createData, getIdMapping, updateData, upsertData } from "../utils/sync.mjs";
 import { anonymizeUserData } from "../utils/anonym.mjs";
+import User from "../models/User.mjs";
 
 const generateRandomCode = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -43,7 +44,7 @@ router.post("/users", authValidator, async (req, res) => {
 
         const { email, password, firstname, lastname } = req.body;
 
-        const existingUser = await postgresqlDb.user.findUnique({
+        const existingUser = await db.user.findUnique({
             where: {
                 email,
             },
@@ -90,12 +91,10 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
     try {
-        const { mongoId } = await getIdMapping(id)
+        const { _id } = await getIdMapping(id)
 
-        const user = await mongoDb.user.findUnique({
-            where: {
-                id: mongoId,
-            }
+        const user = await User.findOne({
+            _id,
         })
 
         if (!user) {
@@ -104,9 +103,10 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
 
         return res.status(200).json({
             status: 200,
-            data: user
+            data: user.toClient()
         })
     } catch (error) {
+        console.log("🚀 ~ router.get ~ error:", error)
         return res.status(401).send({
             status: 401,
             message: error.message || error,
@@ -134,11 +134,11 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
     const { email, firstname, lastname, phone } = req.body;
 
     try {
-        const { mongoId } = await getIdMapping(id)
+        const { postgresId } = await getIdMapping(id)
 
-        const user = await mongoDb.user.findUnique({
+        const user = await db.user.findUnique({
             where: {
-                id: mongoId
+                id: postgresId
             }
         })
 
@@ -149,7 +149,7 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
         const updatedUser = await updateData({
             model: "user",
             where: {
-                id: mongoId
+                id: postgresId
             },
             data: {
                 email,
@@ -183,11 +183,11 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
     try {
-        const { mongoId } = await getIdMapping(id)
+        const { postgresId } = await getIdMapping(id)
 
-        const user = await mongoDb.user.findUnique({
+        const user = await db.user.findUnique({
             where: {
-                id: mongoId,
+                id: postgresId,
             }
         })
 
@@ -202,7 +202,7 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
         await updateData({
             model: "user",
             where: {
-                id: mongoId
+                id: postgresId
             },
             data: anonymizeUserData()
         })
@@ -244,12 +244,12 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
                 if (decodedToken.type === 'confirmation') {
                     const userId = decodedToken.userId;
 
-                    const { mongoId } = await getIdMapping(userId)
+                    const { postgresId } = await getIdMapping(userId)
 
 
-                    const user = await mongoDb.user.findUnique({
+                    const user = await db.user.findUnique({
                         where: {
-                            id: mongoId,
+                            id: postgresId,
                         }
                     })
 
@@ -258,7 +258,7 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
                             await updateData({
                                 model: "user",
                                 where: {
-                                    id: mongoId
+                                    id: postgresId
                                 },
                                 data: {
                                     has_confirmed_account: true,
@@ -287,7 +287,7 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
 
 router.post("/auth", async (req, res) => {
     const { email, password } = req.body;
-    const user = await mongoDb.user.findUnique({ where: { email } });
+    const user = await db.user.findUnique({ where: { email } });
 
     if (!user) {
         return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
@@ -335,7 +335,7 @@ router.post("/auth", async (req, res) => {
 
     const token = generateSessionToken(user.postgresId, user.role);
 
-    updateData({
+    await updateData({
         model: "user",
         where: {
             id: user.id,
@@ -366,7 +366,7 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
     const { email } = req.body;
     try {
 
-        const existingUser = await mongoDb.user.findUnique({
+        const existingUser = await db.user.findUnique({
             where: {
                 email,
             },
@@ -385,13 +385,13 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
             },
             create: {
                 verification_code: code,
-                code_validation_time: moment().utc().add(5, 'min').toDate(),
+                code_validation_time: moment().utc().add(5, 'm').toDate(),
                 user_id: existingUser.id,
                 last_request: moment().utc()
             },
             update: {
                 verification_code: code,
-                code_validation_time: moment().utc().add(5, 'min').toDate(),
+                code_validation_time: moment().utc().add(5, 'm').toDate(),
                 last_request: moment().utc()
             }
         })
@@ -423,7 +423,7 @@ router.post("/verify/code", verifyValidator, async (req, res) => {
     const { code, email } = req.body;
 
     try {
-        const user = await mongoDb.user.findFirst({
+        const user = await db.user.findFirst({
             where: {
                 email,
             }
@@ -436,13 +436,20 @@ router.post("/verify/code", verifyValidator, async (req, res) => {
             });
         }
 
-        const passwordRecovery = await mongoDb.passwordRecovery.findUnique({
+        const passwordRecovery = await db.passwordRecovery.findUnique({
             where: {
                 user_id: user.id
             }
         })
 
         if (!passwordRecovery) {
+            return res.status(401).send({
+                status: 401,
+                message: "Le code a expiré",
+            });
+        }
+
+        if (passwordRecovery.verification_code !== code) {
             return res.status(401).send({
                 status: 401,
                 message: "Le code a expiré",
@@ -484,7 +491,7 @@ router.post("/change/password", changePasswordValidator, async (req, res) => {
     const { password, email } = req.body;
 
     try {
-        const user = await mongoDb.user.findUnique({
+        const user = await db.user.findUnique({
             where: {
                 email,
             }
@@ -494,13 +501,20 @@ router.post("/change/password", changePasswordValidator, async (req, res) => {
             return res.status(400).json({ status: 400, message: "L'utilisateur est inexistant" });
         }
 
-        const passwordRecovery = await mongoDb.passwordRecovery.findUnique({
+        const passwordRecovery = await db.passwordRecovery.findUnique({
             where: {
                 user_id: user.id,
             }
         })
 
         if (!passwordRecovery) {
+            return res.status(401).send({
+                status: 401,
+                message: "Le code a expiré",
+            });
+        }
+
+        if (passwordRecovery.verification_code !== code) {
             return res.status(401).send({
                 status: 401,
                 message: "Le code a expiré",

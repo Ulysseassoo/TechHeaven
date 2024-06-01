@@ -2,8 +2,9 @@ import express from "express";
 import { validationResult } from "express-validator";
 // import { db } from "../utils/db.server.mjs";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
-import { createData, deleteData, updateData } from "../utils/sync.mjs";
-import { mongoDb } from "../utils/db.server.mjs";
+import { createData, deleteData, getIdMapping, updateData } from "../utils/sync.mjs";
+import { db } from "../utils/db.server.mjs";
+import Category from "../models/Category.mjs";
 
 
 const router = express.Router();
@@ -14,6 +15,7 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
         const { name } = req.body;
 
         const category = await createData({
+            model: "category",
             data: {
                 name
             }
@@ -25,10 +27,10 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
     }
 });
 
-// // Récupérer toutes les catégories
+// Récupérer toutes les catégories
 router.get("/categories", async (req, res) => {
     try {
-        const categories = await mongoDb.category.findMany();
+        const categories = await Category.findToClient({});
 
         return res.status(200).json({ status: 200, data: categories });
     } catch (error) {
@@ -36,18 +38,14 @@ router.get("/categories", async (req, res) => {
     }
 });
 
-// // Récupérer une catégorie par son ID
+// Récupérer une catégorie par son ID
 router.get("/categories/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { mongoId } = await getIdMapping(id)
+        const { _id } = await getIdMapping(id)
 
-        const category = await mongoDb.category.findUnique({
-            where: {
-                id: mongoId
-            }
-        });
+        const category = await Category.findById(_id);
 
         if (!category) {
             return res.status(404).json({ status: 404, message: "Catégorie non trouvée" });
@@ -59,17 +57,18 @@ router.get("/categories/:id", async (req, res) => {
     }
 });
 
-// // Mettre à jour une catégorie
+// Mettre à jour une catégorie
 router.put("/categories/:id", shouldBeAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
 
-        const { mongoId } = await getIdMapping(id)
+        const { postgresId } = await getIdMapping(id)
 
         const updatedCategory = await updateData({
+            model: "category",
             where: {
-                id: mongoId
+                id: postgresId
             },
             data: {
                 name
@@ -82,17 +81,17 @@ router.put("/categories/:id", shouldBeAdmin, async (req, res) => {
     }
 });
 
-// // Supprimer une catégorie
+// Supprimer une catégorie
 router.delete("/categories/:id", shouldBeAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { mongoId } = await getIdMapping(id)
-
+        const { postgresId } = await getIdMapping(id)
 
         await deleteData({
+            model: "category",
             where: {
-                id: mongoId
+                id: postgresId
             }
         });
 

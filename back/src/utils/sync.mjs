@@ -1,4 +1,6 @@
-import { mongoDb, postgresqlDb } from "../utils/db.server.mjs";
+import IdMapping from "../models/IdMapping.mjs";
+import { db } from "../utils/db.server.mjs";
+import { getModel } from "./models.mjs";
 
 const isMongoId = (id) => {
     const objectIdRegex = /^[a-f\d]{24}$/i;
@@ -14,12 +16,17 @@ export const getIdMapping = async (id) => {
     try {
         const where = {
             postgresId: isMongoId(id) ? undefined : id,
-            mongoId: isMongoId(id) ? id : undefined
+            _id: isMongoId(id) ? id : undefined
         }
 
-        const idMapping = await mongoDb.idMapping.findUnique({
-            where
-        });
+        const validWhere = Object.keys(where).reduce((obj, key) => {
+            if (where[key] !== undefined) {
+                obj[key] = where[key];
+            }
+            return obj;
+        }, {});
+
+        const idMapping = await IdMapping.findOne(validWhere);
 
         if (!idMapping) {
             throw Error("Utilisateur inexistant")
@@ -31,14 +38,6 @@ export const getIdMapping = async (id) => {
     }
 };
 
-const replaceIdWithPostgresId = (data, model) => {
-    if (data.hasOwnProperty('id') && model === "user") {
-        const { id, ...rest } = data;
-        return { postgresId: id, ...rest };
-    }
-    return data;
-}
-
 const formatWhereObject = async (where, databaseName) => {
     const formattedWhere = { ...where };
 
@@ -46,13 +45,29 @@ const formatWhereObject = async (where, databaseName) => {
         if (key !== "email" && where[key]) {
             const idMapping = await getIdMapping(where[key]);
             if (idMapping) {
-                formattedWhere[key] = databaseName === "mongo" ? idMapping.mongoId : idMapping.postgresId;
+                formattedWhere[key] = databaseName === "mongo" ? idMapping._id : idMapping.postgresId;
+            }
+
+            if (key === "id" && databaseName === "mongo") {
+                formattedWhere["_id"] = formattedWhere[key];
+                delete formattedWhere[key];
             }
         }
     }
     return formattedWhere;
 }
 
+
+async function upsertMongo(model, where, create, update) {
+    const Model = await getModel(model);
+
+    const data = { ...create, ...update };
+
+    await Model.findOneAndUpdate(where, data, {
+        upsert: true,
+    });
+
+}
 const formatCreateObject = async (create, databaseName) => {
     const formattedCreate = { ...create };
 
@@ -84,27 +99,37 @@ const prepareDataForUpsert = async ({ where, create }) => {
     };
 };
 
+/**
+ * Function to create a new record in the specified model.
+ * It also creates a corresponding record in the MongoDB database and updates the IdMapping.
+ *
+ * @param {Object} params - The parameters for creating a new record.
+ * @param {string} params.model - The name of the model to create the record in.
+ * @param {Object} params.data - The data to be inserted into the model.
+ * @param {Object} params.select - The fields to be selected from the created record.
+ *
+ * @returns {Promise<Object>} - A promise that resolves to the created record.
+ *
+ * @throws {Error} - If any error occurs during the creation process.
+ */
 export const createData = async ({
     model,
     data,
     select,
 }) => {
     try {
-        const result = await postgresqlDb[model].create({
+        const Model = await getModel(model);
+
+        const result = await db[model].create({
             select,
             data
         });
 
-        const mongoResult = await mongoDb[model].create({
-            data
-        });
+        const mongoResult = new Model(data)
+        await mongoResult.save();
 
-        await mongoDb.idMapping.create({
-            data: {
-                postgresId: result.id,
-                mongoId: mongoResult.id
-            }
-        })
+        const idMapping = new IdMapping({ postgresId: result.id, _id: mongoResult.id });
+        await idMapping.save();
 
         return result;
 
@@ -120,16 +145,16 @@ export const updateData = async ({
     data,
 }) => {
     try {
-        const result = await postgresqlDb[model].update({
+        const Model = await getModel(model);
+
+        const result = await db[model].update({
             where: await formatWhereObject(where, "postgres"),
             select: select !== undefined ? select : undefined,
             data
         });
 
-        await mongoDb[model].update({
-            where: await formatWhereObject(where, "mongo"),
-            data
-        });
+        const whereMongo = await formatWhereObject(where, "mongo");
+        await Model.findOneAndUpdate(whereMongo, data);
 
         return result;
     } catch (error) {
@@ -142,19 +167,19 @@ export const deleteData = async ({
     where,
 }) => {
     try {
-        await postgresqlDb[model].delete({
+
+        const Model = await getModel(model);
+        await db[model].delete({
             where: await formatWhereObject(where, "postgres"),
         });
 
-        await mongoDb[model].delete({
-            where: await formatWhereObject(where, "mongo"),
-        });
+        const whereMongo = await formatWhereObject(where, "mongo");
 
-        await mongoDb.idMapping.delete({
-            where: {
-                mongoId: where.id
-            }
-        })
+        await Model.deleteOne(whereMongo);
+
+        await IdMapping.deleteOne({
+            postgresId: where.id
+        });
     } catch (error) {
         throw error
     }
@@ -169,17 +194,13 @@ export const upsertData = async ({
     try {
         const { wherePostgres, createPostgres, whereMongo, createMongo } = await prepareDataForUpsert({ where, create });
 
-        const result = await postgresqlDb[model].upsert({
+        const result = await db[model].upsert({
             where: wherePostgres,
             create: createPostgres,
             update
         });
 
-        await mongoDb[model].upsert({
-            where: whereMongo,
-            create: createMongo,
-            update
-        });
+        await upsertMongo(model, whereMongo, createMongo, update);
 
         return result;
     } catch (error) {

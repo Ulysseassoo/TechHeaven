@@ -1,21 +1,11 @@
-import { PrismaClient as PostgresqlClient } from "../../prisma/generated/postgresql-client/index.js"
-import { PrismaClient as MongodbClient } from '../../prisma/generated/mongodb-client/index.js';
-
-
+import { PrismaClient } from '@prisma/client'
 // Avoid multiple connections to the database
-/** @type {PostgresqlClient} */
-let postgresqlDb = new PostgresqlClient();
+let db = new PrismaClient();
 
-/** @type {MongodbClient} */
-let mongoDb = new MongodbClient();
-
-
-if (!global.__mongoDb && !global.__postgreDb) {
-    global.__mongoDb = new MongodbClient()
-    global.__postgreDb = new PostgresqlClient()
+if (!global.__db) {
+    global.__db = new PrismaClient()
 }
 
-postgresqlDb = global.__postgreDb
-mongoDb = global.__mongoDb
+db = global.__db
 
-export { postgresqlDb, mongoDb }
+export { db }
