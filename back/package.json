@@ -8,7 +8,11 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "generate": "npx prisma generate",
-    "deploy": "npx prisma migrate deploy"
+    "deploy": "npx prisma migrate deploy",
+    "reset": "npx prisma migrate reset"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "author": "",
   "license": "ISC",
