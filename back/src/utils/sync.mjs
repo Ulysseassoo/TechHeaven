@@ -138,6 +138,20 @@ export const createData = async ({
     }
 }
 
+/**
+ * Function to update a record in the specified model.
+ * It also updates the corresponding record in the MongoDB database.
+ *
+ * @param {Object} params - The parameters for updating a record.
+ * @param {string} params.model - The name of the model to update the record in.
+ * @param {Object} params.where - The conditions to identify the record to update.
+ * @param {Object} params.select - The fields to be selected from the updated record.
+ * @param {Object} params.data - The data to be updated in the record.
+ *
+ * @returns {Promise<Object>} - A promise that resolves to the updated record.
+ *
+ * @throws {Error} - If any error occurs during the update process.
+ */
 export const updateData = async ({
     model,
     where,
@@ -162,6 +176,18 @@ export const updateData = async ({
     }
 }
 
+/**
+ * Function to delete a record from the specified model.
+ * It also deletes the corresponding record from the MongoDB database and in the IdMapping.
+ *
+ * @param {Object} params - The parameters for deleting a record.
+ * @param {string} params.model - The name of the model to delete the record from.
+ * @param {Object} params.where - The conditions to identify the record to delete.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the deletion is complete.
+ *
+ * @throws {Error} - If any error occurs during the deletion process.
+ */
 export const deleteData = async ({
     model,
     where,
@@ -185,6 +211,19 @@ export const deleteData = async ({
     }
 }
 
+/**
+ * Function to upsert (update or insert) a record in the specified model.
+ *
+ * @param {Object} params - The parameters for upserting a record.
+ * @param {string} params.model - The name of the model to upsert the record in.
+ * @param {Object} params.where - The conditions to identify the record to upsert.
+ * @param {Object} params.create - The data to be inserted if the record does not exist.
+ * @param {Object} params.update - The data to be updated if the record exists.
+ *
+ * @returns {Promise<Object>} - A promise that resolves to the upserted record.
+ *
+ * @throws {Error} - If any error occurs during the upsert process.
+ */
 export const upsertData = async ({
     model,
     where,
