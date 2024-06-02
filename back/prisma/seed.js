@@ -26,7 +26,7 @@ async function main() {
 
     const passwordEncrypted = bcrypt.hashSync("Adminadmin12!", salt);
 
-    const user1 = await createData({
+    await createData({
         model: 'user',
         data: {
             firstname: 'gouenji',
@@ -35,6 +35,7 @@ async function main() {
             role: "ROLE_ADMIN",
             password: passwordEncrypted,
             last_updated_password: new Date(),
+            has_confirmed_account: true
         },
     });
 }

@@ -87,6 +87,40 @@ router.post("/users", authValidator, async (req, res) => {
     }
 });
 
+router.get("/users", shouldBeAdmin, async (req, res) => {
+    try {
+        const { page = 1, limit = 10, search } = req.query;
+        const query = {};
+
+        if (search !== undefined && search !== "") {
+            const searchQuery = new RegExp(search, 'i');
+            query.$or = [
+                { email: { $regex: searchQuery } },
+                { firstname: { $regex: searchQuery } },
+                { lastname: { $regex: searchQuery } }
+            ]
+        }
+
+        const users = await User.findToClient(query, page, limit);
+
+        const count = await User.countDocuments(query);
+
+        return res.status(200).json({
+            status: 200,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalCount: count,
+            data: users
+        })
+
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
+
 router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
