@@ -91,10 +91,7 @@ router.post('/invoices/:invoiceId/email', async (req, res) => {
             return res.status(404).json({ status: 404, message: 'Invoice not found' });
         }
 
-        await sendInvoiceEmail(invoice.user.email, {
-            details: `Facture #${invoice.id}\nProduits: ...`,
-            amount: invoice.amount,
-        });
+        await sendInvoiceEmail(invoice.user.email, invoice);
 
         res.status(200).json({ status: 200, message: 'Invoice email sent successfully' });
     } catch (error) {
