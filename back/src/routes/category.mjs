@@ -1,7 +1,10 @@
 import express from "express";
 import { validationResult } from "express-validator";
-import { db } from "../utils/db.server.mjs";
+// import { db } from "../utils/db.server.mjs";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
+import { createData, deleteData, getIdMapping, updateData } from "../utils/sync.mjs";
+import { db } from "../utils/db.server.mjs";
+import Category from "../models/Category.mjs";
 
 
 const router = express.Router();
@@ -11,12 +14,13 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
     try {
         const { name } = req.body;
 
-        const category = await db.category.create({
+        const category = await createData({
+            model: "category",
             data: {
                 name
             }
         });
- 
+
         return res.status(201).json({ status: 201, data: category });
     } catch (error) {
         return res.status(500).json({ status: 500, message: "Erreur lors de la création de la catégorie", error: error.message });
@@ -26,7 +30,7 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
 // Récupérer toutes les catégories
 router.get("/categories", async (req, res) => {
     try {
-        const categories = await db.category.findMany();
+        const categories = await Category.findToClient({});
 
         return res.status(200).json({ status: 200, data: categories });
     } catch (error) {
@@ -39,11 +43,9 @@ router.get("/categories/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const category = await db.category.findUnique({
-            where: {
-                id: parseInt(id)
-            }
-        });
+        const { _id } = await getIdMapping(id)
+
+        const category = await Category.findById(_id);
 
         if (!category) {
             return res.status(404).json({ status: 404, message: "Catégorie non trouvée" });
@@ -61,9 +63,12 @@ router.put("/categories/:id", shouldBeAdmin, async (req, res) => {
         const { id } = req.params;
         const { name } = req.body;
 
-        const updatedCategory = await db.category.update({
+        const { postgresId } = await getIdMapping(id)
+
+        const updatedCategory = await updateData({
+            model: "category",
             where: {
-                id: parseInt(id)
+                id: postgresId
             },
             data: {
                 name
@@ -81,9 +86,12 @@ router.delete("/categories/:id", shouldBeAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
-        await db.category.delete({
+        const { postgresId } = await getIdMapping(id)
+
+        await deleteData({
+            model: "category",
             where: {
-                id: parseInt(id)
+                id: postgresId
             }
         });
 

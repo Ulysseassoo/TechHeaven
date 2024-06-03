@@ -24,8 +24,15 @@ export const authValidator = [
         .withMessage('Le mot de passe doit contenir au moins un symbole.')
 ];
 
-export const verifyValidator = [
+export const confirmAccountValidator = [
     body("token").isJWT()
+
+]
+
+export const verifyValidator = [
+    body("code").isString().isLength({ min: 1 }),
+    body("email").isEmail()
+
 ]
 
 export const resetPasswordValidator = [
@@ -33,17 +40,6 @@ export const resetPasswordValidator = [
 ]
 
 export const changePasswordValidator = [
-    body("oldPassword")
-        .isLength({ min: 12 })
-        .withMessage('Le mot de passe doit contenir au moins 12 caractères.')
-        .matches(/[a-z]/)
-        .withMessage('Le mot de passe doit contenir au moins une lettre minuscule.')
-        .matches(/[A-Z]/)
-        .withMessage('Le mot de passe doit contenir au moins une lettre majuscule.')
-        .matches(/\d/)
-        .withMessage('Le mot de passe doit contenir au moins un chiffre.')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/)
-        .withMessage('Le mot de passe doit contenir au moins un symbole.'),
     body("password")
         .isLength({ min: 12 })
         .withMessage('Le mot de passe doit contenir au moins 12 caractères.')
@@ -54,5 +50,6 @@ export const changePasswordValidator = [
         .matches(/\d/)
         .withMessage('Le mot de passe doit contenir au moins un chiffre.')
         .matches(/[!@#$%^&*(),.?":{}|<>]/)
-        .withMessage('Le mot de passe doit contenir au moins un symbole.')
+        .withMessage('Le mot de passe doit contenir au moins un symbole.'),
+    body("email").isEmail().withMessage("L'email doit être valide.")
 ];

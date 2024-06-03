@@ -20,7 +20,7 @@
         stdin_open: true
         working_dir: /home/node
         entrypoint: sh -c
-        command: '"npm install && npx prisma generate && npx prisma migrate deploy && npm run dev"'
+        command: '"npm install && npm run generate && npm run deploy && npm run dev"'
         ports:
           - 8000:8000
         volumes:
@@ -31,8 +31,10 @@
           - JWT_SECRET=${JWT_SECRET}
           - SMTP_HOST=${SMTP_HOST}
           - SMTP_PORT=${SMTP_PORT}
+          - DATABASE_URL_MONGODB=${DATABASE_URL_MONGODB}
         depends_on:
           - db
+          - mongo
           
       db:
         image: postgres:14
@@ -63,8 +65,20 @@
         ports:
           - 1080:1080
           - 1025:1025
+      mongo:
+        image: mongo:7.0
+        command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+        ports:
+          - 27017:27017
+        extra_hosts:
+          - "host.docker.internal:host-gateway"
+        volumes:
+          - "mongo_data:/data/db"
+          - "mongo_config:/data/configdb"
         
     volumes:
       postgres-data:
       pgadmin-data:
+      mongo_data:
+      mongo_config:
     

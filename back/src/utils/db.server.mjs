@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 // Avoid multiple connections to the database
 let db = new PrismaClient();
 
