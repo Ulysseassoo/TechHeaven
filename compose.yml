@@ -15,7 +15,7 @@
     
       server:
         image: node:20.0.0-alpine
-        user: node
+        user: root
         tty: true
         stdin_open: true
         working_dir: /home/node
