@@ -3,8 +3,15 @@ import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { db } from '../utils/db.server.mjs';
 import { sendInvoiceEmail } from '../utils/mailer.mjs';
+import Stripe from 'stripe';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = express.Router();
+//const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // A revoir cette methode pour cacher le clé secrete
+const stripe = new Stripe('sk_test_IWXNNdz4d5fdHLA362PzpJGS00G15qtESV');
+
 
 // Créer une nouvelle facture
 router.post('/invoices', async (req, res) => {
@@ -98,5 +105,30 @@ router.post('/invoices/:invoiceId/email', async (req, res) => {
         res.status(500).json({ status: 500, message: 'Error sending invoice email', error: error.message });
     }
 });
+
+// Endpoint pour initier un paiement
+router.post("/invoices/:invoiceId/pay", async (req, res) => {
+    const { invoiceId } = req.params;
+  
+    try {
+      const invoice = await db.invoice.findUnique({
+        where: { id: parseInt(invoiceId) },
+      });
+  
+      if (!invoice) {
+        return res.status(404).json({ message: "Facture non trouvée" });
+      }
+  
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: invoice.amount * 100, // montant en centimes
+        currency: "eur",
+        metadata: { invoiceId: invoice.id },
+      });
+  
+      return res.status(201).json({ clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+      return res.status(500).json({ message: "Erreur lors de l'initiation du paiement", error: error.message });
+    }
+  });
 
 export default router;
