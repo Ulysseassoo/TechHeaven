@@ -4,6 +4,7 @@ import cors from "cors";
 import UserRoute from "./routes/users.mjs"
 import productRoutes from "./routes/product.mjs";
 import categoryRoutes from "./routes/category.mjs";
+import invoiceRoutes from "./routes/invoice.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
@@ -28,6 +29,7 @@ app.use(cors());
 app.use("/api/", UserRoute);
 app.use("/api", productRoutes);
 app.use("/api", categoryRoutes);
+app.use("/api", invoiceRoutes);
 
 const checkPasswordRenewal = async () => {
   const accountsToRenew = await db.user.findMany();

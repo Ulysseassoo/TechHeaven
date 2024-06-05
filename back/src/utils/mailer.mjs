@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { COMPANY_MAIL } from "../constants/index.mjs";
-
+import { generateInvoicePDF } from './pdfGenerator.mjs';
+import fs from 'fs';
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'localhost',
     port: process.env.SMTP_PORT || 1025,
@@ -81,5 +82,40 @@ export const sendPasswordResetEmail = async (userEmail, code) => {
         throw Error("Erreur lors de l\'envoi de l\'email");
     }
 }
+
+export const sendInvoiceEmail = async (userEmail, invoice) => {
+    const pdfPath = generateInvoicePDF(invoice);
+    
+    const mailOptions = {
+        from: COMPANY_MAIL,
+        to: userEmail,
+        subject: 'Votre Facture',
+        html: `
+        <h1>Votre Facture</h1>
+        <p>Bonjour,</p>
+        <p>Merci pour votre achat. Vous trouverez ci-dessous les détails de votre facture en pièce jointe :</p>
+        <p>Montant total : ${invoice.amount}</p>
+        <p>Merci,</p>
+        <p>L'équipe de techheaven.com</p>
+        `,
+        attachments: [
+            {
+                filename: `invoice_${invoice.id}.pdf`,
+                path: pdfPath,
+                contentType: 'application/pdf'
+            }
+        ]
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        throw new Error("Erreur lors de l'envoi de la facture par email");
+    } finally {
+        // Supprimer le fichier PDF après envoi pour éviter d'encombrer le disque
+        fs.unlinkSync(pdfPath);
+    }
+}
+
 
 export default transporter;
