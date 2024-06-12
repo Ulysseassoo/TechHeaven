@@ -8,8 +8,17 @@ import { createVuetify } from 'vuetify'
 import customTheme from './plugins/vuetify'
 import router from './router'
 import '@mdi/font/css/materialdesignicons.css' 
+import '@fortawesome/fontawesome-free/css/all.css'
+import { aliases, fa } from 'vuetify/iconsets/fa'
 
 const vuetify = createVuetify({
+  icons: {
+    defaultSet: 'fa',
+    aliases,
+    sets: {
+      fa,
+    },
+  },
   components,
   directives,
   theme: {
