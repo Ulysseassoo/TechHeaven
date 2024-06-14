@@ -131,4 +131,60 @@ router.post("/invoices/:invoiceId/pay", async (req, res) => {
     }
   });
 
+  router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+  
+    try {
+      // Parse the raw body to get the JSON payload
+      const rawBody = req.body.toString();
+      event = JSON.parse(rawBody);
+    } catch (err) {
+      console.log(`Webhook Error: ${err.message}`);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  
+    if (event.type === 'payment_intent.succeeded') {
+      const paymentIntent = event.data.object;
+      const invoiceId = paymentIntent.metadata.invoiceId;
+  
+      try {
+        const invoice = await db.invoice.update({
+          where: { id: parseInt(invoiceId) },
+          data: { status: 'paid' },
+        });
+  
+        // Send the invoice email
+        await sendInvoiceEmail(invoice.userEmail, invoice);
+  
+        console.log(`Invoice ${invoiceId} marked as paid.`);
+        return res.status(200).send({ received: true });
+      } catch (error) {
+        console.error(`Error updating invoice ${invoiceId}: ${error.message}`);
+        return res.status(500).send({ error: error.message });
+      }
+    }
+  
+    if (event.type === 'payment_intent.payment_failed') {
+      const paymentIntent = event.data.object;
+      const invoiceId = paymentIntent.metadata.invoiceId;
+  
+      try {
+        await db.invoice.update({
+          where: { id: parseInt(invoiceId) },
+          data: { status: 'failed' },
+        });
+  
+        console.log(`Invoice ${invoiceId} marked as failed.`);
+        return res.status(200).send({ received: true });
+      } catch (error) {
+        console.error(`Error updating invoice ${invoiceId}: ${error.message}`);
+        return res.status(500).send({ error: error.message });
+      }
+    }
+  
+    res.status(200).send({ received: true });
+  });
+  
+
 export default router;
