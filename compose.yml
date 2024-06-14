@@ -1,84 +1,81 @@
----
-    version: "3.8"
-    
-    services:
-      client:
-        image: node:20.0.0-alpine
-        user: node
-        entrypoint: sh -c
-        working_dir: /home/node
-        command: '"npm install && npm run dev"'
-        ports:
-          - 5173:5173
-        volumes:
-          - ./front:/home/node
-    
-      server:
-        image: node:20.0.0-alpine
-        user: root
-        tty: true
-        stdin_open: true
-        working_dir: /home/node
-        entrypoint: sh -c
-        command: '"npm install && npm run generate && npm run deploy && npm run dev"'
-        ports:
-          - 8000:8000
-        volumes:
-          - ./back:/home/node
-        environment:
-          - DATABASE_URL=${DATABASE_URL}
-          - PORT=${PORT}
-          - JWT_SECRET=${JWT_SECRET}
-          - SMTP_HOST=${SMTP_HOST}
-          - SMTP_PORT=${SMTP_PORT}
-          - DATABASE_URL_MONGODB=${DATABASE_URL_MONGODB}
-        depends_on:
-          - db
-          - mongo
-          
-      db:
-        image: postgres:14
-        environment:
-          - POSTGRES_DB=${POSTGRES_DB}
-          - POSTGRES_USER=${POSTGRES_USER}
-          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        volumes:
-          - postgres-data:/var/lib/postgresql/data
-        ports:
-          - 5432:5432
-
-      pgadmin:
-        image: dpage/pgadmin4
-        environment:
-          - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-          - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-        ports:
-          - 16543:80
-        volumes:
-          - pgadmin-data:/var/lib/pgadmin
-        depends_on:
-          - db
-          
-      maildev:
-        image: maildev/maildev
-        command: bin/maildev --web 1080 --smtp 1025
-        ports:
-          - 1080:1080
-          - 1025:1025
-      mongo:
-        image: mongo:7.0
-        command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
-        ports:
-          - 27017:27017
-        extra_hosts:
-          - "host.docker.internal:host-gateway"
-        volumes:
-          - "mongo_data:/data/db"
-          - "mongo_config:/data/configdb"
-        
+services:
+  client:
+    image: node:20.0.0-alpine
+    user: node
+    entrypoint: sh -c
+    working_dir: /home/node
+    command: '"npm install && npm run dev"'
+    ports:
+      - 5173:5173
     volumes:
-      postgres-data:
-      pgadmin-data:
-      mongo_data:
-      mongo_config:
-    
+      - ./front:/home/node
+
+  server:
+    image: node:20.0.0-alpine
+    user: root
+    tty: true
+    stdin_open: true
+    working_dir: /home/node
+    entrypoint: sh -c
+    command: '"npm install && npm run generate && npm run deploy && npm run dev"'
+    ports:
+      - 8000:8000
+    volumes:
+      - ./back:/home/node
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - PORT=${PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - DATABASE_URL_MONGODB=${DATABASE_URL_MONGODB}
+    depends_on:
+      - db
+      - mongo
+
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - 16543:80
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - db
+
+  maildev:
+    image: maildev/maildev
+    command: bin/maildev --web 1080 --smtp 1025
+    ports:
+      - 1080:1080
+      - 1025:1025
+
+  mongo:
+    image: mongo:7.0
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - 27017:27017
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - "mongo_data:/data/db"
+      - "mongo_config:/data/configdb"
+
+volumes:
+  postgres-data:
+  pgadmin-data:
+  mongo_data:
+  mongo_config:
