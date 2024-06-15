@@ -6,6 +6,7 @@ import NotFoundView from './pages/NotFoundView.vue'
 import ConfirmationView from './pages/ConfirmationView.vue'
 import ResetPasswordView from "./pages/ResetPasswordView.vue"
 import DashboardView from "./pages/DashboardView.vue"
+import UsersView from "./pages/Admin/UsersView.vue"
 import AdminLayout from "./layout/AdminLayout.vue"
 import { getUserInformation } from "./api/auth"
 
@@ -15,6 +16,21 @@ const routes : RouteRecordRaw[] = [
         {
             path: "",
             name: "Dashboard",
+            component: DashboardView,
+        },
+        {
+            path: "users",
+            name: "Users",
+            component: UsersView,
+        },
+        {
+            path: "orders",
+            name: "Orders",
+            component: DashboardView,
+        },
+        {
+            path: "invoices",
+            name: "Invoices",
             component: DashboardView,
         }
     ]},

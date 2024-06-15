@@ -1,20 +1,25 @@
-<script setup="ts">
+<script setup lang="ts">
 import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
 import { VListGroup, VListItem } from "vuetify/components";
 
-const selectedItem = ref(0);
+const selectedItem = ref("/");
 const drawer = ref(null);
 const items = ref([
-  { icon: "fa-solid fa-table", title: "Dashboard" },
-  { icon: "fa-solid fa-user", title: "Utilisateurs" },
-  { icon: "fa-solid fa-box", title: "Commandes" },
-  { icon: "fa-solid fa-file-invoice", title: "Factures" },
+  { icon: "fa-solid fa-table", title: "Dashboard", route: "/admin" },
+  { icon: "fa-solid fa-user", title: "Utilisateurs", route: "/admin/users" },
+  { icon: "fa-solid fa-box", title: "Commandes", route: "/admin/orders" },
+  { icon: "fa-solid fa-file-invoice", title: "Factures", route: "/admin/invoices" },
 ]);
+
+const route = useRoute();
+
+const isRouteActive = (routeName: string) => computed(() => route.path === routeName);
 </script>
 
 <template>
   <v-layout>
-    <v-navigation-drawer v-model="drawer" app color="#2784ff" rail rail-width="80">
+    <v-navigation-drawer v-model="drawer" app color="tertiary" rail rail-width="80">
       <v-avatar class="d-block text-center mx-auto mt-4 mb-16 logo" size="40">
         TH
       </v-avatar>
@@ -29,8 +34,8 @@ const items = ref([
             align-items: center;
             justify-content: center;
           "
-          :class="selectedItem === i ? 'border' : ''"
-          @click="selectedItem = i"
+          :class="isRouteActive(item.route).value ? 'border' : ''"
+          @click="$router.push(item.route)"
         >
           <v-tooltip activator="parent" location="end">{{ item.title }}</v-tooltip>
           <v-icon color="white" class="icon">{{ item.icon }}</v-icon>
@@ -71,25 +76,27 @@ const items = ref([
             "
             :ripple="false"
           >
-          <v-tooltip activator="parent" location="end"
-              >Se déconnecter</v-tooltip
-            >
-          <v-icon color="white icon"
-            >fa-solid fa-right-from-bracket
-            </v-icon
-          >
+            <v-tooltip activator="parent" location="end">Se déconnecter</v-tooltip>
+            <v-icon color="white icon">fa-solid fa-right-from-bracket </v-icon>
           </VListItem>
         </v-list>
       </div>
     </v-navigation-drawer>
 
-    <v-main class="" style="min-height: 300px">
+    <v-main style="min-height: 100vh">
+    <div class="container">
       <router-view></router-view>
+    </div>
     </v-main>
   </v-layout>
 </template>
 
 <style scoped>
+.container {
+  padding: 0.75rem 1rem; 
+  height: 100%;
+  width: 100%;
+}
 .border {
   text-decoration: none;
   background: #529dff !important;

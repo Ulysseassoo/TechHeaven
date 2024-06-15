@@ -4,6 +4,9 @@ interface ApiProps<T> {
     data: T;
     status: number;
     message?: string;
+    totalPages?: number;
+    currentPage?: number;
+    totalCount?: number;
 }
 
 export const getApi = async <T>(url: string, config?: AxiosRequestConfig<any> | undefined): Promise<ApiProps<T>> => {
