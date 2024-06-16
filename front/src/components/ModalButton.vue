@@ -2,11 +2,12 @@
 import { ref } from "vue";
 
 interface Props {
-  icon: string;
+  icon?: string;
   tooltipLabel: string;
   action: () => Promise<void>;
   title?: string;
   description?: string;
+  content?: string;
 }
 
 const props = defineProps<Props>();
@@ -31,8 +32,11 @@ const executeAction = async () => {
 
 <template>
   <v-btn @click="dialog = true">
-    <v-tooltip activator="parent" location="top">{{ tooltipLabel }}</v-tooltip>
-    <v-icon>{{ icon }}</v-icon>
+    <v-tooltip v-if="tooltipLabel" activator="parent" location="top">{{
+      tooltipLabel
+    }}</v-tooltip>
+    <v-icon v-if="icon">{{ icon }}</v-icon>
+    {{ content }}
   </v-btn>
 
   <v-dialog v-model="dialog" width="auto" persistent>
