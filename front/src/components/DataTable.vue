@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import moment from "moment";
 import { computed, ref, watch } from "vue";
-
-interface TableColumn {
-  label: string;
-  value: string;
-}
+import { TableColumn } from "../interfaces/Table";
+import ModalButton from "../components/ModalButton.vue";
 
 interface Action {
   label: string;
-  action: (item: any) => void;
-  icon?: string;
+  action: (item: any) => Promise<void>;
+  icon: string;
+  id: string;
 }
 
 interface DataTableProps {
   data: any[];
-  columns: TableColumn[];
+  columns: TableColumn<any>[];
   actions: Action[];
   currentPage: number;
   itemsPerPage: number;
@@ -157,8 +155,26 @@ const toggleSelectAll = () => {
           </div>
         </td>
         <td>
-          <v-btn>Edit</v-btn>
-          <v-btn>Delete</v-btn>
+          <v-container fluid class="actions-container">
+            <div v-for="action in actions" :key="action.label">
+              <div v-if="action.id === 'delete'">
+                <ModalButton
+                  :icon="action.icon"
+                  :tooltipLabel="action.label"
+                  :action="async () => action.action(row)"
+                  v-if="!row.deleted_at"
+                  title="Attention"
+                  description="Voulez vous vraiment confirmer votre action ?"
+                />
+              </div>
+              <v-btn v-else @click="action.action(row)">
+                <v-tooltip activator="parent" location="top">{{
+                  action.label
+                }}</v-tooltip>
+                <v-icon>{{ action.icon }}</v-icon>
+              </v-btn>
+            </div>
+          </v-container>
         </td>
       </tr>
     </tbody>
@@ -265,5 +281,12 @@ const toggleSelectAll = () => {
   right: 0;
   bottom: 0;
   width: 100%;
+}
+
+.actions-container {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  justify-content: flex-end;
 }
 </style>

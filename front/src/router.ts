@@ -10,30 +10,32 @@ import UsersView from "./pages/Admin/UsersView.vue"
 import AdminLayout from "./layout/AdminLayout.vue"
 import { getUserInformation } from "./api/auth"
 
-const routes : RouteRecordRaw[] = [
+const routes: RouteRecordRaw[] = [
     { path: '/', name: "Home", component: HomeView },
-    {path: "/admin", name: "Admin", component: AdminLayout, meta: { requiresAuth: true, role: "ROLE_ADMIN" }, children: [
-        {
-            path: "",
-            name: "Dashboard",
-            component: DashboardView,
-        },
-        {
-            path: "users",
-            name: "Users",
-            component: UsersView,
-        },
-        {
-            path: "orders",
-            name: "Orders",
-            component: DashboardView,
-        },
-        {
-            path: "invoices",
-            name: "Invoices",
-            component: DashboardView,
-        }
-    ]},
+    {
+        path: "/admin", name: "Admin", component: AdminLayout, meta: { requiresAuth: true, role: "ROLE_ADMIN" }, children: [
+            {
+                path: "",
+                name: "Dashboard",
+                component: DashboardView,
+            },
+            {
+                path: "users",
+                name: "Users",
+                component: UsersView,
+            },
+            {
+                path: "orders",
+                name: "Orders",
+                component: DashboardView,
+            },
+            {
+                path: "invoices",
+                name: "Invoices",
+                component: DashboardView,
+            }
+        ]
+    },
     { path: '/login', name: "Login", component: LoginView, props: (route) => route.query.hasConfirmedAccount },
     { path: '/register', name: "Register", component: RegisterView },
     { path: '/confirmation', name: "Confirmation", component: ConfirmationView },
@@ -52,9 +54,11 @@ router.beforeEach(async (to, from, next) => {
         if (!token) {
             next({ name: 'Login' })
         } else {
-            const user = await getUserInformation()
-
-            if(user.data.role === to.meta.role){
+            const response = await getUserInformation()
+            if (response.status === 401) {
+                next({ name: 'Login' })
+            }
+            if (response.data.role === to.meta.role) {
                 next()
             } else {
                 next({ name: 'Home' })
