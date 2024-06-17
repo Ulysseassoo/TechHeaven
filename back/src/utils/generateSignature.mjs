@@ -20,7 +20,7 @@ const payload = JSON.stringify({
     }
 });
 
-const secret = 'whsec_test_secret';  // Utilisez votre secret de test Stripe webhook
+const secret = 'sk_test_IWXNNdz4d5fdHLA362PzpJGS00G15qtESV';  // Utilisez votre secret de test Stripe webhook
 const signature = generateFakeSignature(payload, secret);
 console.log('Generated Signature:', signature);
 console.log('Payload:', payload);

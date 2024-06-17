@@ -64,18 +64,14 @@ services:
       - 1025:1025
 
   mongo:
-    image: mongo:7.0
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
-    ports:
-      - 27017:27017
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    volumes:
-      - "mongo_data:/data/db"
-      - "mongo_config:/data/configdb"
+        image: mongo:latest
+        ports:
+          - "27018:27017"
+        volumes:
+          - mongo-data:/data/db
 
 volumes:
   postgres-data:
   pgadmin-data:
-  mongo_data:
+  mongo-data:
   mongo_config:
