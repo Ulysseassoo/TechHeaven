@@ -9,6 +9,11 @@ interface ApiProps<T> {
     totalCount?: number;
 }
 
+export interface ApiSuccess {
+    status: number;
+    message: string;
+}
+
 export const getApi = async <T>(url: string, config?: AxiosRequestConfig<any> | undefined): Promise<ApiProps<T>> => {
     try {
         const response = await axios.get<T>(url, config);

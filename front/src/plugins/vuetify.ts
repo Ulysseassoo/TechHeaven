@@ -6,7 +6,8 @@ const customTheme: ThemeDefinition = {
     primary: '#3281ED',
     secondary: '#331B55',
     tertiary: "#181C1F",
-    background: '#FCFCFC'
+    background: '#FCFCFC',
+    danger: "#b00020"
   },
 }
 

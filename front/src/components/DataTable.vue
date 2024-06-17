@@ -20,16 +20,18 @@ interface DataTableProps {
   totalPages: number;
   totalCount: number;
   isLoading: boolean;
+  deleteAll?: (ids: string[]) => Promise<void>;
 }
 
 const props = defineProps<DataTableProps>();
 const emit = defineEmits(["update:itemsPerPage", "update:currentPage"]);
 const sortBy = ref("");
 const sortOrder = ref<"asc" | "desc">("asc");
-const selectedItems = ref<number[]>([]);
+const selectedItems = ref<string[]>([]);
 const localItemsPerPage = ref(props.itemsPerPage);
 const currentPage = ref(props.currentPage);
 const selectAll = ref(false);
+const loadingDelete = ref<boolean>(false);
 const tableContainerRef = ref<HTMLDivElement | null>(null);
 const data = ref(props.data);
 
@@ -98,113 +100,144 @@ const handleSort = (column: string) => {
 const toggleSelectAll = () => {
   if (!selectAll.value) {
     selectAll.value = true;
-    sortedData.value.forEach((_, index) => {
-      selectedItems.value.push(index);
+    sortedData.value.forEach((row) => {
+      selectedItems.value.push(row.id);
     });
   } else {
     selectAll.value = false;
     selectedItems.value = [];
   }
 };
+
+const handleDeleteAll = async () => {
+  loadingDelete.value = true;
+  try {
+    if (props.deleteAll !== undefined) {
+      await props.deleteAll(selectedItems.value);
+      loadingDelete.value = false;
+      selectedItems.value = [];
+    }
+  } catch (error: any) {
+    console.log(error);
+    loadingDelete.value = false;
+  }
+};
 </script>
 
 <template>
-  <v-table class="table" fixedHeader ref="tableContainerRef">
-    <thead>
-      <div v-if="props.isLoading" class="loading-container">
-        <v-progress-linear color="primary" indeterminate></v-progress-linear>
+  <div class="table-container">
+    <div class="search-container">
+      <div class="header">
+        <slot name="header"> </slot>
       </div>
-      <tr>
-        <th>
-          <v-container fluid class="checkbox_container">
-            <v-checkbox v-model="allSelected" @change="toggleSelectAll"></v-checkbox>
-          </v-container>
-        </th>
-        <th
-          v-for="column in columns"
-          :key="column.label"
-          @click="handleSort(column.value)"
-        >
-          {{ column.label }}
-          <v-icon v-if="sortBy === column.value">{{
-            sortOrder === "asc" ? "fa-solid fa-sort-up" : "fa-solid fa-sort-down"
-          }}</v-icon>
-        </th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="(row, index) in sortedData" :key="row.id">
-        <td>
-          <v-container fluid class="checkbox_container">
-            <v-checkbox v-model="selectedItems" :value="index"></v-checkbox>
-          </v-container>
-        </td>
-        <td v-for="column in columns" :key="column.label">
-          <div v-if="column.value === 'created_at'">
-            {{ moment(row[column.value]).format("LLL") }}
-          </div>
-          <div v-else-if="row[column.value] === undefined || row[column.value] === null">
-            -
-          </div>
-          <div v-else-if="typeof row[column.value] === 'boolean'">
-            {{ row[column.value] ? "Yes" : "No" }}
-          </div>
-          <div v-else>
-            {{ row[column.value] }}
-          </div>
-        </td>
-        <td>
-          <v-container fluid class="actions-container">
-            <div v-for="action in actions" :key="action.label">
-              <div v-if="action.id === 'delete'">
-                <ModalButton
-                  :icon="action.icon"
-                  :tooltipLabel="action.label"
-                  :action="async () => action.action(row)"
-                  v-if="!row.deleted_at"
-                  title="Attention"
-                  description="Voulez vous vraiment confirmer votre action ?"
-                />
-              </div>
-              <v-btn v-else @click="action.action(row)">
-                <v-tooltip activator="parent" location="top">{{
-                  action.label
-                }}</v-tooltip>
-                <v-icon>{{ action.icon }}</v-icon>
-              </v-btn>
+      <v-btn
+        color="danger"
+        v-if="deleteAll"
+        @click="handleDeleteAll"
+        :disabled="selectedItems.length <= 0"
+        :loading="loadingDelete"
+        >Delete</v-btn
+      >
+    </div>
+    <v-table class="table" fixedHeader ref="tableContainerRef">
+      <thead>
+        <div v-if="props.isLoading" class="loading-container">
+          <v-progress-linear color="primary" indeterminate></v-progress-linear>
+        </div>
+        <tr>
+          <th>
+            <v-container fluid class="checkbox_container">
+              <v-checkbox v-model="allSelected" @change="toggleSelectAll"></v-checkbox>
+            </v-container>
+          </th>
+          <th
+            v-for="column in columns"
+            :key="column.label"
+            @click="handleSort(column.value)"
+          >
+            {{ column.label }}
+            <v-icon v-if="sortBy === column.value">{{
+              sortOrder === "asc" ? "fa-solid fa-sort-up" : "fa-solid fa-sort-down"
+            }}</v-icon>
+          </th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="row in sortedData" :key="row.id">
+          <td>
+            <v-container fluid class="checkbox_container">
+              <v-checkbox v-model="selectedItems" :value="row.id"></v-checkbox>
+            </v-container>
+          </td>
+          <td v-for="column in columns" :key="column.label">
+            <div v-if="column.value === 'created_at'">
+              {{ moment(row[column.value]).format("LLL") }}
             </div>
-          </v-container>
-        </td>
-      </tr>
-    </tbody>
-  </v-table>
-  <v-container fluid class="pagination-container">
-    <div class="arrows-container">
-      <v-icon
-        :class="{ 'is-disabled': currentPage <= 1 }"
-        @click="emitCurrentPage(currentPage - 1)"
-        >fa-solid fa-angle-left</v-icon
-      >
-      <v-icon
-        :class="{ 'is-disabled': currentPage >= props.totalPages }"
-        @click="emitCurrentPage(currentPage + 1)"
-        >fa-solid fa-angle-right</v-icon
-      >
-    </div>
-    <div>
-      <p>{{ startItem }}-{{ endItem }} of {{ props.totalCount }}</p>
-    </div>
-    <div class="items-per-page">
-      <p>Items per page:</p>
-      <v-select
-        variant="plain"
-        v-model="localItemsPerPage"
-        @update:modelValue="emitItemsPerPage"
-        :items="[10, 25, 50, 100]"
-      ></v-select>
-    </div>
-  </v-container>
+            <div
+              v-else-if="row[column.value] === undefined || row[column.value] === null"
+            >
+              -
+            </div>
+            <div v-else-if="typeof row[column.value] === 'boolean'">
+              {{ row[column.value] ? "Yes" : "No" }}
+            </div>
+            <div v-else>
+              {{ row[column.value] }}
+            </div>
+          </td>
+          <td>
+            <v-container fluid class="actions-container">
+              <div v-for="action in actions" :key="action.label">
+                <div v-if="action.id === 'delete'">
+                  <ModalButton
+                    :icon="action.icon"
+                    :tooltipLabel="action.label"
+                    :action="async () => action.action(row)"
+                    v-if="!row.deleted_at"
+                    title="Attention"
+                    description="Voulez vous vraiment confirmer votre action ?"
+                  />
+                </div>
+                <v-btn v-else @click="action.action(row)">
+                  <v-tooltip activator="parent" location="top">{{
+                    action.label
+                  }}</v-tooltip>
+                  <v-icon>{{ action.icon }}</v-icon>
+                </v-btn>
+              </div>
+            </v-container>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+    <v-container fluid class="pagination-container">
+      <div class="arrows-container">
+        <v-icon
+          :class="{ 'is-disabled': currentPage <= 1 }"
+          @click="emitCurrentPage(currentPage - 1)"
+          >fa-solid fa-angle-left</v-icon
+        >
+        <v-icon
+          :class="{ 'is-disabled': currentPage >= props.totalPages }"
+          @click="emitCurrentPage(currentPage + 1)"
+          >fa-solid fa-angle-right</v-icon
+        >
+      </div>
+      <div>
+        <p>{{ startItem }}-{{ endItem }} of {{ props.totalCount }}</p>
+      </div>
+      <div class="items-per-page">
+        <p>Items per page:</p>
+        <v-select
+          variant="plain"
+          v-model="localItemsPerPage"
+          @update:modelValue="emitItemsPerPage"
+          :items="[10, 25, 50, 100]"
+        ></v-select>
+      </div>
+    </v-container>
+  </div>
 </template>
 
 <style scoped lang="css">
@@ -288,5 +321,34 @@ const toggleSelectAll = () => {
   gap: 0.8rem;
   align-items: center;
   justify-content: flex-end;
+}
+
+.table-container {
+  border: 1px solid #efefef;
+  height: 80vh;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+.search-container {
+  padding: 1.5rem;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  & div.v-field__prepend-inner i {
+    font-size: 1rem !important;
+  }
+  gap: 1rem;
+}
+
+.header {
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+div.v-field__prepend-inner i {
+  font-size: 1rem !important;
 }
 </style>

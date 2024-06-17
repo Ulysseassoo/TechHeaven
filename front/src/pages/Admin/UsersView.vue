@@ -100,13 +100,44 @@ onMounted(() => {
 });
 
 const debouncedSearchUsers  = useDebounce(fetchUsers, 500);
+const deleteAllUsersSelected = async (ids: string[]) => {
+  try {
+    const deletePromises = ids.map(userId => deleteUser(userId));
+    const responses = await Promise.all(deletePromises)
+    const allDeleted = responses.every(response => response.status === 200);
+    if(allDeleted) {
+      toast.success("Tous les utilisateurs sélectionnés ont été supprimés.", {
+          autoClose: 2000,
+          position: toast.POSITION.BOTTOM_RIGHT,
+          } as ToastOptions);
+        }
+        fetchUsers();
+  } catch (error) {
+    toast.error("Une erreur est survenue.", {
+          autoClose: 2000,
+          position: toast.POSITION.BOTTOM_RIGHT,
+          } as ToastOptions);
+  }
+}
 </script>
 
 <template>
   <div class="container">
     <h1>Utilisateurs</h1>
-    <div class="table-container">
-      <div class="search-container">
+    <DataTable
+      :columns="columns"
+      :data="users"
+      :actions="actions"
+      :itemsPerPage="itemsPerPage"
+      @update:itemsPerPage="changeItemsPerPage"
+      @update:currentPage="changeCurrentPage"
+      :deleteAll="deleteAllUsersSelected"
+      :totalCount="totalCount"
+      :currentPage="page"
+      :totalPages="totalPages"
+      :isLoading="loading"
+    >
+      <template v-slot:header>
         <v-text-field
           prepend-inner-icon="fa-solid fa-magnifying-glass"
           density="compact"
@@ -119,20 +150,8 @@ const debouncedSearchUsers  = useDebounce(fetchUsers, 500);
           @input="debouncedSearchUsers"
         ></v-text-field>
         <v-btn color="tertiary"> Créer un utilisateur </v-btn>
-      </div>
-      <DataTable
-        :columns="columns"
-        :data="users"
-        :actions="actions"
-        :itemsPerPage="itemsPerPage"
-        @update:itemsPerPage="changeItemsPerPage"
-        @update:currentPage="changeCurrentPage"
-        :totalCount="totalCount"
-        :currentPage="page"
-        :totalPages="totalPages"
-        :isLoading="loading"
-      />
-    </div>
+      </template>
+    </DataTable>
   </div>
 </template>
 
@@ -145,28 +164,8 @@ const debouncedSearchUsers  = useDebounce(fetchUsers, 500);
   gap: 1rem;
   overflow: hidden;
 }
-.table-container {
-  border: 1px solid #efefef;
-  height: 80vh;
-  border-radius: 1rem;
-  display: flex;
-  flex-direction: column;
-}
 h1 {
   font-size: 1.6rem;
   margin-bottom: 1em;
-}
-.search-container {
-  padding: 1.5rem;
-  display: flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  & div.v-field__prepend-inner i {
-    font-size: 1rem !important;
-  }
-}
-div.v-field__prepend-inner i {
-  font-size: 1rem !important;
 }
 </style>

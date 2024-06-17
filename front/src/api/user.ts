@@ -1,4 +1,4 @@
-import { deleteApi, getApi, putApi } from ".";
+import { ApiSuccess, deleteApi, getApi, putApi } from ".";
 import { HOST } from "../constants";
 import { User } from "../interfaces/User";
 
@@ -26,7 +26,7 @@ export const getUsers = async ({ search = '', page = 1, limit = 10 }: SearchQuer
 export const deleteUser = async (userId: string) => {
     const url = `${HOST}/users/${userId}`;
     const token = localStorage.getItem('token');
-    const response = await deleteApi<User[]>(url, {
+    const response = await deleteApi<ApiSuccess>(url, {
         headers: {
             Authorization: `Bearer ${token}`
         }
