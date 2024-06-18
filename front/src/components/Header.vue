@@ -22,7 +22,7 @@ const searchBar = ref(null);
         label="Qu'est ce que vous cherchez"
         v-model="searchBar"
         :error="false"
-        type="password"
+        type="input"
         :hide-details="true"
         density="compact"
       ></VTextField>
