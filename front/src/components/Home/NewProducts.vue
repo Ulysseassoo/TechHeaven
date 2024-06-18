@@ -35,7 +35,6 @@ import ProductCard from "./ProductCard.vue";
 
 <style scoped>
 .section-container {
-  height: 100vh;
   padding: 25px;
   padding-bottom: 0;
   display: flex;
