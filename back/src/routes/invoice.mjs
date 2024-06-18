@@ -148,7 +148,7 @@ const session = await stripe.checkout.sessions.create({
     }
   ],
   mode: 'payment',
-  success_url: `http://localhost:8000/success?invoiceId=${invoiceId}`, // A changer au moment de la prod les gars ! 
+  success_url: `http://localhost:8000/api/success/${invoiceId}`, // A changer au moment de la prod les gars ! 
   cancel_url: `http://localhost:8000/cancel`// A changer au moment de la prod les gars ! 
 });
 
@@ -173,6 +173,30 @@ try {
   res.status(500).json({ message: "Erreur lors de la génération du lien de paiement", error: error.message });
 }
 });
+
+router.get('/success/:invoiceId', async (req, res) => {
+  
+  const { invoiceId } = req.params;
+  console.log(invoiceId)
+  try {
+    // Mettez à jour le statut de la facture à "paid" dans la base de données
+    await db.invoice.update({
+      where: { id: parseInt(invoiceId) },
+      data: { status: 'paid' },
+    });
+    res.send('Paiement réussi !');
+  } catch (error) {
+    console.error(`Erreur lors de la mise à jour de la facture: ${error.message}`);
+    res.status(500).send(`Erreur lors de la mise à jour de la facture: ${error.message}`);
+  }
+});
+
+
+
+router.get('/cancel', (req, res) => {
+  res.send('Paiement annulé.');
+});
+  
 
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
 const sig = req.headers['stripe-signature'];
@@ -232,21 +256,6 @@ if (event.type === 'payment_intent.payment_failed') {
 res.status(200).send({ received: true });
 });
 
-// Routes pour success et cancel (STRIPE)
-router.get('/success', async (req, res) => {
-const { invoiceId } = req.query;
-// Pour mettre à jour le statut de la facture à "paid" dans la base de données
-await db.invoice.update({
-  where: { id: parseInt(invoiceId) },
-  data: { status: 'paid' },
-});
-res.send('Paiement réussi !');
-});
 
-router.get('/cancel', (req, res) => {
-res.send('Paiement annulé.');
-});
-
-  
 
 export default router;
