@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from "../Button.vue";
+import { useDisplay } from "vuetify";
 
 defineProps<{
   name: string;
@@ -7,12 +8,14 @@ defineProps<{
   ctaText: string;
   isFullHeight?: boolean;
 }>();
+
+const { xs } = useDisplay();
 </script>
 
 <template>
   <div class="container" :class="isFullHeight ? 'full-height' : 'half-height'">
     <img class="product-image" :src="img" alt="image of the product" />
-    <div class="product-details">
+    <div class="product-details" :class="xs ? 'mobile' : null">
       <p class="product-details-name">{{ name }}</p>
       <Button class="product-details-cta" content="Acheter">{{
         ctaText
@@ -51,6 +54,10 @@ defineProps<{
   align-items: center;
   padding-top: 50px;
   padding-bottom: 50px;
+}
+.product-details.mobile {
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 .product-details-name {
   font-size: 35px;

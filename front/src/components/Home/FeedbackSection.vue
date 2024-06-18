@@ -2,6 +2,9 @@
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import FeedbackCard from "./FeedbackCard.vue";
+import { useDisplay } from "vuetify";
+
+const { xs } = useDisplay();
 
 const feedbacksMock = [
   {
@@ -47,7 +50,7 @@ const feedbacksMock = [
   <section class="container">
     <h1>Ils parlent de nous !</h1>
     <div>
-      <carousel class="slides-container" :items-to-show="3">
+      <carousel class="slides-container" :items-to-show="xs ? 1 : 3">
         <slide v-for="(feedback, index) in feedbacksMock" :key="index">
           <FeedbackCard
             :description="feedback.description"

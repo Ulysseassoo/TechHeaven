@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import ProductCard from "./ProductCard.vue";
+import { useDisplay } from "vuetify";
+
+const { xs } = useDisplay();
 </script>
 
 <template>
   <section class="section-container">
     <h1>Nos produits les plus vendus</h1>
 
-    <div class="products-container">
+    <div class="products-container" :class="xs ? 'mobile' : null">
       <ProductCard
         style="flex: 1"
         name="Clavier logitech G575"
@@ -38,6 +41,9 @@ import ProductCard from "./ProductCard.vue";
   gap: 15px;
   margin-top: 20px;
   padding-bottom: 0;
+}
+.products-container.mobile {
+  flex-direction: column;
 }
 
 .products {

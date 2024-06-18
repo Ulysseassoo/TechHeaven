@@ -2,6 +2,7 @@
 import Header from "../components/Header.vue";
 import WelcomeSection from "../components/Home/WelcomeSection.vue";
 import NewProducts from "../components/Home/NewProducts.vue";
+import CategorySection from "../components/Home/CategorySection.vue";
 import MostSells from "../components/Home/MostSells.vue";
 import FeedbackSection from "../components/Home/FeedbackSection.vue";
 import Footer from "../components/Footer.vue";
@@ -12,6 +13,7 @@ import Footer from "../components/Footer.vue";
     <Header />
     <WelcomeSection />
     <NewProducts />
+    <CategorySection />
     <MostSells />
     <FeedbackSection />
     <Footer />
