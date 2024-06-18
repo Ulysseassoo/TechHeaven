@@ -6,6 +6,7 @@ import { User } from "../../interfaces/User";
 import { toast, type ToastOptions } from 'vue3-toastify';
 import { TableColumn } from "../../interfaces/Table";
 import { useDebounce } from "../../hooks/useDebounce";
+import CreateModal from "../../components/CreateModal.vue";
 
 
 const columns: TableColumn<User>[] = [
@@ -149,7 +150,9 @@ const deleteAllUsersSelected = async (ids: string[]) => {
           v-model="search"
           @input="debouncedSearchUsers"
         ></v-text-field>
-        <v-btn color="tertiary"> Créer un utilisateur </v-btn>
+        <CreateModal color="tertiary" content="Créer un utilisateur">
+          <template v-slot:header> zeoijmdzed </template>
+        </CreateModal>
       </template>
     </DataTable>
   </div>
