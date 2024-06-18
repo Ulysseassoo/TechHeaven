@@ -7,15 +7,12 @@ import Google from "../components/Icons/Google.vue";
 import Apple from "../components/Icons/Apple.vue";
 import Facebook from "../components/Icons/Facebook.vue";
 import { useRouter } from "vue-router";
-import { ref } from 'vue';
-import loginImage from '@/assets/login.jpg';
 
 const router = useRouter();
 
 const navigateBack = () => {
   router.push("/");
 };
-const imageSrc = ref(loginImage);
 </script>
 
 <template>
