@@ -18,7 +18,7 @@ const userSchema = new Schema({
   passwordRecovery: { type: Schema.Types.ObjectId, ref: 'PasswordRecovery' }
 });
 
-userSchema.method('toClient', function() {
+userSchema.method('toClient', function () {
   var obj = this.toObject();
 
   obj.id = obj._id;
@@ -27,6 +27,14 @@ userSchema.method('toClient', function() {
 
   return obj;
 });
+
+userSchema.statics.findToClient = async function (query, page, limit) {
+  const users = await User.find(query)
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .exec();
+  return users.map(user => user.toClient());
+};
 
 
 const User = model('User', userSchema);

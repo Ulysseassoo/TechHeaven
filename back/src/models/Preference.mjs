@@ -1,4 +1,4 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 const preferenceSchema = new Schema({
     user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
