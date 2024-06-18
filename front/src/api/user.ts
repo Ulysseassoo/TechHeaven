@@ -1,6 +1,6 @@
 import { ApiSuccess, deleteApi, getApi, putApi } from ".";
 import { HOST } from "../constants";
-import { User } from "../interfaces/User";
+import { Stats, User } from "../interfaces/User";
 
 interface SearchQueryParams { search?: string; page?: number; limit?: number }
 
@@ -15,6 +15,19 @@ export const getUsers = async ({ search = '', page = 1, limit = 10 }: SearchQuer
 
     const url = `${HOST}/users?${queryParams}`;
     const response = await getApi<User[]>(url, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    return response;
+}
+
+export const getUsersStats = async () => {
+    const token = localStorage.getItem('token');
+
+    const url = `${HOST}/users/stats`;
+    const response = await getApi<Stats>(url, {
         headers: {
             Authorization: `Bearer ${token}`
         }

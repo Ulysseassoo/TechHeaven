@@ -10,7 +10,7 @@ import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authenticati
 import { createData, getIdMapping, updateData, upsertData } from "../utils/sync.mjs";
 import { anonymizeUserData } from "../utils/anonym.mjs";
 import User from "../models/User.mjs";
-import { getNewUsersOverTime, getTotalUsers } from "../utils/stats.mjs";
+import { getNewUsersOverTime, getTotalRevenue, getTotalRevenuePerDate, getTotalUsers } from "../utils/stats.mjs";
 
 const generateRandomCode = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -150,12 +150,16 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     try {
         const totalUsers = await getTotalUsers();
         const newUsers = await getNewUsersOverTime();
+        const totalRevenue = await getTotalRevenue();
+        const totalRevenuePerDate = await getTotalRevenuePerDate();
 
         return res.status(200).json({
             status: 200,
             data: {
                 totalUsers,
-                newUsers
+                newUsers,
+                totalRevenue,
+                totalRevenuePerDate
             }
         })
     } catch (error) {

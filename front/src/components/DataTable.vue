@@ -189,6 +189,7 @@ const handleDeleteAll = async () => {
           <td>
             <v-container fluid class="actions-container">
               <div v-for="action in actions" :key="action.label">
+                <slot :name="action.id" :action="action" :row="row"></slot>
                 <div v-if="action.id === 'delete'">
                   <ModalButton
                     :icon="action.icon"

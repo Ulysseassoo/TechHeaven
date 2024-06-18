@@ -12,3 +12,14 @@ export interface User {
     number_connexion_attempts: number;
     blocked_until: Date | null;
 }
+
+export interface UserCountDate {
+    count: number;
+    date: Date;
+}
+
+export interface Stats {
+    totalUsers: number;
+    newUsers: UserCountDate[];
+    totalRevenue: number;
+}
