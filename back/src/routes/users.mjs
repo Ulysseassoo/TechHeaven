@@ -6,10 +6,11 @@ import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
 import { sendConfirmationEmail, sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken, generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
-import { shouldBeAdmin } from "../middlewares/authentication.mjs";
+import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authentication.mjs";
 import { createData, getIdMapping, updateData, upsertData } from "../utils/sync.mjs";
 import { anonymizeUserData } from "../utils/anonym.mjs";
 import User from "../models/User.mjs";
+import { getNewUsersOverTime, getTotalUsers } from "../utils/stats.mjs";
 
 const generateRandomCode = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -26,6 +27,30 @@ const generateRandomCode = (length) => {
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
+
+router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
+    try {
+        const { _id } = await getIdMapping(req.user.id);
+
+        const user = await User.findOne({
+            _id,
+        }).select("-password");
+
+        if (!user) {
+            return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: user.toClient()
+        });
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
 
 router.post("/users", authValidator, async (req, res) => {
     try {
@@ -113,6 +138,26 @@ router.get("/users", shouldBeAdmin, async (req, res) => {
             data: users
         })
 
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
+
+router.get("/users/stats", shouldBeAdmin, async (req, res) => {
+    try {
+        const totalUsers = await getTotalUsers();
+        const newUsers = await getNewUsersOverTime();
+
+        return res.status(200).json({
+            status: 200,
+            data: {
+                totalUsers,
+                newUsers
+            }
+        })
     } catch (error) {
         return res.status(401).send({
             status: 401,

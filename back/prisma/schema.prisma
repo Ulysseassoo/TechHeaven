@@ -120,10 +120,10 @@ model CartHasProducts {
 }
 
 model Order {
-  id            Int           @id @default(autoincrement())
+  id            String        @id @unique @default(uuid())
   date          DateTime
   status        String
-  total_amount  String
+  total_amount  Int
   user_id       String
   user          User          @relation(fields: [user_id], references: [id])
   order_details OrderDetail[]
@@ -132,10 +132,10 @@ model Order {
 }
 
 model OrderDetail {
-  id         Int    @id @default(autoincrement())
-  quantity   String
-  unit_price String
-  order_id   Int
+  id         String @id @unique @default(uuid())
+  quantity   Int
+  unit_price Int
+  order_id   String
   order      Order  @relation(fields: [order_id], references: [id])
 }
 
@@ -144,16 +144,16 @@ model Delivery {
   address          String
   status           String
   following_number String
-  order_id         Int
+  order_id         String
   order            Order  @relation(fields: [order_id], references: [id])
 }
 
 model Payment {
-  id             Int    @id @default(autoincrement())
-  paid_amount    String
+  id             String @id @unique @default(uuid())
+  paid_amount    Int
   payment_method String
   status         String
-  order_id       Int
+  order_id       String
   order          Order  @relation(fields: [order_id], references: [id])
 }
 

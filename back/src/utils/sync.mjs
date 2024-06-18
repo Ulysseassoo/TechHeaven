@@ -48,6 +48,12 @@ const formatWhereObject = async (where, databaseName) => {
                 formattedWhere[key] = databaseName === "mongo" ? idMapping._id : idMapping.postgresId;
             }
 
+            if (key.includes("_id") && databaseName === "mongo") {
+                const splittedKey = key.split("_id")[0]
+                formattedWhere[splittedKey] = formattedWhere[key];
+                delete formattedWhere[key];
+            }
+
             if (key === "id" && databaseName === "mongo") {
                 formattedWhere["_id"] = formattedWhere[key];
                 delete formattedWhere[key];
@@ -115,6 +121,7 @@ const prepareDataForUpsert = async ({ where, create }) => {
 export const createData = async ({
     model,
     data,
+    mongoData,
     select,
 }) => {
     try {
@@ -125,7 +132,7 @@ export const createData = async ({
             data
         });
 
-        const mongoResult = new Model(data)
+        const mongoResult = new Model(mongoData ?? data)
         await mongoResult.save();
 
         const idMapping = new IdMapping({ postgresId: result.id, _id: mongoResult.id });

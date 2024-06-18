@@ -1,8 +1,7 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 
 const deliverySchema = new Schema({
-    id: { type: Number, default: () => Types.ObjectId() },
     address: String,
     status: String,
     following_number: String,

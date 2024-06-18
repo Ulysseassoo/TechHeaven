@@ -2,8 +2,9 @@ import * as dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import UserRoute from "./routes/users.mjs"
-import productRoutes from "./routes/product.mjs";
-import categoryRoutes from "./routes/category.mjs";
+import ProductRoutes from "./routes/product.mjs";
+import CategoryRoutes from "./routes/category.mjs";
+import OrderRoutes from "./routes/order.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
@@ -25,9 +26,10 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use("/api/", UserRoute);
-app.use("/api", productRoutes);
-app.use("/api", categoryRoutes);
+app.use("/api", UserRoute);
+app.use("/api", ProductRoutes);
+app.use("/api", CategoryRoutes);
+app.use("/api", OrderRoutes);
 
 const checkPasswordRenewal = async () => {
   const accountsToRenew = await db.user.findMany();
