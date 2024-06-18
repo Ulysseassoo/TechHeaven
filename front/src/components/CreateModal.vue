@@ -8,7 +8,7 @@ interface Props {
   content: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const dialog = ref<boolean>(false);
 </script>
 

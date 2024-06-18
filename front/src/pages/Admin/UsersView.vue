@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import DataTable from "../../components/DataTable.vue";
 import { deleteUser, getUsers } from "../../api/user";
 import { User } from "../../interfaces/User";

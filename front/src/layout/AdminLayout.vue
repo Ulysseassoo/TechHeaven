@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
-import { VListGroup, VListItem } from "vuetify/components";
+import { VListItem } from "vuetify/components";
 
-const selectedItem = ref("/");
 const drawer = ref(null);
 const items = ref([
   { icon: "fa-solid fa-table", title: "Dashboard", route: "/admin" },
@@ -84,16 +83,16 @@ const isRouteActive = (routeName: string) => computed(() => route.path === route
     </v-navigation-drawer>
 
     <v-main style="min-height: 100vh">
-    <div class="container">
-      <router-view></router-view>
-    </div>
+      <div class="container">
+        <router-view></router-view>
+      </div>
     </v-main>
   </v-layout>
 </template>
 
 <style scoped>
 .container {
-  padding: 0.75rem 1rem; 
+  padding: 0.75rem 1rem;
   height: 100%;
   width: 100%;
 }
