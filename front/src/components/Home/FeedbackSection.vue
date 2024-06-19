@@ -4,43 +4,47 @@ import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import FeedbackCard from "./FeedbackCard.vue";
 import { useDisplay } from "vuetify";
 
+import instagramImage from "../../assets/Home/instagram.png";
+import jblImage from "../../assets/Home/jbl.png";
+import samsungImage from "../../assets/Home/samsung.png";
+
 const { xs } = useDisplay();
 
 const feedbacksMock = [
   {
     description:
       "Le site est incroyable, je recommande ce service à tout le monde",
-    img: "src/assets/Home/instagram.png",
+    img: instagramImage,
     date: "12 juin",
   },
   {
     description:
       "Le site est incroyable, je recommande ce service à tout le monde",
-    img: "src/assets/Home/jbl.png",
+    img: jblImage,
     date: "14 juin",
   },
   {
     description:
       "Le site est incroyable, je recommande ce service à tout le monde",
-    img: "src/assets/Home/samsung.png",
+    img: samsungImage,
     date: "19 Juillet",
   },
   {
     description:
       "Le site est incroyable, je recommande ce service à tout le monde",
-    img: "src/assets/Home/instagram.png",
+    img: instagramImage,
     date: "12 juin",
   },
   {
     description:
       "Le site est incroyable, je recommande ce service à tout le monde",
-    img: "src/assets/Home/jbl.png",
+    img: jblImage,
     date: "14 juin",
   },
   {
     description:
       "Le site est incroyable, je recommande ce service à tout le monde",
-    img: "src/assets/Home/samsung.png",
+    img: samsungImage,
     date: "19 Juillet",
   },
 ];
