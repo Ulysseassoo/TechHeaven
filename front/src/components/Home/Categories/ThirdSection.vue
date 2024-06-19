@@ -2,6 +2,8 @@
 import CategoryCard from "./../CategoryCard.vue";
 import { useDisplay } from "vuetify";
 
+import keyboardImage from "../../../assets/Home/welcome-new-product-keyboard.avif";
+
 const { xs } = useDisplay();
 const isMobileStyle = xs ? "mobile" : null;
 </script>
@@ -12,19 +14,19 @@ const isMobileStyle = xs ? "mobile" : null;
       class="section-1"
       :class="isMobileStyle"
       name="test"
-      img="src/assets/Home/welcome-new-product-keyboard.avif"
+      :img="keyboardImage"
     />
     <CategoryCard
       class="section-2"
       :class="isMobileStyle"
       name="test"
-      img="src/assets/Home/welcome-new-product-keyboard.avif"
+      :img="keyboardImage"
     />
     <CategoryCard
       class="section-3"
       :class="isMobileStyle"
       name="test"
-      img="src/assets/Home/welcome-new-product-keyboard.avif"
+      :img="keyboardImage"
     />
   </section>
 </template>

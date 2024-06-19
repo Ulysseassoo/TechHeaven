@@ -3,6 +3,7 @@ import ProductCard from "./ProductCard.vue";
 import { useDisplay } from "vuetify";
 
 import keyboardImage from "../../assets/Home/welcome-new-product-keyboard.avif";
+import Sony from "../../assets/Home/sony.avif";
 
 const { xs } = useDisplay();
 </script>
@@ -23,13 +24,13 @@ const { xs } = useDisplay();
       <div class="products">
         <ProductCard
           name="Sony"
-          img="src/assets/Home/sony.avif"
+          :img="Sony"
           cta-text="Acheter"
           :is-full-height="false"
         />
         <ProductCard
           name="Sony"
-          img="src/assets/Home/sony.avif"
+          :img="Sony"
           cta-text="Acheter"
           :is-full-height="false"
         />
