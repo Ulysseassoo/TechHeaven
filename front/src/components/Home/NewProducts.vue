@@ -2,6 +2,8 @@
 import ProductCard from "./ProductCard.vue";
 import { useDisplay } from "vuetify";
 
+import keyboardImage from "../../assets/Home/welcome-new-product-keyboard.avif";
+
 const { xs } = useDisplay();
 </script>
 
@@ -13,7 +15,7 @@ const { xs } = useDisplay();
       <div>
         <ProductCard
           name="Clavier logitech G575"
-          img="src/assets/Home/welcome-new-product-keyboard.avif"
+          :img="keyboardImage"
           cta-text="Acheter"
           :is-full-height="true"
         />
