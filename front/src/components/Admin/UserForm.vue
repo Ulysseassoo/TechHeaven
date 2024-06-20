@@ -1,9 +1,68 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { User } from "../../interfaces/User";
+import { z } from "zod";
+import { useForm } from "../../hooks/useForm";
+import axios, { AxiosRequestConfig } from "axios";
+
+interface Props {
+  user: User;
+}
+
+const props = defineProps<Props>();
+
+const validationSchema = z.object({
+  id: z.string(),
+  firstname: z.string().nullable(),
+  lastname: z.string().nullable(),
+  email: z.string().email(),
+  phone: z.string().nullable(),
+  role: z.string(),
+  has_confirmed_account: z.boolean(),
+  created_at: z.date(),
+  deleted_at: z.date().nullable(),
+  last_updated_password: z.date().nullable(),
+  number_connexion_attempts: z.number(),
+  blocked_until: z.date().nullable(),
+});
+
+type FormValues = z.infer<typeof validationSchema>;
+
+const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
+  try {
+    const result = await axios.post(
+      "http://localhost:8000/api/users",
+      {
+        ...formData,
+        confirmPassword: undefined,
+      },
+      config
+    );
+    if (result.data) {
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
+  initialValues: props.user,
+  validationSchema,
+  onSubmit,
+});
+</script>
 
 <template>
   <v-row dense>
     <v-col cols="12" md="4" sm="6">
-      <v-text-field label="First name*" required></v-text-field>
+      <v-text-field
+        label="First name*"
+        v-model="data['firstname']"
+        :error="!!errors['firstname']"
+        :error-messages="errors['firstname']"
+        @input="validateField('firstname')"
+        type="text"
+        required
+      ></v-text-field>
     </v-col>
 
     <v-col cols="12" md="4" sm="6">

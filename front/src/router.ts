@@ -7,6 +7,8 @@ import ConfirmationView from './pages/ConfirmationView.vue'
 import ResetPasswordView from "./pages/ResetPasswordView.vue"
 import DashboardView from "./pages/DashboardView.vue"
 import UsersView from "./pages/Admin/UsersView.vue"
+import OrdersView from "./pages/Admin/OrdersView.vue"
+import InvoicesView from "./pages/Admin/InvoicesView.vue"
 import AdminLayout from "./layout/AdminLayout.vue"
 import { getUserInformation } from "./api/auth"
 
@@ -27,12 +29,12 @@ const routes: RouteRecordRaw[] = [
             {
                 path: "orders",
                 name: "Orders",
-                component: DashboardView,
+                component: OrdersView,
             },
             {
                 path: "invoices",
                 name: "Invoices",
-                component: DashboardView,
+                component: InvoicesView,
             }
         ]
     },

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { h, onMounted, ref } from "vue";
 import DataTable from "../../components/DataTable.vue";
 import { deleteUser, getUsers } from "../../api/user";
 import { User } from "../../interfaces/User";
 import { toast, type ToastOptions } from 'vue3-toastify';
 import { TableColumn } from "../../interfaces/Table";
 import { useDebounce } from "../../hooks/useDebounce";
+import ModalButton from "../../components/ModalButton.vue";
+import Modal from "../../components/Modal.vue";
+import { VBtn, VIcon, VTooltip } from "vuetify/components";
+import UserForm from "../../components/Admin/UserForm.vue";
 
 const columns: TableColumn<User>[] = [
   { value: "firstname", label: "Prénom" },
@@ -30,37 +34,62 @@ const actions = [
   {
     label: "Voir",
     id: "view",
-    action: async (item: User) => {
-      console.log("Voir", item.email);
-    },
     icon: "fa-solid fa-eye",
+    renderCell: (row: User) => h('div', [h(Modal, {
+      tooltipLabel: "Voir",
+      icon: "fa-solid fa-eye",
+    }, {
+      ModalContent: () => h(UserForm, {
+        user: row,
+      })
+    })]),
   },
   {
     label: "Modifier",
     id: "edit",
-    action: async (item: User) => {
-      console.log("Modifier", item);
+    renderCell: (row: User) => h(VBtn, {
+      onClick(event: Event) {
+        console.log("Edit user", row);
     },
-    icon: "fa-solid fa-pen",
+  }, {default: () => [
+    h(VTooltip, {
+        activator: 'parent',
+        location: 'top',
+    }, {
+      default : () => "Modifier"
+    }),
+    h(VIcon, {
+      icon: "fa-solid fa-pen"
+    }),
+  ]}),
   },
   {
     label: "Supprimer",
     id: "delete",
-    action: async (item: User) => {
-      try {
-        const response = await deleteUser(item.id);
-        if(response.message !== undefined) {
-          toast.success(response.message, {
-        autoClose: 2000,
-        position: toast.POSITION.BOTTOM_RIGHT,
-        } as ToastOptions);
-        }
-        fetchUsers();
-      } catch (error: any) {
-        throw error || "Une erreur est survenue, veuillez réessayer"
-      }
-    },
-    icon: "fa-solid fa-trash",
+    renderCell: (row: User) => h('div', [
+  !row.deleted_at
+    ? h(ModalButton, {
+        icon: "fa-solid fa-trash",
+        tooltipLabel: "Supprimer",
+        action: async () => {
+          try {
+            const response = await deleteUser(row.id);
+            if(response.message !== undefined) {
+              toast.success(response.message, {
+                autoClose: 2000,
+                position: toast.POSITION.BOTTOM_RIGHT,
+              } as ToastOptions);
+            }
+            fetchUsers();
+          } catch (error: any) {
+            throw error || "Une erreur est survenue, veuillez réessayer";
+          }
+        },
+        title: "Attention",
+        description: "Voulez-vous vraiment confirmer votre action ?",
+      })
+    : null,
+])
   },
 ];
 

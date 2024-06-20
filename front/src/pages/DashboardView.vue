@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 import { computed, onMounted, ref } from "vue";
 import { Stats, UserCountDate } from "../interfaces/User";
 import { getUsersStats } from "../api/user";

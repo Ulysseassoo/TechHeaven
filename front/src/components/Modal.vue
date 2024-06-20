@@ -4,8 +4,8 @@ import { ref } from "vue";
 interface Props {
   icon?: string;
   tooltipLabel?: string;
-  color: string;
-  content: string;
+  color?: string;
+  btnContent?: string;
   saveText?: string;
   dialogMaxWidth?: string;
 }
@@ -21,7 +21,7 @@ const loading = ref<boolean>(false);
       tooltipLabel
     }}</v-tooltip>
     <v-icon v-if="icon">{{ icon }}</v-icon>
-    {{ content }}
+    {{ btnContent }}
   </v-btn>
 
   <v-dialog v-model="dialog" width="auto" persistent :max-width="dialogMaxWidth">
