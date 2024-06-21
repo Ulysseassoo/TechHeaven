@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import DividerWithText from "../components/DividerWithText.vue";
-import ArrowLeft from "../components/Icons/ArrowLeft.vue";
-import RegisterForm from "../components/Auth/RegisterForm.vue";
-import Stack from "../components/Stack.vue";
-import Google from "../components/Icons/Google.vue";
-import Apple from "../components/Icons/Apple.vue";
-import Facebook from "../components/Icons/Facebook.vue";
+import DividerWithText from "@/components/DividerWithText.vue";
+import ArrowLeft from "@/components/icons/ArrowLeftIcon.vue";
+import RegisterForm from "@/components/Auth/RegisterForm.vue";
+import Stack from "@/components/VStack.vue";
+import Google from "@/components/icons/GoogleIcon.vue";
+import Apple from "@/components/icons/AppleIcon.vue";
+import Facebook from "@/components/icons/FacebookIcon.vue";
 import { useRouter } from "vue-router";
-import { onMounted } from 'vue'
+import { onMounted } from "vue";
 
 const router = useRouter();
 
@@ -16,10 +16,8 @@ const navigateBack = () => {
 };
 
 onMounted(() => {
-  window.scrollTo(0, 0)
-})
-
-
+  window.scrollTo(0, 0);
+});
 </script>
 
 <template>
@@ -42,8 +40,17 @@ onMounted(() => {
           <span @click="navigateBack">Back to the website</span>
         </Stack>
         <h1>Welcome to our website !</h1>
-        <DividerWithText container-class="mt-12 mb-8 relative" content="Continue With" />
-        <Stack align="center" justify="center" direction="row" margin="1rem" gap="1.2rem">
+        <DividerWithText
+          container-class="mt-12 mb-8 relative"
+          content="Continue With"
+        />
+        <Stack
+          align="center"
+          justify="center"
+          direction="row"
+          margin="1rem"
+          gap="1.2rem"
+        >
           <VBtn
             flex="1"
             height="55px"

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import DividerWithText from "../components/DividerWithText.vue";
-import ArrowLeft from "../components/Icons/ArrowLeft.vue";
-import LoginForm from "../components/Auth/LoginForm.vue";
-import Stack from "../components/Stack.vue";
-import Google from "../components/Icons/Google.vue";
-import Apple from "../components/Icons/Apple.vue";
-import Facebook from "../components/Icons/Facebook.vue";
+import DividerWithText from "@/components/DividerWithText.vue";
+import ArrowLeft from "@/components/icons/ArrowLeftIcon.vue";
+import LoginForm from "@/components/Auth/LoginForm.vue";
+import Stack from "@/components/VStack.vue";
+import Google from "@/components/icons/GoogleIcon.vue";
+import Apple from "@/components/icons/AppleIcon.vue";
+import Facebook from "@/components/icons/FacebookIcon.vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -18,7 +18,7 @@ const navigateBack = () => {
 <template>
   <div class="container">
     <div class="image-container">
-      <img src="../assets/login.jpg" />
+      <img src="@/assets/login.jpg" />
     </div>
     <div class="superior-container">
       <div class="login-container">
@@ -35,7 +35,10 @@ const navigateBack = () => {
           <span @click="navigateBack">Back to the website</span>
         </Stack>
         <h1>Welcome to our website !</h1>
-        <DividerWithText container-class="mt-12 mb-8 relative" content="Continue With" />
+        <DividerWithText
+          container-class="mt-12 mb-8 relative"
+          content="Continue With"
+        />
         <Stack
           align="center"
           justify="center"

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { User } from "../../interfaces/User";
+import type { User } from "@/interfaces/User";
+import type { AxiosRequestConfig } from "axios";
 import { z } from "zod";
-import { useForm } from "../../hooks/useForm";
-import axios, { AxiosRequestConfig } from "axios";
+import { useForm } from "@/hooks/useForm";
+import axios from "axios";
 
 interface Props {
   user: User;
@@ -35,16 +36,18 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
         ...formData,
         confirmPassword: undefined,
       },
-      config
+      config,
     );
     if (result.data) {
+      console.log(result.data);
     }
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
+const { data, errors, validateField } = useForm({
   initialValues: props.user,
   validationSchema,
   onSubmit,
@@ -90,7 +93,11 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
     </v-col>
 
     <v-col cols="12" md="4" sm="6">
-      <v-text-field label="Confirm Password*" type="password" required></v-text-field>
+      <v-text-field
+        label="Confirm Password*"
+        type="password"
+        required
+      ></v-text-field>
     </v-col>
 
     <v-col cols="12" sm="6">

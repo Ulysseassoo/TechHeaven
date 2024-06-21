@@ -24,7 +24,12 @@ const loading = ref<boolean>(false);
     {{ btnContent }}
   </v-btn>
 
-  <v-dialog v-model="dialog" width="auto" persistent :max-width="dialogMaxWidth">
+  <v-dialog
+    v-model="dialog"
+    width="auto"
+    persistent
+    :max-width="dialogMaxWidth"
+  >
     <v-card prepend-icon="fa-solid fa-user" title="Nouvel Utilisateur">
       <v-card-text>
         <slot name="ModalContent"> </slot>

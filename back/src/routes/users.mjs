@@ -56,8 +56,8 @@ router.post("/users", authValidator, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(401).send({
-                status: 401,
+            return res.status(422).send({
+                status: 422,
                 message: errors.formatWith(({ msg, path }) => {
                     return {
                         msg,
