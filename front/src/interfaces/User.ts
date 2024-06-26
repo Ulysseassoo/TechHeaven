@@ -6,11 +6,11 @@ export interface User {
   phone: string | null;
   role: string;
   has_confirmed_account: boolean;
-  created_at: Date;
-  deleted_at: Date | null;
-  last_updated_password: Date | null;
+  created_at: string;
+  deleted_at: string | null;
+  last_updated_password: string | null;
   number_connexion_attempts: number;
-  blocked_until: Date | null;
+  blocked_until: string | null;
 }
 
 export interface UserCountDate {

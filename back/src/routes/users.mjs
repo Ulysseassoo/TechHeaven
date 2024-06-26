@@ -214,7 +214,7 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
         });
     }
 
-    const { email, firstname, lastname, phone } = req.body;
+    const { email, firstname, lastname, phone, has_confirmed_account, number_connexion_attempts, role } = req.body;
 
     try {
         const { postgresId } = await getIdMapping(id)
@@ -238,7 +238,10 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
                 email,
                 firstname,
                 lastname,
-                phone: phone ?? null
+                phone: phone ?? null,
+                has_confirmed_account, 
+                number_connexion_attempts, 
+                role
             },
             select: {
                 email: true,

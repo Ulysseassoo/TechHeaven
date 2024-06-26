@@ -2,11 +2,18 @@ import { deleteApi, getApi, putApi } from "@/api";
 import type { ApiSuccess } from "@/api";
 import { HOST } from "@/constants";
 import type { Stats, User } from "@/interfaces/User";
+import type { AxiosRequestConfig } from "axios";
 
 interface SearchQueryParams {
   search?: string;
   page?: number;
   limit?: number;
+}
+
+interface UpdateUserProps {
+  userId: string;
+  data: Partial<User>;
+  config: AxiosRequestConfig;
 }
 
 export const getUsers = async ({
@@ -61,10 +68,11 @@ export const deleteUser = async (userId: string) => {
   return response;
 };
 
-export const updateUser = async (userId: string, data: Partial<User>) => {
+export const updateUser = async ({userId, data, config} : UpdateUserProps) => {
   const url = `${HOST}/users/${userId}`;
   const token = localStorage.getItem("token");
   const response = await putApi<User>(url, data, {
+    ...config,
     headers: {
       Authorization: `Bearer ${token}`,
     },

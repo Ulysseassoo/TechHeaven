@@ -7,9 +7,7 @@ import type { TableColumn } from "@/interfaces/Table";
 import { toast, type ToastOptions } from "vue3-toastify";
 import { useDebounce } from "@/hooks/useDebounce";
 import ModalButton from "@/components/ModalButton.vue";
-import CustomModal from "@/components/CustomModal.vue";
-import { VBtn, VIcon, VTooltip } from "vuetify/components";
-import UserForm from "@/components/Admin/UserForm.vue";
+import UserModal from "@/components/Admin/UserModal.vue";
 
 const columns: TableColumn<User>[] = [
   { value: "firstname", label: "Prénom" },
@@ -36,51 +34,23 @@ const actions = [
     id: "view",
     icon: "fa-solid fa-eye",
     renderCell: (row: User) =>
-      h("div", [
-        h(
-          CustomModal,
-          {
-            tooltipLabel: "Voir",
-            icon: "fa-solid fa-eye",
-          },
-          {
-            ModalContent: () =>
-              h(UserForm, {
-                user: row,
-              }),
-          },
-        ),
-      ]),
+      h(UserModal, {
+        user: row,
+        icon: "fa-solid fa-eye",
+        tooltipLabel: "Voir",
+      })
   },
   {
     label: "Modifier",
     id: "edit",
     renderCell: (row: User) =>
-      h(
-        VBtn,
-        {
-          onClick() {
-            console.log("Edit user", row);
-          },
-        },
-        {
-          default: () => [
-            h(
-              VTooltip,
-              {
-                activator: "parent",
-                location: "top",
-              },
-              {
-                default: () => "Modifier",
-              },
-            ),
-            h(VIcon, {
-              icon: "fa-solid fa-pen",
-            }),
-          ],
-        },
-      ),
+    h(UserModal, {
+        user: row,
+        canEdit: true,
+        icon: "fa-solid fa-pen",
+        tooltipLabel: "Modifier",
+        callback: () => fetchUsers(),
+      })
   },
   {
     label: "Supprimer",
@@ -122,7 +92,7 @@ async function fetchUsers() {
       search: search.value !== "" ? search.value : undefined,
     });
     users.value = response.data;
-    if (response.totalCount && response.totalPages) {
+    if (response.totalCount !== undefined && response.totalPages !== undefined) {
       totalCount.value = response.totalCount;
       totalPages.value = response.totalPages;
     }

@@ -8,11 +8,26 @@ interface Props {
   btnContent?: string;
   saveText?: string;
   dialogMaxWidth?: string;
+  modalTitle?: string;
+  submitAction?: () => Promise<void>;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 const dialog = ref<boolean>(false);
 const loading = ref<boolean>(false);
+const handleSubmit = async () => {
+  try {
+    loading.value = true;
+    if (props.submitAction) {
+      await props.submitAction();
+    }
+    loading.value = false;
+    dialog.value = false;
+  } catch (error) {
+    loading.value = false;
+    throw error;
+  }
+};
 </script>
 
 <template>
@@ -24,13 +39,8 @@ const loading = ref<boolean>(false);
     {{ btnContent }}
   </v-btn>
 
-  <v-dialog
-    v-model="dialog"
-    width="auto"
-    persistent
-    :max-width="dialogMaxWidth"
-  >
-    <v-card prepend-icon="fa-solid fa-user" title="Nouvel Utilisateur">
+  <v-dialog v-model="dialog" width="auto" persistent :max-width="dialogMaxWidth">
+    <v-card prepend-icon="fa-solid fa-user" :title="modalTitle">
       <v-card-text>
         <slot name="ModalContent"> </slot>
       </v-card-text>
@@ -39,7 +49,13 @@ const loading = ref<boolean>(false);
 
         <v-btn variant="elevated" @click="dialog = false"> Fermer </v-btn>
 
-        <v-btn :loading="loading" variant="elevated" color="tertiary">
+        <v-btn
+          @click="handleSubmit"
+          v-if="submitAction"
+          :loading="loading"
+          variant="elevated"
+          color="tertiary"
+        >
           {{ saveText ?? "Confirmer" }}
         </v-btn>
       </template>
