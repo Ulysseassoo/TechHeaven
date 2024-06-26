@@ -36,7 +36,6 @@ type FormValues = z.infer<typeof validationSchema>;
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    console.log("Form submitted", formData, config);
     const result = await updateUser({
       userId: props.user.id,
       data: formData,

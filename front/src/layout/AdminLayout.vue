@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { logoutUser } from "@/api/auth";
 import { computed, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { VListItem } from "vuetify/components";
 
 const drawer = ref(null);
@@ -16,20 +17,22 @@ const items = ref([
 ]);
 
 const route = useRoute();
+const router = useRouter();
 
-const isRouteActive = (routeName: string) =>
-  computed(() => route.path === routeName);
+const isRouteActive = (routeName: string) => computed(() => route.path === routeName);
+
+const logout = async () => {
+  await logoutUser();
+  await router.push({
+    name: "Login",
+    replace: true,
+  });
+};
 </script>
 
 <template>
   <v-layout>
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      color="tertiary"
-      rail
-      rail-width="80"
-    >
+    <v-navigation-drawer v-model="drawer" app color="tertiary" rail rail-width="80">
       <v-avatar class="d-block text-center mx-auto mt-4 mb-16 logo" size="40">
         TH
       </v-avatar>
@@ -47,9 +50,7 @@ const isRouteActive = (routeName: string) =>
           :class="isRouteActive(item.route).value ? 'border' : ''"
           @click="$router.push(item.route)"
         >
-          <v-tooltip activator="parent" location="end">{{
-            item.title
-          }}</v-tooltip>
+          <v-tooltip activator="parent" location="end">{{ item.title }}</v-tooltip>
           <v-icon color="white" class="icon">{{ item.icon }}</v-icon>
         </VListItem>
       </v-list>
@@ -85,12 +86,12 @@ const isRouteActive = (routeName: string) =>
               display: flex;
               align-items: center;
               justify-content: center;
+              cursor: pointer;
             "
+            @click="logout"
             :ripple="false"
           >
-            <v-tooltip activator="parent" location="end"
-              >Se déconnecter</v-tooltip
-            >
+            <v-tooltip activator="parent" location="end">Se déconnecter</v-tooltip>
             <v-icon color="white icon">fa-solid fa-right-from-bracket </v-icon>
           </VListItem>
         </v-list>

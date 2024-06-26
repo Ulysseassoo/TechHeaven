@@ -12,3 +12,11 @@ export const getUserInformation = async () => {
 
   return response;
 };
+
+export const logoutUser = async () => {
+  try {
+    localStorage.removeItem("token");
+  } catch (error: any) {
+    console.log(error)
+  }
+}
