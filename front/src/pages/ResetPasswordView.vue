@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ArrowLeft from "@/components/icons/ArrowLeftIcon.vue";
+import ArrowLeft from "@/components/Icons/ArrowLeftIcon.vue";
 import Stack from "@/components/VStack.vue";
 import { useRouter } from "vue-router";
 import ResetPasswordFactory from "@/components/Auth/ResetPasswordFactory.vue";
