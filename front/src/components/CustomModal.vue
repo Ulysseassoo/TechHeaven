@@ -39,7 +39,12 @@ const handleSubmit = async () => {
     {{ btnContent }}
   </v-btn>
 
-  <v-dialog v-model="dialog" width="auto" persistent :max-width="dialogMaxWidth">
+  <v-dialog
+    v-model="dialog"
+    width="auto"
+    persistent
+    :max-width="dialogMaxWidth"
+  >
     <v-card prepend-icon="fa-solid fa-user" :title="modalTitle">
       <v-card-text>
         <slot name="ModalContent"> </slot>

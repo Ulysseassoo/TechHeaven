@@ -40,8 +40,17 @@ onMounted(() => {
           <span @click="navigateBack">Back to the website</span>
         </Stack>
         <h1>Welcome to our website !</h1>
-        <DividerWithText container-class="mt-12 mb-8 relative" content="Continue With" />
-        <Stack align="center" justify="center" direction="row" margin="1rem" gap="1.2rem">
+        <DividerWithText
+          container-class="mt-12 mb-8 relative"
+          content="Continue With"
+        />
+        <Stack
+          align="center"
+          justify="center"
+          direction="row"
+          margin="1rem"
+          gap="1.2rem"
+        >
           <VBtn
             flex="1"
             height="55px"

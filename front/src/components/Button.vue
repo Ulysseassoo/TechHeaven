@@ -9,7 +9,7 @@ withDefaults(
   {
     color: "blue",
     type: "flat",
-  }
+  },
 );
 </script>
 

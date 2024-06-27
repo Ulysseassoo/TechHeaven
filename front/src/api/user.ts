@@ -68,7 +68,7 @@ export const deleteUser = async (userId: string) => {
   return response;
 };
 
-export const updateUser = async ({userId, data, config} : UpdateUserProps) => {
+export const updateUser = async ({ userId, data, config }: UpdateUserProps) => {
   const url = `${HOST}/users/${userId}`;
   const token = localStorage.getItem("token");
   const response = await putApi<User>(url, data, {

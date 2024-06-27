@@ -38,19 +38,19 @@ const actions = [
         user: row,
         icon: "fa-solid fa-eye",
         tooltipLabel: "Voir",
-      })
+      }),
   },
   {
     label: "Modifier",
     id: "edit",
     renderCell: (row: User) =>
-    h(UserModal, {
+      h(UserModal, {
         user: row,
         canEdit: true,
         icon: "fa-solid fa-pen",
         tooltipLabel: "Modifier",
         callback: () => fetchUsers(),
-      })
+      }),
   },
   {
     label: "Supprimer",
@@ -92,7 +92,10 @@ async function fetchUsers() {
       search: search.value !== "" ? search.value : undefined,
     });
     users.value = response.data;
-    if (response.totalCount !== undefined && response.totalPages !== undefined) {
+    if (
+      response.totalCount !== undefined &&
+      response.totalPages !== undefined
+    ) {
       totalCount.value = response.totalCount;
       totalPages.value = response.totalPages;
     }

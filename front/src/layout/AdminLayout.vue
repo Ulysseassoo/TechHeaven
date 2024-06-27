@@ -19,7 +19,8 @@ const items = ref([
 const route = useRoute();
 const router = useRouter();
 
-const isRouteActive = (routeName: string) => computed(() => route.path === routeName);
+const isRouteActive = (routeName: string) =>
+  computed(() => route.path === routeName);
 
 const logout = async () => {
   await logoutUser();
@@ -32,7 +33,13 @@ const logout = async () => {
 
 <template>
   <v-layout>
-    <v-navigation-drawer v-model="drawer" app color="tertiary" rail rail-width="80">
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      color="tertiary"
+      rail
+      rail-width="80"
+    >
       <v-avatar class="d-block text-center mx-auto mt-4 mb-16 logo" size="40">
         TH
       </v-avatar>
@@ -50,7 +57,9 @@ const logout = async () => {
           :class="isRouteActive(item.route).value ? 'border' : ''"
           @click="$router.push(item.route)"
         >
-          <v-tooltip activator="parent" location="end">{{ item.title }}</v-tooltip>
+          <v-tooltip activator="parent" location="end">{{
+            item.title
+          }}</v-tooltip>
           <v-icon color="white" class="icon">{{ item.icon }}</v-icon>
         </VListItem>
       </v-list>
@@ -91,7 +100,9 @@ const logout = async () => {
             @click="logout"
             :ripple="false"
           >
-            <v-tooltip activator="parent" location="end">Se déconnecter</v-tooltip>
+            <v-tooltip activator="parent" location="end"
+              >Se déconnecter</v-tooltip
+            >
             <v-icon color="white icon">fa-solid fa-right-from-bracket </v-icon>
           </VListItem>
         </v-list>

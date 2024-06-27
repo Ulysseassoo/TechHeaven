@@ -17,6 +17,6 @@ export const logoutUser = async () => {
   try {
     localStorage.removeItem("token");
   } catch (error: any) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
