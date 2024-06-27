@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Button from "../Button.vue";
+import Button from "@/components/Button.vue";
 import { useDisplay } from "vuetify";
 
 defineProps<{
@@ -17,9 +17,7 @@ const { xs } = useDisplay();
     <img class="product-image" :src="img" alt="image of the product" />
     <div class="product-details" :class="xs ? 'mobile' : null">
       <p class="product-details-name">{{ name }}</p>
-      <Button class="product-details-cta" content="Acheter">{{
-        ctaText
-      }}</Button>
+      <Button class="product-details-cta" content="Acheter">{{ ctaText }}</Button>
     </div>
   </div>
 </template>

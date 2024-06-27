@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import ProductCard from "./ProductCard.vue";
+import ProductCard from "@/components/Home/ProductCard.vue";
 import { useDisplay } from "vuetify";
 
-import keyboardImage from "../../assets/Home/welcome-new-product-keyboard.avif";
-import Sony from "../../assets/Home/sony.avif";
+import keyboardImage from "@/assets/Home/welcome-new-product-keyboard.avif";
+import Sony from "@/assets/Home/sony.avif";
 
 const { xs } = useDisplay();
 </script>
@@ -22,18 +22,8 @@ const { xs } = useDisplay();
         />
       </div>
       <div class="products">
-        <ProductCard
-          name="Sony"
-          :img="Sony"
-          cta-text="Acheter"
-          :is-full-height="false"
-        />
-        <ProductCard
-          name="Sony"
-          :img="Sony"
-          cta-text="Acheter"
-          :is-full-height="false"
-        />
+        <ProductCard name="Sony" :img="Sony" cta-text="Acheter" :is-full-height="false" />
+        <ProductCard name="Sony" :img="Sony" cta-text="Acheter" :is-full-height="false" />
       </div>
     </div>
   </section>

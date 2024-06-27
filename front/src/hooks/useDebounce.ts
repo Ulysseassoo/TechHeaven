@@ -1,6 +1,9 @@
-import { ref } from 'vue';
+import { ref } from "vue";
 
-export const useDebounce = <T extends (...args: any[]) => void>(fn: T, delay: number): T => {
+export const useDebounce = <T extends (...args: any[]) => void>(
+  fn: T,
+  delay: number,
+): T => {
   const timeout = ref<ReturnType<typeof setTimeout> | null>(null);
 
   const debouncedFunction = ((...args: Parameters<T>) => {
@@ -13,4 +16,4 @@ export const useDebounce = <T extends (...args: any[]) => void>(fn: T, delay: nu
   }) as T;
 
   return debouncedFunction;
-}
+};

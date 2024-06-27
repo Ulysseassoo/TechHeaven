@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import moment from "moment";
 import { computed, ref, watch } from "vue";
-import { TableColumn } from "../interfaces/Table";
-import ModalButton from "../components/ModalButton.vue";
+import type { RendererElement, RendererNode, VNode } from "vue";
+import type { TableColumn } from "../interfaces/Table";
 
 interface Action {
   label: string;
-  action: (item: any) => Promise<void>;
-  icon: string;
   id: string;
+  renderCell: (
+    item: any
+  ) => VNode<
+    RendererNode,
+    RendererElement,
+    {
+      [key: string]: any;
+    }
+  >;
 }
 
 interface DataTableProps {
@@ -79,7 +86,8 @@ const sortedData = computed(() => {
 });
 
 const allSelected = computed(
-  () => selectedItems.value.length === sortedData.value.length
+  () =>
+    sortedData.value.length > 0 && selectedItems.value.length === sortedData.value.length
 );
 
 const startItem = computed(() => (currentPage.value - 1) * localItemsPerPage.value + 1);
@@ -189,22 +197,7 @@ const handleDeleteAll = async () => {
           <td>
             <v-container fluid class="actions-container">
               <div v-for="action in actions" :key="action.label">
-                <div v-if="action.id === 'delete'">
-                  <ModalButton
-                    :icon="action.icon"
-                    :tooltipLabel="action.label"
-                    :action="async () => action.action(row)"
-                    v-if="!row.deleted_at"
-                    title="Attention"
-                    description="Voulez vous vraiment confirmer votre action ?"
-                  />
-                </div>
-                <v-btn v-else @click="action.action(row)">
-                  <v-tooltip activator="parent" location="top">{{
-                    action.label
-                  }}</v-tooltip>
-                  <v-icon>{{ action.icon }}</v-icon>
-                </v-btn>
+                <component :is="action.renderCell(row)"></component>
               </div>
             </v-container>
           </td>

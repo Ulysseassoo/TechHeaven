@@ -6,12 +6,22 @@ import Order from '../src/models/Order.mjs';
 import * as dotenv from "dotenv";
 import OrderDetail from '../src/models/OrderDetail.mjs';
 import { faker } from '@faker-js/faker';
+import moment from "moment";
 
 
 
 const prisma = new PrismaClient();
 
 dotenv.config();
+
+const getRandomDateBetween2023And2024 = () => {
+    const start = moment('2023-01-01').startOf('year').valueOf();
+    const end = moment('2024-12-31').endOf('year').valueOf();
+    
+    const randomTimestamp = Math.floor(Math.random() * (end - start + 1)) + start;
+    
+    return moment(randomTimestamp);
+  }
 
 async function main() {
     const salt = bcrypt.genSaltSync(10);
@@ -46,7 +56,7 @@ async function main() {
 
     const { _id, postgresId } = await getIdMapping(user.id);
 
-    for (let i = 0; i < 300; i++) {
+    for (let i = 0; i < 600; i++) {
         await createData({
             model: 'user',
             data: {
@@ -55,6 +65,7 @@ async function main() {
                 email: faker.internet.email(),
                 role: "ROLE_USER",
                 password: passwordEncrypted,
+                created_at: getRandomDateBetween2023And2024().format(),
                 last_updated_password: new Date(),
                 has_confirmed_account: true,
                 phone: faker.phone.number(),

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import Stack from "../Stack.vue";
+import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios, { AxiosRequestConfig } from "axios";
-import { useForm } from "../../hooks/useForm";
+import axios from "axios";
+import type { AxiosRequestConfig } from "axios";
+import { useForm } from "@/hooks/useForm";
 
 const props = defineProps<{
   onNext: () => void;
@@ -17,7 +18,7 @@ type FormValues = z.infer<typeof validationSchema>;
 
 const initialValues = {
   code: "",
-  email: props.email
+  email: props.email,
 };
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
@@ -25,15 +26,17 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     await axios.post("http://localhost:8000/api/verify/code", formData, config);
     props.onNext();
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
-  initialValues,
-  validationSchema,
-  onSubmit,
-});
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
+  useForm({
+    initialValues,
+    validationSchema,
+    onSubmit,
+  });
 </script>
 
 <template>
@@ -77,7 +80,8 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
           >Submit code</VBtn
         >
         <span
-          >Already have an account ? <RouterLink to="/login">Login here</RouterLink></span
+          >Already have an account ?
+          <RouterLink to="/login">Login here</RouterLink></span
         >
       </Stack>
     </VForm>

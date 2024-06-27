@@ -8,7 +8,7 @@ export const generateConfirmationToken = (userId) => {
 
 export const generateSessionToken = (userId, role) => {
     const JWT_SECRET = process.env.JWT_SECRET;
-    const token = jwt.sign({ userId, type: "session", role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId, type: "session", role }, JWT_SECRET, { expiresIn: '1d' });
     return token;
 }
 

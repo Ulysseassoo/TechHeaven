@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import DataTable from "../../components/DataTable.vue";
-import { deleteUser, getUsers } from "../../api/user";
-import { User } from "../../interfaces/User";
-import { toast, type ToastOptions } from 'vue3-toastify';
-import { TableColumn } from "../../interfaces/Table";
-import { useDebounce } from "../../hooks/useDebounce";
-import CreateModal from "../../components/CreateModal.vue";
-
+import { h, onMounted, ref } from "vue";
+import DataTable from "@/components/DataTable.vue";
+import { deleteUser, getUsers } from "@/api/user";
+import type { User } from "@/interfaces/User";
+import type { TableColumn } from "@/interfaces/Table";
+import { toast, type ToastOptions } from "vue3-toastify";
+import { useDebounce } from "@/hooks/useDebounce";
+import ModalButton from "@/components/ModalButton.vue";
+import UserModal from "@/components/Admin/UserModal.vue";
 
 const columns: TableColumn<User>[] = [
   { value: "firstname", label: "Prénom" },
@@ -32,37 +32,54 @@ const actions = [
   {
     label: "Voir",
     id: "view",
-    action: async (item: User) => {
-      console.log("Voir", item.email);
-    },
     icon: "fa-solid fa-eye",
+    renderCell: (row: User) =>
+      h(UserModal, {
+        user: row,
+        icon: "fa-solid fa-eye",
+        tooltipLabel: "Voir",
+      })
   },
   {
     label: "Modifier",
     id: "edit",
-    action: async (item: User) => {
-      console.log("Modifier", item);
-    },
-    icon: "fa-solid fa-pen",
+    renderCell: (row: User) =>
+    h(UserModal, {
+        user: row,
+        canEdit: true,
+        icon: "fa-solid fa-pen",
+        tooltipLabel: "Modifier",
+        callback: () => fetchUsers(),
+      })
   },
   {
     label: "Supprimer",
     id: "delete",
-    action: async (item: User) => {
-      try {
-        const response = await deleteUser(item.id);
-        if(response.message !== undefined) {
-          toast.success(response.message, {
-        autoClose: 2000,
-        position: toast.POSITION.BOTTOM_RIGHT,
-        } as ToastOptions);
-        }
-        fetchUsers();
-      } catch (error: any) {
-        throw error || "Une erreur est survenue, veuillez réessayer"
-      }
-    },
-    icon: "fa-solid fa-trash",
+    renderCell: (row: User) =>
+      h("div", [
+        !row.deleted_at
+          ? h(ModalButton, {
+              icon: "fa-solid fa-trash",
+              tooltipLabel: "Supprimer",
+              action: async () => {
+                try {
+                  const response = await deleteUser(row.id);
+                  if (response.message !== undefined) {
+                    toast.success(response.message, {
+                      autoClose: 2000,
+                      position: toast.POSITION.BOTTOM_RIGHT,
+                    } as ToastOptions);
+                  }
+                  fetchUsers();
+                } catch (error: any) {
+                  throw error || "Une erreur est survenue, veuillez réessayer";
+                }
+              },
+              title: "Attention",
+              description: "Voulez-vous vraiment confirmer votre action ?",
+            })
+          : null,
+      ]),
   },
 ];
 
@@ -75,7 +92,7 @@ async function fetchUsers() {
       search: search.value !== "" ? search.value : undefined,
     });
     users.value = response.data;
-    if (response.totalCount && response.totalPages) {
+    if (response.totalCount !== undefined && response.totalPages !== undefined) {
       totalCount.value = response.totalCount;
       totalPages.value = response.totalPages;
     }
@@ -100,26 +117,26 @@ onMounted(() => {
   fetchUsers();
 });
 
-const debouncedSearchUsers  = useDebounce(fetchUsers, 500);
+const debouncedSearchUsers = useDebounce(fetchUsers, 500);
 const deleteAllUsersSelected = async (ids: string[]) => {
   try {
-    const deletePromises = ids.map(userId => deleteUser(userId));
-    const responses = await Promise.all(deletePromises)
-    const allDeleted = responses.every(response => response.status === 200);
-    if(allDeleted) {
+    const deletePromises = ids.map((userId) => deleteUser(userId));
+    const responses = await Promise.all(deletePromises);
+    const allDeleted = responses.every((response) => response.status === 200);
+    if (allDeleted) {
       toast.success("Tous les utilisateurs sélectionnés ont été supprimés.", {
-          autoClose: 2000,
-          position: toast.POSITION.BOTTOM_RIGHT,
-          } as ToastOptions);
-        }
-        fetchUsers();
+        autoClose: 2000,
+        position: toast.POSITION.BOTTOM_RIGHT,
+      } as ToastOptions);
+    }
+    fetchUsers();
   } catch (error) {
     toast.error("Une erreur est survenue.", {
-          autoClose: 2000,
-          position: toast.POSITION.BOTTOM_RIGHT,
-          } as ToastOptions);
+      autoClose: 2000,
+      position: toast.POSITION.BOTTOM_RIGHT,
+    } as ToastOptions);
   }
-}
+};
 </script>
 
 <template>
@@ -150,9 +167,6 @@ const deleteAllUsersSelected = async (ids: string[]) => {
           v-model="search"
           @input="debouncedSearchUsers"
         ></v-text-field>
-        <CreateModal color="tertiary" content="Créer un utilisateur">
-          <template v-slot:header> zeoijmdzed </template>
-        </CreateModal>
       </template>
     </DataTable>
   </div>

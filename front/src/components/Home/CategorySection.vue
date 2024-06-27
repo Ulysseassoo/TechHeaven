@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
-import FirstSection from "./Categories/FirstSection.vue";
-import SecondSection from "./Categories/SecondSection.vue";
-import ThirdSection from "./Categories/ThirdSection.vue";
+import FirstSection from "@/components/Home/Categories/FirstSection.vue";
+import SecondSection from "@/components/Home/Categories/SecondSection.vue";
+import ThirdSection from "@/components/Home/Categories/ThirdSection.vue";
 </script>
 
 <template>

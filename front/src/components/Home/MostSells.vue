@@ -2,7 +2,7 @@
 import ProductCard from "./ProductCard.vue";
 import { useDisplay } from "vuetify";
 
-import keyboardImage from "../../assets/Home/welcome-new-product-keyboard.avif";
+import keyboardImage from "@/assets/Home/welcome-new-product-keyboard.avif";
 
 const { xs } = useDisplay();
 </script>

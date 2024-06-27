@@ -10,7 +10,7 @@ import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authenticati
 import { createData, getIdMapping, updateData, upsertData } from "../utils/sync.mjs";
 import { anonymizeUserData } from "../utils/anonym.mjs";
 import User from "../models/User.mjs";
-import { getNewUsersOverTime, getTotalUsers } from "../utils/stats.mjs";
+import { getNewUsersOverTime, getTotalRevenue, getTotalRevenuePerDate, getTotalUsers } from "../utils/stats.mjs";
 
 const generateRandomCode = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -56,8 +56,8 @@ router.post("/users", authValidator, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(401).send({
-                status: 401,
+            return res.status(422).send({
+                status: 422,
                 message: errors.formatWith(({ msg, path }) => {
                     return {
                         msg,
@@ -150,12 +150,16 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     try {
         const totalUsers = await getTotalUsers();
         const newUsers = await getNewUsersOverTime();
+        const totalRevenue = await getTotalRevenue();
+        const totalRevenuePerDate = await getTotalRevenuePerDate();
 
         return res.status(200).json({
             status: 200,
             data: {
                 totalUsers,
-                newUsers
+                newUsers,
+                totalRevenue,
+                totalRevenuePerDate
             }
         })
     } catch (error) {
@@ -210,7 +214,7 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
         });
     }
 
-    const { email, firstname, lastname, phone } = req.body;
+    const { email, firstname, lastname, phone, has_confirmed_account, number_connexion_attempts, role } = req.body;
 
     try {
         const { postgresId } = await getIdMapping(id)
@@ -234,7 +238,10 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
                 email,
                 firstname,
                 lastname,
-                phone: phone ?? null
+                phone: phone ?? null,
+                has_confirmed_account, 
+                number_connexion_attempts, 
+                role
             },
             select: {
                 email: true,

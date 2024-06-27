@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ButtonVariants } from "../types/VutifyButtonTypes";
+import type { ButtonVariants } from "@/types/VutifyButtonTypes";
 withDefaults(
   defineProps<{
     content: string;

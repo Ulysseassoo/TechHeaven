@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { logoutUser } from "@/api/auth";
 import { computed, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { VListItem } from "vuetify/components";
 
 const drawer = ref(null);
@@ -8,12 +9,25 @@ const items = ref([
   { icon: "fa-solid fa-table", title: "Dashboard", route: "/admin" },
   { icon: "fa-solid fa-user", title: "Utilisateurs", route: "/admin/users" },
   { icon: "fa-solid fa-box", title: "Commandes", route: "/admin/orders" },
-  { icon: "fa-solid fa-file-invoice", title: "Factures", route: "/admin/invoices" },
+  {
+    icon: "fa-solid fa-file-invoice",
+    title: "Factures",
+    route: "/admin/invoices",
+  },
 ]);
 
 const route = useRoute();
+const router = useRouter();
 
 const isRouteActive = (routeName: string) => computed(() => route.path === routeName);
+
+const logout = async () => {
+  await logoutUser();
+  await router.push({
+    name: "Login",
+    replace: true,
+  });
+};
 </script>
 
 <template>
@@ -72,7 +86,9 @@ const isRouteActive = (routeName: string) => computed(() => route.path === route
               display: flex;
               align-items: center;
               justify-content: center;
+              cursor: pointer;
             "
+            @click="logout"
             :ripple="false"
           >
             <v-tooltip activator="parent" location="end">Se déconnecter</v-tooltip>
