@@ -204,6 +204,35 @@ router.get('/success/:invoiceId', async (req, res) => {
 router.get('/cancel', (req, res) => {
   res.send('Paiement annulé.');
 });
+
+
+
+/////// Générer l'ID de la colonne paymentIntentID pour accéder au Refund /////////
+
+router.post('/create-payment-intent', async (req, res) => {
+  const { invoiceId } = req.body;
+
+  try {
+    const invoice = await Invoice.findById(invoiceId);
+
+    if (!invoice) {
+      return res.status(404).send({ message: 'Facture non trouvée' });
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: invoice.amount * 100,
+      currency: 'eur',
+      metadata: { invoiceId: invoice.id },
+    });
+
+    invoice.paymentIntentId = paymentIntent.id;
+    await invoice.save();
+
+    res.send({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    res.status(500).send({ message: 'Erreur lors de la création du paiement', error: error.message });
+  }
+});
   
 
 /// Remboursement 
@@ -211,19 +240,15 @@ router.post('/refund', async (req, res) => {
   const { paymentIntentId, invoiceId } = req.body;
 
   try {
-    //const invoice = await Invoice.findOne({ _id: invoiceId });
-
-    const invoice = await db.invoice.findUnique({
-      where: { id: parseInt(invoiceId) },
-    });
+    const invoice = await Invoice.findById(invoiceId);
 
     if (!invoice) {
-      return res.status(404).send({ message: 'Invoice not found' });
+      return res.status(404).send({ message: 'Facture non trouvée' });
     }
 
     // Vérifier si la facture a été payée
     if (invoice.status !== 'paid') {
-      return res.status(400).send({ message: 'Invoice has not been paid yet, cannot refund.' });
+      return res.status(400).send({ message: 'La facture n\'a pas encore été payée, impossible de rembourser.' });
     }
 
     // Récupérer l'intention de paiement
@@ -232,18 +257,17 @@ router.post('/refund', async (req, res) => {
     console.log('PaymentIntent:', paymentIntent); // Debug log
 
     if (!paymentIntent) {
-      return res.status(400).send({ message: 'PaymentIntent not found, cannot refund.' });
+      return res.status(400).send({ message: 'PaymentIntent non trouvé, impossible de rembourser.' });
     }
 
-    // Ajout de journaux de débogage pour le statut du PaymentIntent
-    console.log('PaymentIntent Status:', paymentIntent.status);
+    console.log('PaymentIntent Status:', paymentIntent.status); // Debug log
 
     if (paymentIntent.status !== 'succeeded') {
-      return res.status(400).send({ message: 'PaymentIntent has not succeeded yet, cannot refund.' });
+      return res.status(400).send({ message: 'Le PaymentIntent n\'a pas encore réussi, impossible de rembourser.' });
     }
 
     if (!paymentIntent.charges || paymentIntent.charges.data.length === 0) {
-      return res.status(400).send({ message: 'No charges found for this PaymentIntent, cannot refund.' });
+      return res.status(400).send({ message: 'Aucune charge trouvée pour ce PaymentIntent, impossible de rembourser.' });
     }
 
     // Récupérer l'ID de la charge réussie
@@ -267,35 +291,7 @@ router.post('/refund', async (req, res) => {
 });
 
 
-/////// Générer l'ID de la colonne paymentIntentID pour accéder au Refund
-router.post('/create-payment-intent', async (req, res) => {
-  const { invoiceId } = req.body;
 
-  try {
-    const invoice = await db.invoice.findUnique({
-      where: { id: parseInt(invoiceId) },
-    });
-  
-    if (!invoice) {
-      return res.status(404).send({ message: 'Invoice not found' });
-    }
-
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: invoice.amount * 100,
-      currency: 'eur',
-      metadata: { invoiceId: invoice.id },
-    });
-
-    await db.invoice.update({
-      where: { id: invoice.id },
-      data: { paymentIntentId: paymentIntent.id }
-    });
-
-    res.send({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
-    res.status(500).send({ message: 'Erreur lors de la création du paiement', error: error.message });
-  }
-});
 
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
 const sig = req.headers['stripe-signature'];
