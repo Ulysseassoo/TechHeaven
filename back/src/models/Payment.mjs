@@ -1,13 +1,14 @@
-import { Schema, Types, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
 
-const paymentSchema = new Schema({
+const paymentSchema = new mongoose.Schema({
+    id: { type: String, unique: true, required: true },
     paid_amount: Number,
     payment_method: String,
     status: String,
-    order: { type: Schema.Types.ObjectId, ref: 'Order' },
+    order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
 });
 
-const Payment = model('Payment', paymentSchema);
+const Payment = mongoose.model('Payment', paymentSchema);
 
 export default Payment;

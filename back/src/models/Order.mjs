@@ -1,14 +1,15 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
 
-const orderSchema = new Schema({
+const orderSchema = new mongoose.Schema({
+  id: { type: String, unique: true, required: true },
     date: { type: Date, default: Date.now },
     status: String,
     total_amount: Number,
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    order_details: [{ type: Schema.Types.ObjectId, ref: 'OrderDetail' }],
-    deliveries: [{ type: Schema.Types.ObjectId, ref: 'Delivery' }],
-    payments: [{ type: Schema.Types.ObjectId, ref: 'Payment' }],
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    order_details: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderDetail' }],
+    deliveries: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Delivery' }],
+    payments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Payment' }],
 });
 
 orderSchema.method('toClient', function () {
@@ -37,6 +38,6 @@ orderSchema.statics.findToClient = async function (query, page, limit) {
     return orders.map(order => order.toClient());
 };
 
-const Order = model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
 
 export default Order;

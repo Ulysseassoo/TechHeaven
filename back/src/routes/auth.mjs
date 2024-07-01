@@ -3,7 +3,6 @@ import { resetPasswordValidator, verifyValidator, changePasswordValidator, confi
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
-import { getIdMapping, updateData } from "../utils/sync.mjs";
 import moment from 'moment';
 import {  sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import {  generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
@@ -51,26 +50,22 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
                 if (decodedToken.type === 'confirmation') {
                     const userId = decodedToken.userId;
 
-                    const { postgresId } = await getIdMapping(userId)
-
-
                     const user = await db.user.findUnique({
                         where: {
-                            id: postgresId,
+                            id: userId,
                         }
                     })
 
                     if (user !== undefined) {
                         if (!user.has_confirmed_account) {
-                            await updateData({
-                                model: "user",
+                            await db.user.update({
                                 where: {
-                                    id: postgresId
+                                    id: userId,
                                 },
                                 data: {
                                     has_confirmed_account: true,
                                 }
-                            })
+                            });
 
                             res.status(200).json({ status: 200, message: 'Compte confirmé avec succès.' });
                         } else {
@@ -112,8 +107,7 @@ router.post("/auth", async (req, res) => {
 
     if (!validPassword) {
         if (user.number_connexion_attempts >= 3) {
-            await updateData({
-                model: "user",
+            await db.user.update({
                 where: {
                     id: user.id,
                 },
@@ -121,15 +115,14 @@ router.post("/auth", async (req, res) => {
                     blocked_until: new Date(Date.now() + 15 * 60 * 1000),
                     number_connexion_attempts: 0,
                 }
-            });
+            })
 
             await sendNotificationEmail(user.email);
 
             return res.status(403).json({ status: 403, message: 'Trop de tentatives de connexion. Votre compte est temporairement bloqué.' });
         }
 
-        await updateData({
-            model: "user",
+        await db.user.update({
             where: {
                 id: user.id,
             },
@@ -137,13 +130,13 @@ router.post("/auth", async (req, res) => {
                 number_connexion_attempts: user.number_connexion_attempts + 1
             }
         })
+
         return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
     }
 
-    const token = generateSessionToken(user.postgresId, user.role);
+    const token = generateSessionToken(user.id, user.role);
 
-    await updateData({
-        model: "user",
+    await db.user.update({
         where: {
             id: user.id,
         },
@@ -185,8 +178,7 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
 
         const code = generateRandomCode(6)
         await sendPasswordResetEmail(existingUser.email, code)
-        await upsertData({
-            model: "passwordRecovery",
+        await db.passwordRecovery.upsert({
             where: {
                 user_id: existingUser.id,
             },
@@ -202,6 +194,7 @@ router.post("/reset/password", resetPasswordValidator, async (req, res) => {
                 last_request: moment().utc()
             }
         })
+
         return res.status(200).json({ status: 200, message: "Ok" });
 
     } catch (error) {
@@ -335,15 +328,14 @@ router.post("/change/password", changePasswordValidator, async (req, res) => {
             });
         }
 
-        await updateData({
-            model: "user",
+        await db.user.update({
             where: {
                 id: user.id
             },
             data: {
                 password,
                 last_updated_password: new Date(),
-            },
+            }
         });
 
         return res.status(200).json({ status: 200, message: 'Mot de passe mis à jour avec succès.' });

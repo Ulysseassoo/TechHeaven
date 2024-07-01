@@ -1,12 +1,12 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const productHasPromotionSchema = new Schema({
-    product: { type: Schema.Types.ObjectId, ref: 'Product' },
-    promotion: { type: Schema.Types.ObjectId, ref: 'Promotion' },
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
+const productHasPromotionSchema = new mongoose.Schema({
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    promotion: { type: mongoose.Schema.Types.ObjectId, ref: 'Promotion' },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
-const ProductHasPromotion = model('ProductHasPromotion', productHasPromotionSchema);
+const ProductHasPromotion = mongoose.model('ProductHasPromotion', productHasPromotionSchema);
 
 
 export default ProductHasPromotion;

@@ -1,50 +1,91 @@
 import User from '../models/User.mjs';
-import Address from '../models/Address.mjs';
 import Alert from '../models/Alert.mjs';
-import Preference from '../models/Preference.mjs';
-import PasswordRecovery from '../models/PasswordRecovery.mjs';
-import Category from '../models/Category.mjs';
 import Product from '../models/Product.mjs';
-import IdMapping from '../models/IdMapping.mjs';
 import Order from '../models/Order.mjs';
-import OrderDetail from '../models/OrderDetail.mjs';
 import Promotion from '../models/Promotion.mjs';
 import Payment from '../models/Payment.mjs';
-import ProductHasCategory from '../models/ProductHasCategory.mjs';
-import ProductHasPromotion from '../models/ProductHasPromotion.mjs';
-import Delivery from '../models/Delivery.mjs';
 import Cart from '../models/Cart.mjs';
-import CartHasProduct from '../models/CartHasProduct.mjs';
 
 const Models = {
-  user: User,
-  address: Address,
-  alert: Alert,
-  preference: Preference,
-  passwordRecovery: PasswordRecovery,
-  category: Category,
-  product: Product,
-  idMapping: IdMapping,
-  order: Order,
-  orderDetail: OrderDetail,
-  payment: Payment,
-  productHasCategory: ProductHasCategory,
-  productHasPromotion: ProductHasPromotion,
-  promotion: Promotion,
-  delivery: Delivery,
-  cart: Cart,
-  cartHasProduct: CartHasProduct,
+  User,
+  Alert,
+  Product,
+  Order,
+  Payment,
+  Promotion,
+  Cart,
 };
 
+const SubModels = {
+  Address: {
+    main: User,
+    sub: "addresses",
+    sub_key: "user_id"
+  },
+  PasswordRecovery: {
+    main: User,
+    sub: "passwordRecovery",
+    sub_key: "user_id"
+  },
+  Preference: {
+    main: User,
+    sub: "preferences",
+    sub_key: "user_id"
+  },
+  Category: {
+    main: Product,
+    sub: "categories",
+    sub_key: "product_id"
+  },
+  OrderDetail: {
+    main: Order,
+    sub: "orderDetails",
+    sub_key: "order_id"
+  },
+  ProductHasCategory: {
+    main: Product,
+    sub: "productHasCategories",
+    sub_key: "product_id"
+  },
+  ProductHasPromotion: {
+    main: Product,
+    sub: "productHasPromotions",
+    sub_key: "product_id"
+  },
+  Delivery: {
+    main: Order,
+    sub: "delivery",
+    sub_key: "order_id"
+  },
+  CartHasProduct: {
+    main: Cart,
+    sub: "cartHasProducts",
+    sub_key: "cart_id"
+  },
+  Payment: {
+    main: Order,
+    sub: "payment",
+    sub_key: "order_id"
+  }
+}
+
 /**
- * 
- * @param {string} model 
+ * Get the model or submodel based on the provided name.
+ * @param {string} model The name of the model or submodel to retrieve.
+ * @returns The model or submodel if found.
+ * @throws {Error} If neither model nor submodel is found.
  */
 export const getModel = async (model) => {
-  if (!Models[model]) {
-    throw new Error(`Model ${model} does not exist.`);
+  if(!Models[model] && !SubModels[model]) {
+    throw new Error(`Model ${model} not found.`);
   }
 
-  const Model = Models[model];
-  return Model;
+  if (Models[model]) {
+    return Models[model];
+  }
+
+  if (SubModels[model]) {
+    return SubModels[model];
+  }
+
 }

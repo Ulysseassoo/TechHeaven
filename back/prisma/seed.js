@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { createData, getIdMapping } from '../src/utils/sync.mjs';
-import mongoose from 'mongoose';
+import mongoose from '../src/middlewares/mongooseConfig.mjs';
 import bcrypt from "bcryptjs";
 import Order from '../src/models/Order.mjs';
 import * as dotenv from "dotenv";

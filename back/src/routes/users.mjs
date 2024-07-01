@@ -5,7 +5,6 @@ import { db } from "../utils/db.server.mjs";
 import { sendConfirmationEmail } from "../utils/mailer.mjs";
 import { generateConfirmationToken } from "../utils/jwt.mjs";
 import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authentication.mjs";
-import { createData, getIdMapping, updateData } from "../utils/sync.mjs";
 import { anonymizeUserData } from "../utils/anonym.mjs";
 import User from "../models/User.mjs";
 import { getNewUsersOverTime, getTotalRevenue, getTotalRevenuePerDate, getTotalUsers } from "../utils/stats.mjs";
@@ -15,10 +14,8 @@ const router = express.Router();
 
 router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
     try {
-        const { _id } = await getIdMapping(req.user.id);
-
         const user = await User.findOne({
-            _id,
+            id: req.user.id,
         }).select("-password");
 
         if (!user) {
@@ -64,8 +61,7 @@ router.post("/users", authValidator, async (req, res) => {
             return res.status(400).json({ status: 400, message: "L'utilisateur existe déjà." });
         }
 
-        const user = await createData({
-            model: "user",
+        const user = await db.user.create({
             data: {
                 email,
                 firstname,
@@ -156,10 +152,9 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
     try {
-        const { _id } = await getIdMapping(id)
 
         const user = await User.findOne({
-            _id,
+            id,
         })
 
         if (!user) {
@@ -179,7 +174,7 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
+router.put("/users/:id", userValidator, async (req, res) => {
     const id = req.params.id
 
     const errors = validationResult(req);
@@ -199,11 +194,9 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
     const { email, firstname, lastname, phone, has_confirmed_account, number_connexion_attempts, role } = req.body;
 
     try {
-        const { postgresId } = await getIdMapping(id)
-
         const user = await db.user.findUnique({
             where: {
-                id: postgresId
+                id
             }
         })
 
@@ -211,10 +204,9 @@ router.put("/users/:id", shouldBeAdmin, userValidator, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
         }
 
-        const updatedUser = await updateData({
-            model: "user",
+        const updatedUser = await db.user.update({
             where: {
-                id: postgresId
+                id
             },
             data: {
                 email,
@@ -251,11 +243,9 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
     const id = req.params.id
 
     try {
-        const { postgresId } = await getIdMapping(id)
-
         const user = await db.user.findUnique({
             where: {
-                id: postgresId,
+                id,
             }
         })
 
@@ -267,8 +257,7 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
         }
 
-        await updateData({
-            model: "user",
+        await db.user.update({
             where: {
                 id: postgresId
             },
