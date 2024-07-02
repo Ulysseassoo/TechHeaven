@@ -3,13 +3,13 @@ import express from "express";
 import { addressValidator } from "../validator/addressValidator.mjs";
 import { db } from "../utils/db.server.mjs";
 import { validationResult } from "express-validator";
-import { shouldBeAuthenticate } from "../middlewares/authentication.mjs";
+import { shouldBeAdmin, shouldBeAuthenticate } from "../middlewares/authentication.mjs";
 
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
 
-router.get("/addresses", async (req, res) => {
+router.get("/addresses", shouldBeAdmin, async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
         const query = {};

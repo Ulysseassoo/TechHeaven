@@ -90,13 +90,10 @@ export const mongoUpsert = async ({ model, where, create, update }) => {
   if (typeof Model !== "function") {
     const mainModel = Model.main;
     const subModelField = Model.sub;
-
-    const subDocumentQuery = {};
-    for (const key in where) {
-      subDocumentQuery[`${subModelField}.${key}`] = where[key];
-    }
-
-    const mainDocument = await mainModel.findOne(subDocumentQuery);
+    
+    const mainDocument = await mainModel.findOne({
+      id: where[Model.sub_key],
+    });
 
     if (!mainDocument) {
       throw new Error("Main document not found");
@@ -109,7 +106,10 @@ export const mongoUpsert = async ({ model, where, create, update }) => {
       });
 
       if (subDocument) {
-        Object.assign(subDocument, update);
+        Object.assign(subDocument, {
+          ...subDocument,
+          ...update,
+        });
       } else {
         mainDocument[subModelField].push(create);
       }

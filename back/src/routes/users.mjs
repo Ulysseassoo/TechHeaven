@@ -13,6 +13,7 @@ const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
 
 router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
+    console.log(req.user.id)
     try {
         const user = await User.findOne({
             id: req.user.id,

@@ -11,7 +11,7 @@ import AddressRoutes from "./routes/addresses.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
-import { connect } from "mongoose";
+import mongoose from "./middlewares/mongooseConfig.mjs";
 
 dotenv.config();
 
@@ -65,7 +65,7 @@ cron.schedule("0 0 * * *", () => {
 });
 
 // Connect to mongo database
-connect(process.env.DATABASE_URL_MONGODB, {
+mongoose.connect(process.env.DATABASE_URL_MONGODB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })

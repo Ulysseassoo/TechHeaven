@@ -24,8 +24,8 @@ const extendedDb = db.$extends({
             },
             async upsert({args, query}) {
                 if(args.create.password || args.update.password) {
-                    const passwordToHash = args.create.password ?? args.update.password;
-                    args.data.password = hashPassword(passwordToHash);
+                    args.create.password = hashPassword(args.create.password);
+                    args.update.password = hashPassword(args.update.password);
                 }
                 const result = await query(args);
                 return result;
@@ -65,7 +65,10 @@ const extendedDb = db.$extends({
                 await mongoUpsert({
                     model: model,
                     where: args.where,
-                    create: args.create,
+                    create: {
+                        ...args.create,
+                        id: result.id
+                    },
                     update: args.update,
                 })
                 return result;

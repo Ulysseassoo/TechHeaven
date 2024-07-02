@@ -7,7 +7,7 @@ const addressSchema = new mongoose.Schema({
   other: { type: String, default: null },
   address: { type: String, required: true },
   is_selected: { type: Boolean, required: true },
-  id: { type: String, unique: true, required: true },
+  id: { type: String, unique: true, required: true, sparse: true },
 });
 
 const passwordRecoverySchema = new mongoose.Schema({
@@ -31,9 +31,12 @@ const userSchema = new mongoose.Schema({
   last_updated_password: { type: Date, default: null },
   number_connexion_attempts: { type: Number, default: 0 },
   blocked_until: { type: Date, default: null },
-  addresses: [addressSchema],
+  addresses: { type: [addressSchema], default: [] },
   preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }],
-  passwordRecovery: passwordRecoverySchema,
+  passwordRecovery: {
+    type: passwordRecoverySchema,
+    default: null,
+  },
 });
 
 userSchema.statics.findToClient = async function (query, page, limit) {
