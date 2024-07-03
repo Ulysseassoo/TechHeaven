@@ -51,7 +51,11 @@ userSchema.statics.findAddresses = async function (query, page, limit) {
   const addresses = await this.aggregate([
     { $unwind: '$addresses' },
     { $match: query },
-    { $project: { _id: 0, addresses: 1 } },
+    { $project: { 
+      user_id: '$_id',
+      'addresses._id': 0,
+      addresses: 1
+     } },
     { $replaceRoot: { newRoot: '$addresses' } },
     { $skip: (page - 1) * limit },
     { $limit: limit }

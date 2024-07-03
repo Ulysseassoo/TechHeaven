@@ -196,7 +196,7 @@ router.delete("/addresses/:id", shouldBeAuthenticate, async (req, res) => {
             return res.status(404).json({ status: 404, message: "Addresse introuvable" });
         }
 
-        if (address.user_id !== user.id) {
+        if (address.user_id !== user.id && user.role!== "ROLE_ADMIN") {
             return res.status(400).json({ status: 400, message: "You don't have access to this ressource" });
         }
 

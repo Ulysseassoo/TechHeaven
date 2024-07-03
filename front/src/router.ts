@@ -9,6 +9,7 @@ import ResetPasswordView from "@/pages/ResetPasswordView.vue";
 import UsersView from "@/pages/Admin/UsersView.vue";
 import OrdersView from "@/pages/Admin/OrdersView.vue";
 import InvoicesView from "@/pages/Admin/InvoicesView.vue";
+import AddressesView from "@/pages/Admin/AddressesView.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
 import { getUserInformation } from "@/api/auth";
 import DashboardView from "@/pages/DashboardView.vue";
@@ -30,6 +31,11 @@ const routes: RouteRecordRaw[] = [
         path: "users",
         name: "Users",
         component: UsersView,
+      },
+      {
+        path: "addresses",
+        name: "Addresses",
+        component: AddressesView,
       },
       {
         path: "orders",

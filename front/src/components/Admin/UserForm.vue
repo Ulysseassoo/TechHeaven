@@ -7,6 +7,7 @@ import { useFields } from "@/hooks/useGetFields";
 import { VNumberInput } from "vuetify/labs/components";
 import { updateUser } from "@/api/user";
 import { toast } from "vue3-toastify";
+import { VSelect } from "vuetify/components";
 
 interface Props {
   user: User;
@@ -30,6 +31,7 @@ const validationSchema = z.object({
     .number()
     .refine((value) => !isNaN(value), "Veuillez entrer un nombre valide"),
   blocked_until: z.string().nullable(),
+  selected_address: z.string(),
 });
 
 type FormValues = z.infer<typeof validationSchema>;
@@ -37,7 +39,7 @@ type FormValues = z.infer<typeof validationSchema>;
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
     const result = await updateUser({
-      userId: props.user.id,
+      id: props.user.id,
       data: formData,
       config,
     });
@@ -57,12 +59,11 @@ const { data, errors, validateField, handleSubmit } = useForm({
       ? props.user.blocked_until.split("Z")[0]
       : null,
     created_at: props.user.created_at.split("Z")[0],
-    deleted_at: props.user.deleted_at
-      ? props.user.deleted_at.split("Z")[0]
-      : null,
+    deleted_at: props.user.deleted_at ? props.user.deleted_at.split("Z")[0] : null,
     last_updated_password: props.user.last_updated_password
       ? props.user.last_updated_password.split("Z")[0]
       : null,
+    selected_address: props.user.addresses.find((a) => a.is_selected)?.id!,
   },
   validationSchema,
   onSubmit,
@@ -92,6 +93,7 @@ const fieldsConfig: any[] = [
     type: "number",
   },
   { label: "Bloqué jusqu'à", field: "blocked_until", type: "datetime-local" },
+  { label: "Adresse sélectionnée", field: "selected_address", type: "select" },
 ];
 
 const { fields } = useFields<FormValues>({ errors, fieldsConfig });
@@ -107,7 +109,7 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
           v-model="data[field.field]"
           @change="validateField(field.field)"
           :error="field.hasError"
-          :disabled="disabled"
+          :readonly="disabled"
           :error-messages="field.error"
         ></v-checkbox>
         <VNumberInput
@@ -119,11 +121,27 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
           :error="field.hasError"
           :error-messages="field.error"
           @input="validateField(field.field)"
-          :disabled="disabled"
+          :readonly="disabled"
           :type="field.type"
           placeholder="-"
           persistent-placeholder
         ></VNumberInput>
+        <VSelect
+          v-else-if="field.type === 'select'"
+          :items="props.user.addresses"
+          :item-props="true"
+          item-title="address"
+          item-value="id"
+          variant="outlined"
+          :label="field.label"
+          v-model="data[field.field]"
+          :error="field.hasError"
+          :error-messages="field.error"
+          @update:modelValue="validateField(field.field)"
+          :readonly="disabled"
+          placeholder="-"
+          persistent-placeholder
+        ></VSelect>
         <v-text-field
           v-else
           variant="outlined"
@@ -132,7 +150,7 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
           :error="field.hasError"
           :error-messages="field.error"
           @input="validateField(field.field)"
-          :disabled="disabled"
+          :readonly="disabled"
           :type="field.type"
           placeholder="-"
           persistent-placeholder

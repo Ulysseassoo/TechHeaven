@@ -13,7 +13,6 @@ const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
 
 router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
-    console.log(req.user.id)
     try {
         const user = await User.findOne({
             id: req.user.id,
@@ -25,7 +24,7 @@ router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
 
         return res.status(200).json({
             status: 200,
-            data: user.toClient()
+            data: user
         });
     } catch (error) {
         return res.status(401).send({

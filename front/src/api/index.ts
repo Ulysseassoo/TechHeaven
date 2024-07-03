@@ -10,6 +10,12 @@ export interface ApiProps<T> {
   totalCount?: number;
 }
 
+export interface UpdateProps<T> {
+  id: string;
+  data: Partial<T>;
+  config: AxiosRequestConfig;
+}
+
 export interface ApiSuccess {
   status: number;
   message: string;

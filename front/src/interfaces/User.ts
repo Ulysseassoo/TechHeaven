@@ -1,3 +1,5 @@
+import type { Address } from "./Address";
+
 export interface User {
   id: string;
   firstname: string | null;
@@ -11,6 +13,7 @@ export interface User {
   last_updated_password: string | null;
   number_connexion_attempts: number;
   blocked_until: string | null;
+  addresses: Address[];
 }
 
 export interface UserCountDate {
