@@ -122,9 +122,10 @@ router.get("/addresses/:id", shouldBeAuthenticate, async (req, res) => {
     }
 });
 
-router.put("/addresses/:id", addressValidator, async (req, res) => {
+router.put("/addresses/:id", shouldBeAuthenticate, addressValidator, async (req, res) => {
     try {
         const { id } = req.params;
+        const user = req.user;
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(422).send({
@@ -138,7 +139,7 @@ router.put("/addresses/:id", addressValidator, async (req, res) => {
             });
         }
 
-        const { city, country, postal_code, address, is_selected, other, user_id } = req.body;
+        const { city, country, postal_code, address, is_selected, other } = req.body;
 
         const existingAddress = await db.address.findUnique({
             where: {
@@ -153,6 +154,10 @@ router.put("/addresses/:id", addressValidator, async (req, res) => {
             });
         }
 
+        if (existingAddress.user_id !== user.id && user.role !== "ROLE_ADMIN") {
+            return res.status(400).json({ status: 400, message: "You don't have access to this ressource" });
+        }
+
         const updatedAddress = await db.address.update({
             where: {
                 id
@@ -163,7 +168,7 @@ router.put("/addresses/:id", addressValidator, async (req, res) => {
                 country,
                 postal_code,
                 address,
-                is_selected: is_selected ?? existingAddress.is_selected, 
+                is_selected: Boolean(is_selected) ?? existingAddress.is_selected, 
                 other
             }
         });
