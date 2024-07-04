@@ -1,8 +1,5 @@
 import express from "express";
-import { validationResult } from "express-validator";
-// import { db } from "../utils/db.server.mjs";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
-import { createData, deleteData, getIdMapping, updateData } from "../utils/sync.mjs";
 import { db } from "../utils/db.server.mjs";
 import Category from "../models/Category.mjs";
 
@@ -14,8 +11,7 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
     try {
         const { name } = req.body;
 
-        const category = await createData({
-            model: "category",
+        const category = await db.category.create({
             data: {
                 name
             }
@@ -43,9 +39,11 @@ router.get("/categories/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { _id } = await getIdMapping(id)
-
-        const category = await Category.findById(_id);
+        const category = await Category.findOne({
+            where: {
+                id
+            }
+        });
 
         if (!category) {
             return res.status(404).json({ status: 404, message: "Catégorie non trouvée" });
@@ -63,12 +61,9 @@ router.put("/categories/:id", shouldBeAdmin, async (req, res) => {
         const { id } = req.params;
         const { name } = req.body;
 
-        const { postgresId } = await getIdMapping(id)
-
-        const updatedCategory = await updateData({
-            model: "category",
+        const updatedCategory = await db.category.update({
             where: {
-                id: postgresId
+                id
             },
             data: {
                 name
@@ -86,12 +81,9 @@ router.delete("/categories/:id", shouldBeAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { postgresId } = await getIdMapping(id)
-
-        await deleteData({
-            model: "category",
+        await db.category.delete({
             where: {
-                id: postgresId
+                id
             }
         });
 

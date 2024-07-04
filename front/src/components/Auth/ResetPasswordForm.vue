@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import Stack from "../Stack.vue";
+import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios, { AxiosRequestConfig } from "axios";
-import { useForm } from "../../hooks/useForm";
+import axios from "axios";
+import type { AxiosRequestConfig } from "axios";
+import { useForm } from "@/hooks/useForm";
 
 const props = defineProps<{
   onNext: (email: string) => void;
@@ -20,9 +21,14 @@ const initialValues = {
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    await axios.post("http://localhost:8000/api/reset/password", formData, config);
+    await axios.post(
+      "http://localhost:8000/api/reset/password",
+      formData,
+      config,
+    );
     props.onNext(formData.email);
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
@@ -33,12 +39,13 @@ const transform = {
   },
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
-  initialValues,
-  validationSchema,
-  onSubmit,
-  transform,
-});
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
+  useForm({
+    initialValues,
+    validationSchema,
+    onSubmit,
+    transform,
+  });
 </script>
 
 <template>
@@ -82,7 +89,8 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
           >Recover password</VBtn
         >
         <span
-          >Already have an account ? <RouterLink to="/login">Login here</RouterLink></span
+          >Already have an account ?
+          <RouterLink to="/login">Login here</RouterLink></span
         >
       </Stack>
     </VForm>

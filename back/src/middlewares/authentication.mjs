@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken"
+import { db } from "../utils/db.server.mjs";
 
 export const shouldBeAuthenticate = (req, res, next) => {
     const authHeader = req.headers['authorization'];
@@ -11,14 +12,21 @@ export const shouldBeAuthenticate = (req, res, next) => {
         });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
         if (err) {
             return res.status(403).send({
                 status: 401,
                 message: "Le token est invalide."
             });
         }
-        req.user = user;
+
+        const sessionUser = await db.user.findUnique({
+            where: {
+                id: user.userId,
+            }
+        })
+
+        req.user = sessionUser;
         
         next();
     });
@@ -35,20 +43,26 @@ export const shouldBeAdmin = (req, res, next) => {
         });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
         if (err) {
             return res.status(403).send({
                 status: 403,
                 message: "Le token est invalide."
             });
         }
-        req.user = user;
-        if(req.user.role !== "ROLE_ADMIN") {
+        const sessionUser = await db.user.findUnique({
+            where: {
+                id: user.userId,
+            }
+        })
+        if(sessionUser.role !== "ROLE_ADMIN") {
             return res.status(401).send({
                 status: 401,
                 message: "Vous n'avez pas accès à cette route"
             });
         }
+
+        req.user = sessionUser;
 
         next();
     });

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import ResetPasswordForm from "./ResetPasswordForm.vue";
-import VerificationCodeForm from "./VerificationCodeForm.vue";
-import ChangePasswordForm from "./ChangePasswordForm.vue";
+import ResetPasswordForm from "@/components/Auth/ResetPasswordForm.vue";
+import VerificationCodeForm from "@/components/Auth/VerificationCodeForm.vue";
+import ChangePasswordForm from "@/components/Auth/ChangePasswordForm.vue";
 import { useRouter } from "vue-router";
 
 const helperText = ref("");
@@ -46,7 +46,10 @@ const changePasswordOnSubmit = () => {
     <VerificationCodeForm :on-next="verifcationCodeOnNext" :email="userEmail" />
   </div>
   <div v-else-if="step === 2">
-    <ChangePasswordForm :on-submit="changePasswordOnSubmit" :email="userEmail" />
+    <ChangePasswordForm
+      :on-submit="changePasswordOnSubmit"
+      :email="userEmail"
+    />
   </div>
   <div v-else></div>
 </template>

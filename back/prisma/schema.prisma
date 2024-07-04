@@ -15,22 +15,26 @@ datasource db {
 }
 
 model User {
-  id                        String            @id @unique @default(uuid())
+  id                        String                @id @unique @default(uuid())
   firstname                 String?
   lastname                  String?
-  email                     String            @unique @db.VarChar(255)
+  email                     String                @unique @db.VarChar(255)
   phone                     String?
   password                  String
   role                      String
-  has_confirmed_account     Boolean           @default(false)
-  created_at                DateTime          @default(now())
+  has_confirmed_account     Boolean               @default(false)
+  created_at                DateTime              @default(now())
   deleted_at                DateTime?
   last_updated_password     DateTime?
-  number_connexion_attempts Int               @default(0)
+  number_connexion_attempts Int                   @default(0)
   blocked_until             DateTime?
   addresses                 Address[]
   preferences               Preference[]
   passwordRecovery          PasswordRecovery?
+  Cart                      Cart[]
+  Order                     Order[]
+  ProductHasPromotion       ProductHasPromotion[]
+  invoices                  Invoice[]
 }
 
 model Address {
@@ -40,7 +44,7 @@ model Address {
   postal_code String
   other       String?
   address     String
-  is_selected String
+  is_selected Boolean @default(false)
   user        User    @relation(fields: [user_id], references: [id])
   user_id     String
 }
@@ -73,21 +77,126 @@ model PasswordRecovery {
 }
 
 model Category {
-  id       String    @id @unique @default(uuid())
-  name     String
-  products Product[]
+  id                 String               @id @unique @default(uuid())
+  name               String
+  products           Product[]
+  ProductHasCategory ProductHasCategory[]
 }
 
 model Product {
-  id             String    @id @unique @default(uuid())
-  name           String
-  description    String
-  brand          String
-  price          Float
-  promo          Float?
-  photo          String?
-  stock_quantity Int
-  categoryId     String?
-  lowStockAlert  Boolean   @default(false)
-  category       Category? @relation(fields: [categoryId], references: [id])
+  id                  String                @id @unique @default(uuid())
+  name                String
+  description         String
+  brand               String
+  price               Float
+  promo               Float?
+  photo               String?
+  stock_quantity      Int
+  categoryId          String?
+  lowStockAlert       Boolean               @default(false)
+  category            Category?             @relation(fields: [categoryId], references: [id])
+  CartHasProducts     CartHasProducts[]
+  ProductHasCategory  ProductHasCategory[]
+  ProductHasPromotion ProductHasPromotion[]
+  invoices            Invoice[]
+}
+
+model Cart {
+  id                 Int               @id @default(autoincrement())
+  created_at         DateTime
+  status             String
+  user_id            String
+  user               User              @relation(fields: [user_id], references: [id])
+  carts_has_products CartHasProducts[]
+}
+
+model CartHasProducts {
+  cart_id    Int
+  product_id String
+  quantity   Int
+  unit_price String
+  cart       Cart    @relation(fields: [cart_id], references: [id])
+  product    Product @relation(fields: [product_id], references: [id])
+
+  @@id([cart_id, product_id])
+}
+
+model Order {
+  id            String        @id @unique @default(uuid())
+  date          DateTime
+  status        String
+  total_amount  Int
+  user_id       String
+  user          User          @relation(fields: [user_id], references: [id])
+  order_details OrderDetail[]
+  deliveries    Delivery[]
+  payments      Payment[]
+}
+
+model OrderDetail {
+  id         String @id @unique @default(uuid())
+  quantity   Int
+  unit_price Int
+  order_id   String
+  order      Order  @relation(fields: [order_id], references: [id])
+}
+
+model Delivery {
+  id               Int    @id @default(autoincrement())
+  address          String
+  status           String
+  following_number String
+  order_id         String
+  order            Order  @relation(fields: [order_id], references: [id])
+}
+
+model Payment {
+  id             String @id @unique @default(uuid())
+  paid_amount    Int
+  payment_method String
+  status         String
+  order_id       String
+  order          Order  @relation(fields: [order_id], references: [id])
+}
+
+model ProductHasCategory {
+  product_id  String
+  category_id String
+  product     Product  @relation(fields: [product_id], references: [id])
+  category    Category @relation(fields: [category_id], references: [id])
+
+  @@id([product_id, category_id])
+}
+
+model Promotion {
+  id                      Int                   @id @default(autoincrement())
+  type                    String
+  created_at              DateTime
+  expiry_date             DateTime
+  is_one_time             Boolean
+  products_has_promotions ProductHasPromotion[]
+}
+
+model ProductHasPromotion {
+  product_id   String
+  promotion_id Int
+  user_id      String
+  product      Product   @relation(fields: [product_id], references: [id])
+  promotion    Promotion @relation(fields: [promotion_id], references: [id])
+  user         User      @relation(fields: [user_id], references: [id])
+
+  @@id([product_id, promotion_id, user_id])
+}
+
+model Invoice {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  productId String
+  amount    Float
+  status    String   @default("pending") // "pending", "paid", "cancelled"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
