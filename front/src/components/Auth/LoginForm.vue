@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { useForm } from "@/hooks/useForm";
 import { useRouter } from "vue-router";
+import { loginUser } from "@/api/auth";
 
 const validationSchema = z.object({
   email: z.string().email("L'email doit être valide."),
@@ -24,11 +24,7 @@ const initialValues = {
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    const result = await axios.post(
-      "http://localhost:8000/api/auth",
-      formData,
-      config,
-    );
+    const result = await loginUser({ data: formData, config });
     if (result.data) {
       localStorage.setItem("token", result.data.data);
       router.push("/");

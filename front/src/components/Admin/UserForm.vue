@@ -59,7 +59,9 @@ const { data, errors, validateField, handleSubmit } = useForm({
       ? props.user.blocked_until.split("Z")[0]
       : null,
     created_at: props.user.created_at.split("Z")[0],
-    deleted_at: props.user.deleted_at ? props.user.deleted_at.split("Z")[0] : null,
+    deleted_at: props.user.deleted_at
+      ? props.user.deleted_at.split("Z")[0]
+      : null,
     last_updated_password: props.user.last_updated_password
       ? props.user.last_updated_password.split("Z")[0]
       : null,

@@ -15,7 +15,7 @@ const columns: TableColumn<Address>[] = [
   { value: "postal_code", label: "Code Postal" },
   { value: "address", label: "Addresse complète" },
   { value: "other", label: "Autre" },
-  { value: "is_selected", label: "Addresse principal"}
+  { value: "is_selected", label: "Addresse principal" },
 ];
 
 const loading = ref<boolean>(true);
@@ -25,7 +25,7 @@ const itemsPerPage = ref<number>(10);
 const totalCount = ref<number>(0);
 const totalPages = ref<number>(0);
 const page = ref<number>(1);
-  const actions = [
+const actions = [
   {
     label: "Voir",
     id: "view",
@@ -55,26 +55,25 @@ const page = ref<number>(1);
     renderCell: (row: Address) =>
       h("div", [
         h(ModalButton, {
-              icon: "fa-solid fa-trash",
-              tooltipLabel: "Supprimer",
-              action: async () => {
-                try {
-                  const response = await deleteAddress(row.id);
-                  if (response.message !== undefined) {
-                    toast.success(response.message, {
-                      autoClose: 2000,
-                      position: toast.POSITION.BOTTOM_RIGHT,
-                    } as ToastOptions);
-                  }
-                  fetchAddresses();
-                } catch (error: any) {
-                  throw error || "Une erreur est survenue, veuillez réessayer";
-                }
-              },
-              title: "Attention",
-              description: "Voulez-vous vraiment confirmer votre action ?",
-            })
-          ,
+          icon: "fa-solid fa-trash",
+          tooltipLabel: "Supprimer",
+          action: async () => {
+            try {
+              const response = await deleteAddress(row.id);
+              if (response.message !== undefined) {
+                toast.success(response.message, {
+                  autoClose: 2000,
+                  position: toast.POSITION.BOTTOM_RIGHT,
+                } as ToastOptions);
+              }
+              fetchAddresses();
+            } catch (error: any) {
+              throw error || "Une erreur est survenue, veuillez réessayer";
+            }
+          },
+          title: "Attention",
+          description: "Voulez-vous vraiment confirmer votre action ?",
+        }),
       ]),
   },
 ];
@@ -88,7 +87,10 @@ async function fetchAddresses() {
       search: search.value !== "" ? search.value : undefined,
     });
     addresses.value = response.data;
-    if (response.totalCount !== undefined && response.totalPages !== undefined) {
+    if (
+      response.totalCount !== undefined &&
+      response.totalPages !== undefined
+    ) {
       totalCount.value = response.totalCount;
       totalPages.value = response.totalPages;
     }
