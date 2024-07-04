@@ -24,7 +24,14 @@ const PORT = parseInt(process.env.PORT, 10);
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+
+const corsOptions = {
+  origin: process.env.WEBSITE_URL,
+  optionsSuccessStatus: 200
+};
+
+
+app.use(cors(corsOptions));
 
 // Routes
 app.use("/api", UserRoute);
