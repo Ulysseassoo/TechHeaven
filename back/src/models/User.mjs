@@ -1,6 +1,24 @@
-import { Schema, Types, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const userSchema = new Schema({
+const addressSchema = new mongoose.Schema({
+  city: { type: String, required: true },
+  country: { type: String, required: true },
+  postal_code: { type: String, required: true },
+  other: { type: String, default: null },
+  address: { type: String, required: true },
+  is_selected: { type: Boolean, required: true },
+  id: { type: String, unique: true, required: true, sparse: true },
+});
+
+const passwordRecoverySchema = new mongoose.Schema({
+  code_validation_time: { type: Date, default: null },
+  last_request: { type: Date, default: null },
+  verification_code: { type: String, default: null },
+  id: { type: String, unique: true, required: true },
+});
+
+const userSchema = new mongoose.Schema({
+  id: { type: String, unique: true, required: true },
   firstname: { type: String, default: null },
   lastname: { type: String, default: null },
   email: { type: String, unique: true, required: true },
@@ -13,19 +31,12 @@ const userSchema = new Schema({
   last_updated_password: { type: Date, default: null },
   number_connexion_attempts: { type: Number, default: 0 },
   blocked_until: { type: Date, default: null },
-  addresses: [{ type: Schema.Types.ObjectId, ref: 'Address' }],
-  preferences: [{ type: Schema.Types.ObjectId, ref: 'Preference' }],
-  passwordRecovery: { type: Schema.Types.ObjectId, ref: 'PasswordRecovery' }
-});
-
-userSchema.method('toClient', function () {
-  var obj = this.toObject();
-
-  obj.id = obj._id;
-  delete obj._id;
-  delete obj.__v;
-
-  return obj;
+  addresses: { type: [addressSchema], default: [] },
+  preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }],
+  passwordRecovery: {
+    type: passwordRecoverySchema,
+    default: null,
+  },
 });
 
 userSchema.statics.findToClient = async function (query, page, limit) {
@@ -33,10 +44,43 @@ userSchema.statics.findToClient = async function (query, page, limit) {
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .exec();
-  return users.map(user => user.toClient());
+  return users;
 };
 
+userSchema.statics.findAddresses = async function (query, page, limit) { 
+  const addresses = await this.aggregate([
+    { $unwind: '$addresses' },
+    { $match: query },
+    {
+      $project: {
+        _id: 0,
+        city: '$addresses.city',
+        country: '$addresses.country',
+        postal_code: '$addresses.postal_code',
+        other: '$addresses.other',
+        address: '$addresses.address',
+        is_selected: '$addresses.is_selected',
+        id: '$addresses.id',
+        user_id: '$id'
+      }
+    },
+    { $skip: (page - 1) * limit },
+    { $limit: limit }
+  ]);
 
-const User = model('User', userSchema);
+  const totalAddresses = await this.aggregate([
+    { $unwind: '$addresses' },
+    { $match: query },
+    { $count: 'total' }
+  ]);
+
+  const totalCount = totalAddresses[0] ? totalAddresses[0].total : 0;
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return { addresses, totalCount, totalPages };
+}
+
+
+const User = mongoose.model('User', userSchema);
 
 export default User;

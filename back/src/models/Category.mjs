@@ -1,25 +1,16 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const categorySchema = new Schema({
+const categorySchema = new mongoose.Schema({
+    id: { type: String, unique: true, required: true },
     name: { type: String, required: true },
-    products: [{ type: Schema.Types.ObjectId, ref: 'Product' }]
-});
-
-categorySchema.method('toClient', function () {
-    var obj = this.toObject();
-
-    obj.id = obj._id;
-    delete obj._id;
-    delete obj.__v;
-
-    return obj;
+    products: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
 });
 
 categorySchema.statics.findToClient = async function (query) {
     const categories = await this.find(query);
-    return categories.map(category => category.toClient());
+    return categories;
 };
 
-const Category = model('Category', categorySchema);
+const Category = mongoose.model('Category', categorySchema);
 
 export default Category;

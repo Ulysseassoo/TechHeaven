@@ -17,7 +17,9 @@ const { xs } = useDisplay();
     <img class="product-image" :src="img" alt="image of the product" />
     <div class="product-details" :class="xs ? 'mobile' : null">
       <p class="product-details-name">{{ name }}</p>
-      <Button class="product-details-cta" content="Acheter">{{ ctaText }}</Button>
+      <Button class="product-details-cta" content="Acheter">{{
+        ctaText
+      }}</Button>
     </div>
   </div>
 </template>

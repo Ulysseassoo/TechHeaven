@@ -44,7 +44,7 @@ model Address {
   postal_code String
   other       String?
   address     String
-  is_selected String
+  is_selected Boolean @default(false)
   user        User    @relation(fields: [user_id], references: [id])
   user_id     String
 }

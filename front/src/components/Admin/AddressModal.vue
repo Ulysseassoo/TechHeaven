@@ -1,26 +1,26 @@
 <script setup lang="ts">
 import CustomModal from "@/components/CustomModal.vue";
-import UserForm from "@/components/Admin/UserForm.vue";
-import type { User } from "@/interfaces/User";
+import AddressForm from "@/components/Admin/AddressForm.vue";
+import type { Address } from "@/interfaces/Address";
 import { ref } from "vue";
 import type { Ref } from "vue";
 
 interface Props {
-  user: User;
+  address: Address;
   canEdit?: boolean;
   tooltipLabel: string;
   icon: string;
   callback?: () => Promise<void>;
 }
 
-const userFormRef = ref<null | Ref<typeof UserForm>>(null);
+const addressFormRef = ref<null | Ref<typeof AddressForm>>(null);
 
 const props = defineProps<Props>();
 
 const submitAction = async () => {
   try {
-    if (userFormRef.value) {
-      await userFormRef.value.handleSubmit();
+    if (addressFormRef.value) {
+      await addressFormRef.value.handleSubmit();
       if (props.callback) await props.callback();
     }
   } catch (error) {
@@ -34,10 +34,14 @@ const submitAction = async () => {
     :tooltipLabel="tooltipLabel"
     :icon="icon"
     :submit-action="canEdit ? submitAction : undefined"
-    :modalTitle="canEdit ? 'Editer' : 'Utilisateur'"
+    :modalTitle="canEdit ? 'Editer' : 'Adresse'"
   >
     <template v-slot:ModalContent>
-      <UserForm :user="user" ref="userFormRef" :disabled="!canEdit ? true : false" />
+      <AddressForm
+        :address="address"
+        ref="addressFormRef"
+        :disabled="!canEdit ? true : false"
+      />
     </template>
   </CustomModal>
 </template>

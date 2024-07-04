@@ -22,8 +22,18 @@ const { xs } = useDisplay();
         />
       </div>
       <div class="products">
-        <ProductCard name="Sony" :img="Sony" cta-text="Acheter" :is-full-height="false" />
-        <ProductCard name="Sony" :img="Sony" cta-text="Acheter" :is-full-height="false" />
+        <ProductCard
+          name="Sony"
+          :img="Sony"
+          cta-text="Acheter"
+          :is-full-height="false"
+        />
+        <ProductCard
+          name="Sony"
+          :img="Sony"
+          cta-text="Acheter"
+          :is-full-height="false"
+        />
       </div>
     </div>
   </section>

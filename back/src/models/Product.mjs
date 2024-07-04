@@ -1,6 +1,6 @@
-import { Schema, Types, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const productSchema = new Schema({
+const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   brand: { type: String, required: true },
@@ -8,25 +8,16 @@ const productSchema = new Schema({
   promo: { type: Number, default: null },
   photo: { type: String, default: null },
   stock_quantity: { type: Number, required: true },
-  categoryId: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', default: null },
+  id: { type: String, unique: true, required: true },
   lowStockAlert: { type: Boolean, default: false }
-});
-
-productSchema.method('toClient', function () {
-  var obj = this.toObject();
-
-  obj.id = obj._id;
-  delete obj._id;
-  delete obj.__v;
-
-  return obj;
 });
 
 productSchema.statics.findToClient = async function (query) {
   const products = await this.find(query);
-  return products.map(product => product.toClient());
+  return products;
 };
 
-const Product = model('Product', productSchema);
+const Product = mongoose.model('Product', productSchema);
 
 export default Product;

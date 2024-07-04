@@ -1,1 +1,1 @@
-export const HOST = "http://localhost:8000/api";
+export const HOST = import.meta.env.HOST_URL

@@ -8,6 +8,7 @@ const drawer = ref(null);
 const items = ref([
   { icon: "fa-solid fa-table", title: "Dashboard", route: "/admin" },
   { icon: "fa-solid fa-user", title: "Utilisateurs", route: "/admin/users" },
+  { icon: "fa-solid fa-address-book", title: "Adresses", route: "/admin/addresses" },
   { icon: "fa-solid fa-box", title: "Commandes", route: "/admin/orders" },
   {
     icon: "fa-solid fa-file-invoice",

@@ -6,10 +6,12 @@ import ProductRoutes from "./routes/product.mjs";
 import CategoryRoutes from "./routes/category.mjs";
 import OrderRoutes from "./routes/order.mjs";
 import InvoiceRoutes from "./routes/invoice.mjs";
+import SecurityRoutes from "./routes/auth.mjs";
+import AddressRoutes from "./routes/addresses.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
-import { connect } from "mongoose";
+import mongoose from "./middlewares/mongooseConfig.mjs";
 
 dotenv.config();
 
@@ -30,6 +32,8 @@ app.use("/api", ProductRoutes);
 app.use("/api", CategoryRoutes);
 app.use("/api", OrderRoutes);
 app.use("/api", InvoiceRoutes);
+app.use("/api", SecurityRoutes);
+app.use("/api", AddressRoutes);
 
 const checkPasswordRenewal = async () => {
   const accountsToRenew = await db.user.findMany();
@@ -61,7 +65,7 @@ cron.schedule("0 0 * * *", () => {
 });
 
 // Connect to mongo database
-connect(process.env.DATABASE_URL_MONGODB, {
+mongoose.connect(process.env.DATABASE_URL_MONGODB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })

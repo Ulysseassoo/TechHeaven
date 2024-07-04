@@ -149,7 +149,7 @@ const handleDeleteAll = async () => {
     </div>
     <v-table class="table" fixedHeader ref="tableContainerRef">
       <thead>
-        <div v-if="props.isLoading" class="loading-container">
+        <div v-if="isLoading" class="loading-container">
           <v-progress-linear color="primary" indeterminate></v-progress-linear>
         </div>
         <tr>
@@ -179,7 +179,10 @@ const handleDeleteAll = async () => {
             </v-container>
           </td>
           <td v-for="column in columns" :key="column.label">
-            <div v-if="column.value === 'created_at'">
+            <div v-if="column.renderCell">
+              {{ column.renderCell(row) }}
+            </div>
+            <div v-else-if="column.value === 'created_at'">
               {{ moment(row[column.value]).format("LLL") }}
             </div>
             <div

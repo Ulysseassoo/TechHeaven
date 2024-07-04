@@ -1,10 +1,11 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const productHasCategorySchema = new Schema({
-    product: { type: Schema.Types.ObjectId, ref: 'Product' },
-    category: { type: Schema.Types.ObjectId, ref: 'Category' },
+
+const productHasCategorySchema = new mongoose.Schema({
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
 });
 
-const ProductHasCategory = model('ProductHasCategory', productHasCategorySchema);
+const ProductHasCategory = mongoose.model('ProductHasCategory', productHasCategorySchema);
 
 export default ProductHasCategory;

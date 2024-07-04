@@ -1,42 +1,38 @@
 <script setup lang="ts">
-import { h, onMounted, ref } from "vue";
+import { deleteAddress, getAddresses } from "@/api/address";
 import DataTable from "@/components/DataTable.vue";
-import { deleteUser, getUsers } from "@/api/user";
-import type { User } from "@/interfaces/User";
-import type { TableColumn } from "@/interfaces/Table";
-import { toast, type ToastOptions } from "vue3-toastify";
 import { useDebounce } from "@/hooks/useDebounce";
+import type { Address } from "@/interfaces/Address";
+import type { TableColumn } from "@/interfaces/Table";
+import { h, onMounted, ref } from "vue";
 import ModalButton from "@/components/ModalButton.vue";
-import UserModal from "@/components/Admin/UserModal.vue";
+import { toast, type ToastOptions } from "vue3-toastify";
+import AddressModal from "@/components/Admin/AddressModal.vue";
 
-const columns: TableColumn<User>[] = [
-  { value: "firstname", label: "Prénom" },
-  { value: "lastname", label: "Nom" },
-  { value: "email", label: "Email" },
-  { value: "phone", label: "Téléphone" },
-  { value: "role", label: "Rôle" },
-  { value: "has_confirmed_account", label: "Compte confirmé" },
-  { value: "addresses", label: "Addresse principale", renderCell: (row) => row.addresses.find((a) => a.is_selected)?.address},
-  { value: "created_at", label: "Crée le" },
-  { value: "updated_at", label: "Dernière mise à jour" },
-  { value: "password_updated_at", label: "Mot de passe mis à jour le" },
+const columns: TableColumn<Address>[] = [
+  { value: "city", label: "Ville" },
+  { value: "country", label: "Pays" },
+  { value: "postal_code", label: "Code Postal" },
+  { value: "address", label: "Addresse complète" },
+  { value: "other", label: "Autre" },
+  { value: "is_selected", label: "Addresse principal"}
 ];
 
-const users = ref<User[]>([]);
+const loading = ref<boolean>(true);
+const search = ref<string>("");
+const addresses = ref<Address[]>([]);
 const itemsPerPage = ref<number>(10);
 const totalCount = ref<number>(0);
 const totalPages = ref<number>(0);
 const page = ref<number>(1);
-const loading = ref<boolean>(true);
-const search = ref<string>("");
-const actions = [
+  const actions = [
   {
     label: "Voir",
     id: "view",
     icon: "fa-solid fa-eye",
-    renderCell: (row: User) =>
-      h(UserModal, {
-        user: row,
+    renderCell: (row: Address) =>
+      h(AddressModal, {
+        address: row,
         icon: "fa-solid fa-eye",
         tooltipLabel: "Voir",
       }),
@@ -44,34 +40,33 @@ const actions = [
   {
     label: "Modifier",
     id: "edit",
-    renderCell: (row: User) =>
-      h(UserModal, {
-        user: row,
+    renderCell: (row: Address) =>
+      h(AddressModal, {
+        address: row,
         canEdit: true,
         icon: "fa-solid fa-pen",
         tooltipLabel: "Modifier",
-        callback: () => fetchUsers(),
+        callback: () => fetchAddresses(),
       }),
   },
   {
     label: "Supprimer",
     id: "delete",
-    renderCell: (row: User) =>
+    renderCell: (row: Address) =>
       h("div", [
-        !row.deleted_at
-          ? h(ModalButton, {
+        h(ModalButton, {
               icon: "fa-solid fa-trash",
               tooltipLabel: "Supprimer",
               action: async () => {
                 try {
-                  const response = await deleteUser(row.id);
+                  const response = await deleteAddress(row.id);
                   if (response.message !== undefined) {
                     toast.success(response.message, {
                       autoClose: 2000,
                       position: toast.POSITION.BOTTOM_RIGHT,
                     } as ToastOptions);
                   }
-                  fetchUsers();
+                  fetchAddresses();
                 } catch (error: any) {
                   throw error || "Une erreur est survenue, veuillez réessayer";
                 }
@@ -79,24 +74,21 @@ const actions = [
               title: "Attention",
               description: "Voulez-vous vraiment confirmer votre action ?",
             })
-          : null,
+          ,
       ]),
   },
 ];
 
-async function fetchUsers() {
+async function fetchAddresses() {
   loading.value = true;
   try {
-    const response = await getUsers({
+    const response = await getAddresses({
       limit: itemsPerPage.value,
       page: page.value,
       search: search.value !== "" ? search.value : undefined,
     });
-    users.value = response.data;
-    if (
-      response.totalCount !== undefined &&
-      response.totalPages !== undefined
-    ) {
+    addresses.value = response.data;
+    if (response.totalCount !== undefined && response.totalPages !== undefined) {
       totalCount.value = response.totalCount;
       totalPages.value = response.totalPages;
     }
@@ -106,34 +98,19 @@ async function fetchUsers() {
   }
 }
 
-const changeItemsPerPage = (value: number) => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  fetchUsers();
-};
-
-const changeCurrentPage = (value: number) => {
-  page.value = value;
-  fetchUsers();
-};
-
-onMounted(() => {
-  fetchUsers();
-});
-
-const debouncedSearchUsers = useDebounce(fetchUsers, 500);
-const deleteAllUsersSelected = async (ids: string[]) => {
+const debouncedSearchedAddresses = useDebounce(fetchAddresses, 500);
+const deleteAllAddressesSelected = async (ids: string[]) => {
   try {
-    const deletePromises = ids.map((userId) => deleteUser(userId));
+    const deletePromises = ids.map((userId) => deleteAddress(userId));
     const responses = await Promise.all(deletePromises);
     const allDeleted = responses.every((response) => response.status === 200);
     if (allDeleted) {
-      toast.success("Tous les utilisateurs sélectionnés ont été supprimés.", {
+      toast.success("Toutes les adresses sélectionnés ont été supprimés.", {
         autoClose: 2000,
         position: toast.POSITION.BOTTOM_RIGHT,
       } as ToastOptions);
     }
-    fetchUsers();
+    fetchAddresses();
   } catch (error) {
     toast.error("Une erreur est survenue.", {
       autoClose: 2000,
@@ -141,19 +118,34 @@ const deleteAllUsersSelected = async (ids: string[]) => {
     } as ToastOptions);
   }
 };
+
+const changeItemsPerPage = (value: number) => {
+  itemsPerPage.value = value;
+  page.value = 1;
+  fetchAddresses();
+};
+
+const changeCurrentPage = (value: number) => {
+  page.value = value;
+  fetchAddresses();
+};
+
+onMounted(() => {
+  fetchAddresses();
+});
 </script>
 
 <template>
   <div class="container">
-    <h1>Utilisateurs</h1>
+    <h1>Adresses</h1>
     <DataTable
       :columns="columns"
-      :data="users"
+      :data="addresses"
       :actions="actions"
       :itemsPerPage="itemsPerPage"
       @update:itemsPerPage="changeItemsPerPage"
       @update:currentPage="changeCurrentPage"
-      :deleteAll="deleteAllUsersSelected"
+      :deleteAll="deleteAllAddressesSelected"
       :totalCount="totalCount"
       :currentPage="page"
       :totalPages="totalPages"
@@ -163,13 +155,13 @@ const deleteAllUsersSelected = async (ids: string[]) => {
         <v-text-field
           prepend-inner-icon="fa-solid fa-magnifying-glass"
           density="compact"
-          label="Rechercher un utilisateur"
+          label="Rechercher une addresse"
           variant="solo"
           hide-details
           single-line
           style="max-width: 300px"
           v-model="search"
-          @input="debouncedSearchUsers"
+          @input="debouncedSearchedAddresses"
         ></v-text-field>
       </template>
     </DataTable>
@@ -190,3 +182,4 @@ h1 {
   margin-bottom: 1em;
 }
 </style>
+import { toast, type ToastOptions } from "vue3-toastify";

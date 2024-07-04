@@ -12,32 +12,38 @@ const { xs } = useDisplay();
 
 const feedbacksMock = [
   {
-    description: "Le site est incroyable, je recommande ce service à tout le monde",
+    description:
+      "Le site est incroyable, je recommande ce service à tout le monde",
     img: instagramImage,
     date: "12 juin",
   },
   {
-    description: "Le site est incroyable, je recommande ce service à tout le monde",
+    description:
+      "Le site est incroyable, je recommande ce service à tout le monde",
     img: jblImage,
     date: "14 juin",
   },
   {
-    description: "Le site est incroyable, je recommande ce service à tout le monde",
+    description:
+      "Le site est incroyable, je recommande ce service à tout le monde",
     img: samsungImage,
     date: "19 Juillet",
   },
   {
-    description: "Le site est incroyable, je recommande ce service à tout le monde",
+    description:
+      "Le site est incroyable, je recommande ce service à tout le monde",
     img: instagramImage,
     date: "12 juin",
   },
   {
-    description: "Le site est incroyable, je recommande ce service à tout le monde",
+    description:
+      "Le site est incroyable, je recommande ce service à tout le monde",
     img: jblImage,
     date: "14 juin",
   },
   {
-    description: "Le site est incroyable, je recommande ce service à tout le monde",
+    description:
+      "Le site est incroyable, je recommande ce service à tout le monde",
     img: samsungImage,
     date: "19 Juillet",
   },

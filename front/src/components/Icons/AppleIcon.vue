@@ -17,13 +17,7 @@ defineProps<{
     <title>apple [#173]</title>
     <desc>Created with Sketch.</desc>
     <defs></defs>
-    <g
-      id="Page-1"
-      stroke="none"
-      stroke-width="1"
-      fill="none"
-      fill-rule="evenodd"
-    >
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
       <g
         id="Dribbble-Light-Preview"
         transform="translate(-102.000000, -7439.000000)"

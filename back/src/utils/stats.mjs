@@ -40,5 +40,5 @@ export const getTotalRevenue = async () => {
     const totalRevenue = await Order.aggregate([
         { $group: { _id: null, count: { $sum: "$total_amount" } } }
     ]);
-    return totalRevenue[0].count;
+    return totalRevenue.length > 0 ? totalRevenue[0].count : 0;
 }

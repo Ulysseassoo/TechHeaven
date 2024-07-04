@@ -1,19 +1,12 @@
 import { deleteApi, getApi, putApi } from "@/api";
-import type { ApiSuccess } from "@/api";
+import type { ApiSuccess, UpdateProps } from "@/api";
 import { HOST } from "@/constants";
 import type { Stats, User } from "@/interfaces/User";
-import type { AxiosRequestConfig } from "axios";
 
 interface SearchQueryParams {
   search?: string;
   page?: number;
   limit?: number;
-}
-
-interface UpdateUserProps {
-  userId: string;
-  data: Partial<User>;
-  config: AxiosRequestConfig;
 }
 
 export const getUsers = async ({
@@ -68,8 +61,8 @@ export const deleteUser = async (userId: string) => {
   return response;
 };
 
-export const updateUser = async ({userId, data, config} : UpdateUserProps) => {
-  const url = `${HOST}/users/${userId}`;
+export const updateUser = async ({ id, data, config }: UpdateProps<User>) => {
+  const url = `${HOST}/users/${id}`;
   const token = localStorage.getItem("token");
   const response = await putApi<User>(url, data, {
     ...config,
