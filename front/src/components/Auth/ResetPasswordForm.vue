@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { useForm } from "@/hooks/useForm";
+import { resetPassword } from "@/api/auth";
 
 const props = defineProps<{
   onNext: (email: string) => void;
@@ -21,11 +21,10 @@ const initialValues = {
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    await axios.post(
-      "http://localhost:8000/api/reset/password",
-      formData,
+    await resetPassword({
+      data: formData,
       config,
-    );
+    });
     props.onNext(formData.email);
   } catch (error) {
     console.log(error);

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { useForm } from "@/hooks/useForm";
 import { computed, ref } from "vue";
+import { registerUser } from "@/api/auth";
 
 const validationSchema = z
   .object({
@@ -58,14 +58,10 @@ const successMessage = ref<string | undefined>(undefined);
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    const result = await axios.post(
-      "http://localhost:8000/api/users",
-      {
-        ...formData,
-        confirmPassword: undefined,
-      },
+    const result = await registerUser({
+      data: { ...formData, confirmPassword: undefined },
       config,
-    );
+    });
 
     if (result.data) {
       successMessage.value =

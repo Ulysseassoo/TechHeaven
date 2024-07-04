@@ -10,6 +10,15 @@ export interface ApiProps<T> {
   totalCount?: number;
 }
 
+export interface Config {
+  config: AxiosRequestConfig;
+}
+
+export interface UserFormProps {
+  email: string;
+  password: string;
+}
+
 export interface UpdateProps<T> {
   id: string;
   data: Partial<T>;
@@ -52,6 +61,19 @@ export const deleteApi = async <T>(
 ): Promise<ApiProps<T>> => {
   try {
     const response = await axios.delete<T>(url, config);
+    return response.data as ApiProps<T>;
+  } catch (error: any) {
+    return error.response.data;
+  }
+};
+
+export const postApi = async <T>(
+  url: string,
+  data: T,
+  config?: AxiosRequestConfig<any> | undefined,
+): Promise<ApiProps<T>> => {
+  try {
+    const response = await axios.post<T>(url, data, config);
     return response.data as ApiProps<T>;
   } catch (error: any) {
     return error.response.data;

@@ -1,4 +1,10 @@
-import { deleteApi, getApi, putApi, type ApiSuccess, type UpdateProps } from "@/api";
+import {
+  deleteApi,
+  getApi,
+  putApi,
+  type ApiSuccess,
+  type UpdateProps,
+} from "@/api";
 import { HOST } from "@/constants";
 import type { Address } from "@/interfaces/Address";
 
@@ -32,30 +38,34 @@ export const getAddresses = async ({
 };
 
 export const deleteAddress = async (userId: string) => {
-    const url = `${HOST}/addresses/${userId}`;
-    const token = localStorage.getItem("token");
-    const response = await deleteApi<ApiSuccess>(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  
-    if (response.status !== 200) {
-      throw new Error(response.message);
-    }
-  
-    return response;
-  };
+  const url = `${HOST}/addresses/${userId}`;
+  const token = localStorage.getItem("token");
+  const response = await deleteApi<ApiSuccess>(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-  export const updateAddress = async ({ id, data, config }: UpdateProps<Address>) => {
-    const url = `${HOST}/addresses/${id}`;
-    const token = localStorage.getItem("token");
-    const response = await putApi<Address>(url, data, {
-      ...config,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  
-    return response;
-  };
+  if (response.status !== 200) {
+    throw new Error(response.message);
+  }
+
+  return response;
+};
+
+export const updateAddress = async ({
+  id,
+  data,
+  config,
+}: UpdateProps<Address>) => {
+  const url = `${HOST}/addresses/${id}`;
+  const token = localStorage.getItem("token");
+  const response = await putApi<Address>(url, data, {
+    ...config,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response;
+};

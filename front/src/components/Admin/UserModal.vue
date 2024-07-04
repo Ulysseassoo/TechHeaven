@@ -37,7 +37,11 @@ const submitAction = async () => {
     :modalTitle="canEdit ? 'Editer' : 'Utilisateur'"
   >
     <template v-slot:ModalContent>
-      <UserForm :user="user" ref="userFormRef" :disabled="!canEdit ? true : false" />
+      <UserForm
+        :user="user"
+        ref="userFormRef"
+        :disabled="!canEdit ? true : false"
+      />
     </template>
   </CustomModal>
 </template>

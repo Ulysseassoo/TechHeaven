@@ -16,7 +16,11 @@ const columns: TableColumn<User>[] = [
   { value: "phone", label: "Téléphone" },
   { value: "role", label: "Rôle" },
   { value: "has_confirmed_account", label: "Compte confirmé" },
-  { value: "addresses", label: "Addresse principale", renderCell: (row) => row.addresses.find((a) => a.is_selected)?.address},
+  {
+    value: "addresses",
+    label: "Addresse principale",
+    renderCell: (row) => row.addresses.find((a) => a.is_selected)?.address,
+  },
   { value: "created_at", label: "Crée le" },
   { value: "updated_at", label: "Dernière mise à jour" },
   { value: "password_updated_at", label: "Mot de passe mis à jour le" },
