@@ -23,6 +23,8 @@ et des options de livraison variées.
   - Intégration des recommandations de la CNIL concernant la sécurité des mots de passe pour un site e-commerce
   - Intégration des pages d'authentifications
   - Intégration de la suppresion de compte
+  - Panel Admin CRUD 
+  - Dashboard Admin
 - [@fabian222222](fzuo@myges.fr) - ZUO Fabian
 - [@jphayek](jhayek@myges.fr) - HAYEK Jean Paul
 
