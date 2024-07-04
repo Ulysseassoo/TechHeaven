@@ -10,7 +10,7 @@ const router = useRouter();
 const verifyUserToken = async () => {
   try {
     const result = await verifyUser(token as string);
-    if (result.data && result.data.status === 200) {
+    if (result.data && result.status === 200) {
       router.push("/login");
     }
   } catch (error) {

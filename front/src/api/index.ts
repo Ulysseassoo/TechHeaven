@@ -38,7 +38,7 @@ export const getApi = async <T>(
     const response = await axios.get<T>(url, config);
     return response.data as ApiProps<T>;
   } catch (error: any) {
-    return error.response.data;
+    throw error;
   }
 };
 
@@ -51,7 +51,7 @@ export const putApi = async <T>(
     const response = await axios.put<T>(url, data, config);
     return response.data as ApiProps<T>;
   } catch (error: any) {
-    return error.response.data;
+    throw error;
   }
 };
 
@@ -63,7 +63,7 @@ export const deleteApi = async <T>(
     const response = await axios.delete<T>(url, config);
     return response.data as ApiProps<T>;
   } catch (error: any) {
-    return error.response.data;
+    throw error;
   }
 };
 
@@ -76,6 +76,6 @@ export const postApi = async <T>(
     const response = await axios.post<T>(url, data, config);
     return response.data as ApiProps<T>;
   } catch (error: any) {
-    return error.response.data;
+    throw error;
   }
 };
