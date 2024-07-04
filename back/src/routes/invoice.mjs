@@ -226,6 +226,7 @@ router.post('/create-payment-intent', async (req, res) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: invoice.amount * 100,
       currency: 'eur',
+      payment_method_types: ['card'],
       metadata: { invoiceId: invoice.id },
     });
 
@@ -293,62 +294,60 @@ router.post('/refund', async (req, res) => {
 
 
 
-
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-const sig = req.headers['stripe-signature'];
-let event;
+  const sig = req.headers['stripe-signature'];
 
-try {
-  const rawBody = req.body.toString();
-  event = JSON.parse(rawBody);
-} catch (err) {
-  console.error(`Webhook Error: ${err.message}`);
-  return res.status(400).send(`Webhook Error: ${err.message}`);
-}
-
-// Gérer l'événement de paiement réussi
-if (event.type === 'payment_intent.succeeded') {
-  const paymentIntent = event.data.object;
-  const invoiceId = paymentIntent.metadata.invoiceId;
+  let event;
 
   try {
-    const invoice = await db.invoice.update({
-      where: { id: parseInt(invoiceId) },
-      data: { status: 'paid' },
-    });
-
-    // Envoyer la facture par email
-    await sendInvoiceEmail(invoice.userEmail, invoice);
-
-    console.log(`Facture ${invoiceId} marquée comme payée.`);
-    return res.status(200).send({ received: true });
-  } catch (error) {
-    console.error(`Erreur lors de la mise à jour de la facture ${invoiceId}: ${error.message}`);
-    return res.status(500).send({ error: error.message });
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-}
 
-// Gérer l'événement de paiement échoué
-if (event.type === 'payment_intent.payment_failed') {
-  const paymentIntent = event.data.object;
-  const invoiceId = paymentIntent.metadata.invoiceId;
+  // Gérer l'événement de paiement réussi
+  if (event.type === 'payment_intent.succeeded') {
+    const paymentIntent = event.data.object;
+    const invoiceId = paymentIntent.metadata.invoiceId;
 
-  try {
-    await db.invoice.update({
-      where: { id: parseInt(invoiceId) },
-      data: { status: 'failed' },
-    });
+    try {
+      const invoice = await Invoice.findByIdAndUpdate(invoiceId, { status: 'paid' }, { new: true });
 
-    console.log(`Facture ${invoiceId} marquée comme échouée.`);
-    return res.status(200).send({ received: true });
-  } catch (error) {
-    console.error(`Erreur lors de la mise à jour de la facture ${invoiceId}: ${error.message}`);
-    return res.status(500).send({ error: error.message });
+      if (!invoice) {
+        return res.status(404).send('Facture non trouvée');
+      }
+
+      // Envoyer la facture par email
+      await sendInvoiceEmail(invoice.userEmail, invoice);
+
+      console.log(`Facture ${invoiceId} marquée comme payée.`);
+      return res.status(200).send({ received: true });
+    } catch (error) {
+      console.error(`Erreur lors de la mise à jour de la facture ${invoiceId}: ${error.message}`);
+      return res.status(500).send({ error: error.message });
+    }
   }
-}
 
-res.status(200).send({ received: true });
+  // Gérer l'événement de paiement échoué
+  if (event.type === 'payment_intent.payment_failed') {
+    const paymentIntent = event.data.object;
+    const invoiceId = paymentIntent.metadata.invoiceId;
+
+    try {
+      await Invoice.findByIdAndUpdate(invoiceId, { status: 'failed' });
+
+      console.log(`Facture ${invoiceId} marquée comme échouée.`);
+      return res.status(200).send({ received: true });
+    } catch (error) {
+      console.error(`Erreur lors de la mise à jour de la facture ${invoiceId}: ${error.message}`);
+      return res.status(500).send({ error: error.message });
+    }
+  }
+
+  res.status(200).send({ received: true });
 });
+
 
 
 
