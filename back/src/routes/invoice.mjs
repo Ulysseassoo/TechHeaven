@@ -12,9 +12,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY is not defined in the environment variables');
+}
+
 const router = express.Router();
-//const stripe = new Stripe(process.env.STRIPE_SECRET_KEY); // A revoir cette methode pour cacher le clé secrete
-const stripe = new Stripe('sk_test_IWXNNdz4d5fdHLA362PzpJGS00G15qtESV');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 
 // Créer une nouvelle facture
@@ -243,49 +247,46 @@ router.post('/refund', async (req, res) => {
     const invoice = await Invoice.findById(invoiceId);
 
     if (!invoice) {
+      console.log('Facture non trouvée');
       return res.status(404).send({ message: 'Facture non trouvée' });
     }
 
-    // Vérifier si la facture a été payée
     if (invoice.status !== 'paid') {
-      return res.status(400).send({ message: 'La facture n\'a pas encore été payée, impossible de rembourser.' });
+      console.log("La facture n'a pas encore été payée, impossible de rembourser.");
+      return res.status(400).send({ message: "La facture n'a pas encore été payée, impossible de rembourser." });
     }
 
-    // Récupérer l'intention de paiement
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-    console.log('PaymentIntent:', paymentIntent); // Debug log
-
     if (!paymentIntent) {
-      return res.status(400).send({ message: 'PaymentIntent non trouvé, impossible de rembourser.' });
+      console.log('Impossible de récupérer le PaymentIntent.');
+      return res.status(400).send({ message: "Impossible de récupérer le PaymentIntent." });
     }
 
-    console.log('PaymentIntent Status:', paymentIntent.status); // Debug log
+    console.log('PaymentIntent:', paymentIntent);
 
     if (paymentIntent.status !== 'succeeded') {
-      return res.status(400).send({ message: 'Le PaymentIntent n\'a pas encore réussi, impossible de rembourser.' });
+      console.log("Le PaymentIntent n'a pas réussi.");
+      return res.status(400).send({ message: "Le PaymentIntent n'a pas réussi." });
     }
 
-    if (!paymentIntent.charges || paymentIntent.charges.data.length === 0) {
-      return res.status(400).send({ message: 'Aucune charge trouvée pour ce PaymentIntent, impossible de rembourser.' });
+    if (!paymentIntent.charges.data.length) {
+      console.log('Le PaymentIntent ne contient pas de charges.');
+      return res.status(400).send({ message: "Le PaymentIntent ne contient pas de charges." });
     }
 
-    // Récupérer l'ID de la charge réussie
     const chargeId = paymentIntent.charges.data[0].id;
 
-    console.log('ChargeId:', chargeId); // Debug log
+    console.log('Charge ID:', chargeId);
 
-    // Créer le remboursement
-    const refund = await stripe.refunds.create({
-      charge: chargeId,
-    });
+    const refund = await stripe.refunds.create({ charge: chargeId });
 
-    // Mettre à jour le statut de la facture en "refunded" dans la base de données
     invoice.status = 'refunded';
     await invoice.save();
 
     res.status(200).send({ message: 'Remboursement effectué avec succès', refund });
   } catch (error) {
+    console.log('Erreur lors du remboursement:', error.message);
     res.status(500).send({ message: 'Erreur lors du remboursement', error: error.message });
   }
 });

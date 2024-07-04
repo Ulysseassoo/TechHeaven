@@ -29,6 +29,7 @@ services:
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
       - DATABASE_URL_MONGODB=${DATABASE_URL_MONGODB}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
     depends_on:
       - db
       - mongo
