@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import Stack from "../Stack.vue";
+import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios, { AxiosRequestConfig } from "axios";
-import { useForm } from "../../hooks/useForm";
+import type { AxiosRequestConfig } from "axios";
+import { useForm } from "@/hooks/useForm";
 import { useRouter } from "vue-router";
+import { loginUser } from "@/api/auth";
 
 const validationSchema = z.object({
   email: z.string().email("L'email doit être valide."),
-  password: z
-    .string()
-    .min(1, "Le mot de passe doit contenir au moins 1 caractères.")
+  password: z.string().min(1, "Le mot de passe doit contenir au moins 1 caractères."),
 });
 
 const router = useRouter();
@@ -23,10 +22,10 @@ const initialValues = {
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    const result = await axios.post("http://localhost:8000/api/auth", formData, config);
-    if(result.data) {
-      localStorage.setItem("token", result.data.data);
-      router.push("/")
+    const result = await loginUser({ data: formData, config });
+    if (result.data) {
+      localStorage.setItem("token", result.data);
+      router.push("/");
     }
   } catch (error) {
     throw error;
@@ -83,17 +82,25 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
         type="password"
         @input="validateField('password')"
       ></VTextField>
-      <div style="display: flex; flex-direction: row-reverse; margin-bottom: 0.4rem;"><RouterLink to="/forgot-password" style="color: black;">Forgot password ?</RouterLink></div>
-      <VCard
-        class="mb-12"
-        color="surface-variant"
-        variant="tonal"
-      >
+      <div style="display: flex; flex-direction: row-reverse; margin-bottom: 0.4rem">
+        <RouterLink to="/forgot-password" style="color: black"
+          >Forgot password ?</RouterLink
+        >
+      </div>
+      <VCard class="mb-12" color="surface-variant" variant="tonal">
         <VCardText class="text-medium-emphasis text-caption">
-          Warning: After 3 consecutive failed login attempts, you account will be temporarily locked for three hours. If you must login now, you can also click "Forgot login password?" below to reset the login password.
+          Warning: After 3 consecutive failed login attempts, you account will be
+          temporarily locked for three hours. If you must login now, you can also click
+          "Forgot login password?" below to reset the login password.
         </VCardText>
       </VCard>
-      <Stack align="center" justify="center" direction="column" margin="1.3rem" gap="0.4rem">
+      <Stack
+        align="center"
+        justify="center"
+        direction="column"
+        margin="1.3rem"
+        gap="0.4rem"
+      >
         <VBtn
           color="primary"
           height="55px"

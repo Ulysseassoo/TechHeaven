@@ -1,7 +1,6 @@
 import express from "express";
 import { validationResult } from "express-validator";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
-import { createData, deleteData, getIdMapping, updateData } from "../utils/sync.mjs";
 import { productValidator } from "../validator/productValidator.mjs";
 import { db } from "../utils/db.server.mjs";
 import Product from "../models/Product.mjs";
@@ -50,8 +49,7 @@ router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
 
         const { name, description, price, stock_quantity, brand } = req.body;
 
-        const product = await createData({
-            model: "product",
+        const product = await db.product.create({
             data: {
                 name,
                 description,
@@ -83,15 +81,17 @@ router.get("/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { _id } = await getIdMapping(id)
-
-        const product = await Product.findById(_id);
+        const product = await Product.findOne({
+            where: {
+                id
+            }
+        });
 
         if (!product) {
             return res.status(404).json({ status: 404, message: "Produit non trouvé" });
         }
 
-        return res.status(200).json({ status: 200, data: product.toClient() });
+        return res.status(200).json({ status: 200, data: product });
     } catch (error) {
         return res.status(500).json({ status: 500, message: "Erreur lors de la récupération du produit", error: error.message });
     }
@@ -104,11 +104,9 @@ router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) =>
     const { name, description, price, brand, stock_quantity } = req.body;
 
     try {
-        const { postgresId } = await getIdMapping(id)
-
         const product = await db.product.findUnique({
             where: {
-                id: postgresId
+                id
             }
         })
 
@@ -116,8 +114,7 @@ router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) =>
             return res.status(400).json({ status: 400, message: 'Produit inexistant.' });
         }
 
-        const updatedProduct = await updateData({
-            model: "product",
+        const updatedProduct = await db.product.update({
             where: {
                 id: postgresId
             },
@@ -167,12 +164,10 @@ router.delete("/products/:id", shouldBeAdmin, async (req, res) => {
 
     try {
 
-        const { postgresId } = await getIdMapping(id)
-
-        await deleteData({
+        await db.product.delete({
             model: "product",
             where: {
-                id: postgresId
+                id
             }
         });
 

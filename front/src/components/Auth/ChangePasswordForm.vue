@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import axios, { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { z } from "zod";
-import { useForm } from "../../hooks/useForm";
+import { useForm } from "@/hooks/useForm";
+import { changeUserPassword } from "@/api/auth";
 
 const props = defineProps<{
   onSubmit: () => void;
@@ -37,16 +38,16 @@ const initialValues = {
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    await axios.post(
-      "http://localhost:8000/api/change/password",
-      {
+    await changeUserPassword({
+      data: {
         password: formData.password,
         email: props.email,
       },
-      config
-    );
+      config,
+    });
     props.onSubmit();
   } catch (error) {
+    console.log(error);
     throw error;
   }
 };
@@ -61,65 +62,65 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
   initialValues,
   validationSchema,
   onSubmit,
-  transform
+  transform,
 });
 </script>
 
 <template>
-    <VSheet class="mt-6">
-      <VAlert
-        type="error"
-        title="Erreur"
-        :text="serverError"
-        class="mb-5"
-        variant="tonal"
-        density="compact"
-        v-show="!!serverError"
-        border
-      ></VAlert>
-      <VForm @submit.prevent="handleSubmit">
-        <VTextField
-          variant="outlined"
-          label="Mot de passe"
-          v-model="data.password"
-          :error="!!errors.password"
-          :error-messages="errors.password"
-          type="password"
-          @input="validateField('password')"
-          class="mb-1"
-        ></VTextField>
+  <VSheet class="mt-6">
+    <VAlert
+      type="error"
+      title="Erreur"
+      :text="serverError"
+      class="mb-5"
+      variant="tonal"
+      density="compact"
+      v-show="!!serverError"
+      border
+    ></VAlert>
+    <VForm @submit.prevent="handleSubmit">
+      <VTextField
+        variant="outlined"
+        label="Mot de passe"
+        v-model="data.password"
+        :error="!!errors.password"
+        :error-messages="errors.password"
+        type="password"
+        @input="validateField('password')"
+        class="mb-1"
+      ></VTextField>
 
-        <VTextField
-          variant="outlined"
-          label="Confirmation du mot de passe"
-          v-model="data.confirmPassword"
-          :error="!!errors.confirmPassword"
-          :error-messages="errors.confirmPassword"
-          type="password"
-          @input="validateField('confirmPassword')"
-          class="mb-3"
-        ></VTextField>
-  
-        <Stack
-          align="center"
-          justify="center"
-          direction="column"
-          margin="1.3rem"
-          gap="0.4rem"
+      <VTextField
+        variant="outlined"
+        label="Confirmation du mot de passe"
+        v-model="data.confirmPassword"
+        :error="!!errors.confirmPassword"
+        :error-messages="errors.confirmPassword"
+        type="password"
+        @input="validateField('confirmPassword')"
+        class="mb-3"
+      ></VTextField>
+
+      <Stack
+        align="center"
+        justify="center"
+        direction="column"
+        margin="1.3rem"
+        gap="0.4rem"
+      >
+        <VBtn
+          color="primary"
+          height="55px"
+          width="100%"
+          flat
+          type="submit"
+          :loading="isSubmitting"
+          >Submit</VBtn
         >
-          <VBtn
-            color="primary"
-            height="55px"
-            width="100%"
-            flat
-            type="submit"
-            :loading="isSubmitting"
-            >Submit</VBtn
-          >
-          <span
-            >Already have an account ? <RouterLink to="/login">Login here</RouterLink></span
-          >
-        </Stack>
-      </VForm>
-    </VSheet>
-  </template>
+        <span
+          >Already have an account ? <RouterLink to="/login">Login here</RouterLink></span
+        >
+      </Stack>
+    </VForm>
+  </VSheet>
+</template>

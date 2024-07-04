@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import axios from "axios";
+import { verifyUser } from "@/api/auth";
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -9,10 +9,8 @@ const router = useRouter();
 
 const verifyUserToken = async () => {
   try {
-    const result = await axios.post("http://localhost:8000/api/verify", {
-      token,
-    });
-    if (result.data && result.data.status === 200) {
+    const result = await verifyUser(token as string);
+    if (result.data && result.status === 200) {
       router.push("/login");
     }
   } catch (error) {

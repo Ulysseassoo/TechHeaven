@@ -1,30 +1,40 @@
 <script setup lang="ts">
-import Stack from "../Stack.vue";
+import Stack from "@/components/VStack.vue";
 import { z } from "zod";
-import axios, { AxiosRequestConfig } from "axios";
-import { useForm } from "../../hooks/useForm";
+import type { AxiosRequestConfig } from "axios";
+import { useForm } from "@/hooks/useForm";
 import { computed, ref } from "vue";
+import { registerUser } from "@/api/auth";
 
-const validationSchema = z.object({
-  email: z.string().email("L'email doit être valide."),
-  firstname: z.string().min(2, "Le prénom doit contenir au moins 2 caractères."),
-  lastname: z.string().min(2, "Le nom doit contenir au moins 2 caractères."),
-  password: z
-    .string()
-    .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
-    .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule.")
-    .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
-    .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
-    .regex(
-      /[!@#$%^&*(),.?":{}|<>]/,
-      "Le mot de passe doit contenir au moins un symbole."
-    ),
-  confirmPassword: z.string()
-})
-.refine((data) => data.password === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas.",
-  path: ["confirmPassword"]
-});
+const validationSchema = z
+  .object({
+    email: z.string().email("L'email doit être valide."),
+    firstname: z
+      .string()
+      .min(2, "Le prénom doit contenir au moins 2 caractères."),
+    lastname: z.string().min(2, "Le nom doit contenir au moins 2 caractères."),
+    password: z
+      .string()
+      .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
+      .regex(
+        /[a-z]/,
+        "Le mot de passe doit contenir au moins une lettre minuscule.",
+      )
+      .regex(
+        /[A-Z]/,
+        "Le mot de passe doit contenir au moins une lettre majuscule.",
+      )
+      .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
+      .regex(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Le mot de passe doit contenir au moins un symbole.",
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas.",
+    path: ["confirmPassword"],
+  });
 
 type FormValues = z.infer<typeof validationSchema>;
 
@@ -44,20 +54,21 @@ const initialValues = {
   confirmPassword: "",
 };
 
-const successMessage = ref<string | undefined>(undefined)
+const successMessage = ref<string | undefined>(undefined);
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    const result = await axios.post("http://localhost:8000/api/users", {
-      ...formData,
-      confirmPassword: undefined
-    }, config);
+    const result = await registerUser({
+      data: { ...formData, confirmPassword: undefined },
+      config,
+    });
 
     if (result.data) {
-      successMessage.value = "Vous avez reçu un mail. Merci de confirmer votre compte !"
+      successMessage.value =
+        "Vous avez reçu un mail. Merci de confirmer votre compte !";
     }
   } catch (error) {
-    successMessage.value = undefined
+    successMessage.value = undefined;
     throw error;
   }
 };
@@ -71,50 +82,51 @@ const transform = {
   },
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
-  initialValues,
-  validationSchema,
-  onSubmit,
-  transform,
-});
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
+  useForm({
+    initialValues,
+    validationSchema,
+    onSubmit,
+    transform,
+  });
 
 const fields = computed<Field[]>(() => [
   {
-    "label": "Nom",
-    "field": "lastname",
-    "hasError": !!errors["lastname"],
-    "type": "text",
-    "error": errors["lastname"]
+    label: "Nom",
+    field: "lastname",
+    hasError: !!errors["lastname"],
+    type: "text",
+    error: errors["lastname"],
   },
   {
-    "label": "Prénom",
-    "field": "firstname",
-    "type": "text",
-    "hasError": !!errors["firstname"],
-    "error": errors["firstname"]
+    label: "Prénom",
+    field: "firstname",
+    type: "text",
+    hasError: !!errors["firstname"],
+    error: errors["firstname"],
   },
   {
-    "label": "Email",
-    "field": "email",
-    "type": "email",
-    "hasError": !!errors["email"],
-    "error": errors["email"]
+    label: "Email",
+    field: "email",
+    type: "email",
+    hasError: !!errors["email"],
+    error: errors["email"],
   },
   {
-    "label": "Mot de passe",
-    "field": "password",
-    "type": "password",
-    "hasError": !!errors["password"],
-    "error": errors["password"]
+    label: "Mot de passe",
+    field: "password",
+    type: "password",
+    hasError: !!errors["password"],
+    error: errors["password"],
   },
   {
-    "label": "Confirmation du mot de passe",
-    "field": "confirmPassword",
-    "type": "password",
-    "hasError": false,
-    "error": errors["confirmPassword"]
+    label: "Confirmation du mot de passe",
+    field: "confirmPassword",
+    type: "password",
+    hasError: false,
+    error: errors["confirmPassword"],
   },
-])
+]);
 </script>
 
 <template>

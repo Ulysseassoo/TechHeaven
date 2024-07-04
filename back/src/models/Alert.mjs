@@ -1,12 +1,14 @@
-import { Schema, Types, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const alertSchema = new Schema({
+
+const alertSchema = new mongoose.Schema({
+  id: { type: String, unique: true, required: true },
     name: { type: String, required: true },
     type: { type: String, required: true },
     param: { type: String, default: null },
-    preferences: [{ type: Schema.Types.ObjectId, ref: 'Preference' }]
+    preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }]
 });
 
-const Alert = model('Alert', alertSchema);
+const Alert = mongoose.model('Alert', alertSchema);
 
 export default Alert;

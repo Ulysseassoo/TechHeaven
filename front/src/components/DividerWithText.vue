@@ -1,8 +1,8 @@
 <script setup lang="ts">
-    defineProps<{
-        content: string;
-        containerClass: string;
-    }>()
+defineProps<{
+  content: string;
+  containerClass: string;
+}>();
 </script>
 
 <template>

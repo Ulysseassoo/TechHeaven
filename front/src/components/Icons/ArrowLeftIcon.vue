@@ -1,14 +1,14 @@
 <script setup lang="ts">
-    defineProps<{
-        height: string;
-        width: string;
-    }>()
+defineProps<{
+  height: string;
+  width: string;
+}>();
 </script>
 
 <template>
   <svg
-    :width=width
-    :height=height
+    :width="width"
+    :height="height"
     viewBox="0 0 1024 1024"
     class="icon"
     version="1.1"
