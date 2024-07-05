@@ -2,11 +2,20 @@ import nodemailer from "nodemailer";
 import { COMPANY_MAIL } from "../constants/index.mjs";
 import { generateInvoicePDF } from './pdfGenerator.mjs';
 import fs from 'fs';
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'localhost',
+
+const user = process.env.SMTP_USER;
+const pass = process.env.SMTP_PASS;
+
+const transporterOptions = {
+    host: process.env.SMTP_HOST || "localhost",
     port: process.env.SMTP_PORT || 1025,
-    secure: false,
-});
+};
+  
+if (user !== "" && pass !== "") {
+    transporterOptions.auth = { user, pass }; 
+}
+
+const transporter = nodemailer.createTransport(transporterOptions);
 
 export const sendConfirmationEmail = async (userEmail, token) => {
     const mailOptions = {
@@ -19,6 +28,8 @@ export const sendConfirmationEmail = async (userEmail, token) => {
     try {
         await transporter.sendMail(mailOptions);
     } catch (error) {
+        console.log("🚀 ~ sendConfirmationEmail ~ error:", error)
+        console.log("🚀 ~ sendConfirmationEmail ~ error:", error.message)
         throw Error("Erreur lors de l\'envoi de l\'email");
     }
 }
