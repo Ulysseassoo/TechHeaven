@@ -7,7 +7,9 @@
         <!-- Personal Information Card -->
         <v-col class="md:col-span-2 lg:col-span-6">
           <v-card class="bg-paper-primary-light shadow-short rounded-lg">
-            <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2">
+            <v-card-text
+              class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
+            >
               <h2 class="mb-2 title-2">Informations personnelles</h2>
               <div class="flex items-center">
                 <div class="body-1-light">
@@ -40,7 +42,9 @@
         <!-- Billing Address Card -->
         <v-col class="md:col-span-2 lg:col-span-6">
           <v-card class="bg-paper-primary-light shadow-short rounded-lg">
-            <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2">
+            <v-card-text
+              class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
+            >
               <h2 class="mb-2 title-2">Adresse de facturation</h2>
               <div class="flex items-center">
                 <div class="body-1-light">

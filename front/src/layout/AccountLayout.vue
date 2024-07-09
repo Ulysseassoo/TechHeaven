@@ -24,7 +24,9 @@ const logout = async () => {
             <ul>
               <li><RouterLink to="/account/profile"> Profil </RouterLink></li>
               <li><RouterLink to="/account/orders"> Commandes </RouterLink></li>
-              <li><RouterLink to="/account/favorites"> Favoris </RouterLink></li>
+              <li>
+                <RouterLink to="/account/favorites"> Favoris </RouterLink>
+              </li>
             </ul>
             <ul>
               <li @click="logout">Déconnexion</li>
