@@ -15,7 +15,7 @@ import { createPinia } from "pinia";
 import router from "@/router";
 import { getUserInformation } from "./api/auth";
 import { useUserStore } from "./store/UserStore";
-const pinia = createPinia()
+const pinia = createPinia();
 
 const vuetify = createVuetify({
   icons: {
@@ -37,11 +37,11 @@ const vuetify = createVuetify({
 
 const app = createApp(App);
 
-app.use(pinia)
-app.use(vuetify)
+app.use(pinia);
+app.use(vuetify);
 app.use(Vue3Toasity, {
   autoClose: 3000,
-} as ToastContainerOptions)
+} as ToastContainerOptions);
 
 const store = useUserStore();
 
@@ -54,8 +54,8 @@ router.beforeEach(async (to, from, next) => {
         next({ name: "Login" });
       } else {
         const response = await getUserInformation();
-        store.setUser(response.data)
-        if(to.meta.role) {
+        store.setUser(response.data);
+        if (to.meta.role) {
           if (response.data.role === to.meta.role) {
             next();
           } else {
@@ -67,11 +67,11 @@ router.beforeEach(async (to, from, next) => {
     } else {
       next();
     }
-  } catch(error: any) {
+  } catch (error: any) {
     next({ name: "Login" });
     store.setUser(null);
   }
 });
 
-app.use(router)
+app.use(router);
 app.mount("#app");

@@ -19,7 +19,9 @@ console.log("🚀 ~ user:", user);
             <template v-slot:append>
               <v-icon class="cursor-pointer" icon="fa-solid fa-pen"></v-icon>
             </template>
-            <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2">
+            <v-card-text
+              class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
+            >
               <div class="flex items-center">
                 <div class="body-1-light">
                   <div>{{ user?.firstname }} {{ user?.lastname }}</div>
