@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { logoutUser } from "@/api/auth";
 import Header from "@/components/Header.vue";
+import { useUserStore } from "@/store/UserStore";
 import { RouterLink, useRouter } from "vue-router";
 
 const router = useRouter();
+const store = useUserStore();
 
 const logout = async () => {
   await logoutUser();
@@ -11,6 +13,7 @@ const logout = async () => {
     name: "Login",
     replace: true,
   });
+  store.setUser(null);
 };
 </script>
 
@@ -50,11 +53,18 @@ const logout = async () => {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+
+  @media (max-width: 780px) {
+    padding: 0;
+  }
 }
 
 .router-container {
-  max-width: 70%;
+  max-width: 85%;
   width: 100%;
+  @media (max-width: 780px) {
+    max-width: 100%;
+  }
 }
 
 .nav-container {
@@ -90,6 +100,23 @@ const logout = async () => {
           color: black;
         }
       }
+    }
+  }
+
+  @media (max-width: 780px) {
+    nav {
+      width: 100%;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  @media (max-width: 550px) {
+    nav {
+      overflow-x: scroll;
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+      gap: 2rem;
     }
   }
 }

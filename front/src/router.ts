@@ -11,8 +11,9 @@ import OrdersView from "@/pages/Admin/OrdersView.vue";
 import InvoicesView from "@/pages/Admin/InvoicesView.vue";
 import AddressesView from "@/pages/Admin/AddressesView.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
-import { getUserInformation } from "@/api/auth";
+import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
+import ProfileView from "@/pages/Account/ProfileView.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "Home", component: HomeView },
@@ -50,6 +51,19 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: "/account",
+    name: "Account",
+    component: AccountLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: "profile",
+        name: "Profile",
+        component: ProfileView,
+      },
+    ],
+  },
+  {
     path: "/login",
     name: "Login",
     component: LoginView,
@@ -68,27 +82,6 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
-
-router.beforeEach(async (to, from, next) => {
-  const token = localStorage.getItem("token");
-  if (to.meta.requiresAuth) {
-    if (!token) {
-      next({ name: "Login" });
-    } else {
-      const response = await getUserInformation();
-      if (response.status === 401) {
-        next({ name: "Login" });
-      }
-      if (response.data.role === to.meta.role) {
-        next();
-      } else {
-        next({ name: "Home" });
-      }
-    }
-  } else {
-    next();
-  }
 });
 
 export default router;

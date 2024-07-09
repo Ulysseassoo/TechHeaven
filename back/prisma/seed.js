@@ -39,7 +39,7 @@ async function main() {
             data: {
                 firstname: faker.person.firstName(),
                 lastname: faker.person.lastName(),
-                email: faker.internet.email(),
+                email: faker.internet.email().toLowerCase(),
                 role: "ROLE_USER",
                 password: globalPassword,
                 created_at: getRandomDateBetween2023And2024().format(),

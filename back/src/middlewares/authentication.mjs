@@ -14,7 +14,7 @@ export const shouldBeAuthenticate = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
         if (err) {
-            return res.status(403).send({
+            return res.status(401).send({
                 status: 401,
                 message: "Le token est invalide."
             });
@@ -25,6 +25,12 @@ export const shouldBeAuthenticate = (req, res, next) => {
                 id: user.userId,
             }
         })
+
+        if(!sessionUser) {
+            return res.status(401).send({
+                status: 401,
+            });
+        }
 
         req.user = sessionUser;
         
