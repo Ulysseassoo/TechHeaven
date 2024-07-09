@@ -13,9 +13,7 @@ const searchBar = ref(null);
       <img width="120px" style="object-fit: contain" src="../assets/logo.png" />
     </section>
     <section class="search-section">
-      <RouterLink class="router-link" to="/register"
-        >Qui sommes nous ?</RouterLink
-      >
+      <RouterLink class="router-link" to="/register">Qui sommes nous ?</RouterLink>
       <RouterLink class="router-link" to="/register">Nos produits</RouterLink>
       <VTextField
         variant="outlined"
@@ -28,7 +26,9 @@ const searchBar = ref(null);
       ></VTextField>
     </section>
     <section style="display: flex">
-      <User />
+      <RouterLink class="router-link" to="/account/profile">
+        <User />
+      </RouterLink>
       <Basket />
     </section>
   </header>
