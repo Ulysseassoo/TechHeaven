@@ -30,6 +30,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
     "pdfkit": "^0.15.0",
+    "shippo": "^2.6.1",
     "stripe": "^15.9.0"
   },
   "devDependencies": {
