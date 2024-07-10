@@ -1,12 +1,18 @@
 import express from 'express';
+import { db } from '../utils/db.server.mjs';
 import dotenv from 'dotenv';
-import shippo from 'shippo';
+import Delivery from "../models/Delivery.mjs";
+import { Shippo } from 'shippo';
 
 dotenv.config();
 
+if (!process.env.SHIPPO_API_KEY) {
+    throw new Error('SHIPPO_API_KEY is not defined in the environment variables');
+}
+
 const router = express.Router();
 
-const shippoClient = new shippo(process.env.SHIPPO_API_KEY);
+const shippoClient = new Shippo(process.env.SHIPPO_API_KEY);
 //const shippoClient = process.env.SHIPPO_API_KEY;
 
 // Endpoint pour créer une étiquette d'expédition
@@ -20,6 +26,7 @@ router.post('/create-shipment', async (req, res) => {
             parcels: [parcel],
             async: false
         });
+
 
         const rate = shipment.rates.find(rate => rate.servicelevel.token === 'ups_ground');
         
