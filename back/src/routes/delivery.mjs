@@ -12,34 +12,34 @@ if (!process.env.SHIPPO_API_KEY) {
 
 const router = express.Router();
 
-const shippoClient = new Shippo(process.env.SHIPPO_API_KEY);
-//const shippoClient = process.env.SHIPPO_API_KEY;
+const shippo  = new Shippo(process.env.SHIPPO_API_KEY);
 
 // Endpoint pour créer une étiquette d'expédition
 router.post('/create-shipment', async (req, res) => {
     const { addressFrom, addressTo, parcel } = req.body;
 
     try {
-        const shipment = await shippoClient.shipment.create({
+        const shipment = await shippo.shipments.create({
             address_from: addressFrom,
             address_to: addressTo,
             parcels: [parcel],
             async: false
         });
-
+        
+        console.log(shipment);
 
         const rate = shipment.rates.find(rate => rate.servicelevel.token === 'ups_ground');
         
-        const transaction = await shippoClient.transaction.create({
-            rate: rate.object_id,
+        const transaction = await shippo.transactions.create({
+            rate: rate.objectId,
             label_file_type: 'PDF'
         });
 
         if (transaction.status === 'SUCCESS') {
             res.status(200).json({
-                tracking_number: transaction.tracking_number,
-                tracking_url: transaction.tracking_url_provider,
-                label_url: transaction.label_url
+                tracking_number: transaction.trackingNumber,
+                tracking_url: transaction.trackingUrlProvider,
+                label_url: transaction.labelUrl
             });
         } else {
             res.status(500).json({ error: transaction.messages });
@@ -54,7 +54,7 @@ router.get('/track-shipment/:carrier/:trackingNumber', async (req, res) => {
     const { carrier, trackingNumber } = req.params;
 
     try {
-        const tracking = await shippoClient.track.get_status(carrier, trackingNumber);
+        const tracking = await shippo.track.get_status(carrier, trackingNumber);
         res.status(200).json(tracking);
     } catch (error) {
         res.status(500).json({ error: error.message });
