@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useUserStore } from "@/store/UserStore";
-import { RouterLink } from "vue-router";
+import EditUserInformationsCard from "@/components/Account/EditUserInformationsCard.vue";
+import type { User } from "@/interfaces/User";
+import { computed } from "vue";
 const store = useUserStore();
-const { user } = store;
-console.log("🚀 ~ user:", user);
+const user = computed(() => store.user as User);
 </script>
 <template>
   <div class="container">
@@ -11,37 +12,7 @@ console.log("🚀 ~ user:", user);
     <v-container>
       <v-row class="gap-y-6 md:gap-y-7 md:mt-7">
         <v-col class="md:col-span-2 lg:col-span-6">
-          <v-card
-            class="bg-paper-primary-light shadow-short rounded-lg"
-            title="Informations personnelles"
-            subtitle="Modifier les informations personnelles"
-          >
-            <template v-slot:append>
-              <v-icon class="cursor-pointer" icon="fa-solid fa-pen"></v-icon>
-            </template>
-            <v-card-text
-              class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
-            >
-              <div class="flex items-center">
-                <div class="body-1-light">
-                  <div>{{ user?.firstname }} {{ user?.lastname }}</div>
-                  <div>{{ user?.email }}</div>
-                </div>
-              </div>
-              <div class="d-flex ga-1 flex-column mt-2">
-                <p
-                  class="text-decoration-underline font-weight-bold cursor-pointer w-auto align-self-start"
-                >
-                  Modifier mon mot de passe
-                </p>
-                <RouterLink
-                  to="/account/ cursor-pointerdelete"
-                  class="text-decoration-underline font-weight-bold w-auto align-self-start"
-                  >Supprimer mon compte</RouterLink
-                >
-              </div>
-            </v-card-text>
-          </v-card>
+          <EditUserInformationsCard :user="user" />
         </v-col>
       </v-row>
     </v-container>
@@ -53,5 +24,9 @@ console.log("🚀 ~ user:", user);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.link {
+  color: black;
 }
 </style>

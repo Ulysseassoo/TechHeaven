@@ -174,7 +174,7 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.put("/users/:id", userValidator, async (req, res) => {
+router.put("/users/:id", shouldBeAuthenticate, userValidator, async (req, res) => {
     const id = req.params.id
 
     const errors = validationResult(req);
@@ -193,6 +193,8 @@ router.put("/users/:id", userValidator, async (req, res) => {
 
     const { email, firstname, lastname, phone, has_confirmed_account, number_connexion_attempts, role } = req.body;
 
+    // Check if email is unique... 
+    // Check if user can edit it...
     try {
         const user = await db.user.findUnique({
             where: {
@@ -239,7 +241,7 @@ router.put("/users/:id", userValidator, async (req, res) => {
     }
 })
 
-router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
+router.delete("/users/:id", shouldBeAuthenticate, async (req, res) => {
     const id = req.params.id
 
     try {
@@ -257,9 +259,13 @@ router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Utilisateur inexistant.' });
         }
 
+        if(user.id !== req.user.id && user.role !== "ROLE_ADMIN") {
+            return res.status(401).json({ status: 401, message: "Vous n'avez pas accès à cette route." });
+        }
+
         await db.user.update({
             where: {
-                id: postgresId
+                id
             },
             data: anonymizeUserData()
         })

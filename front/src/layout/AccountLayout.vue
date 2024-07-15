@@ -2,10 +2,13 @@
 import { logoutUser } from "@/api/auth";
 import Header from "@/components/Header.vue";
 import { useUserStore } from "@/store/UserStore";
-import { RouterLink, useRouter } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const store = useUserStore();
+const route = useRoute();
+
+const NotShowNavRoutes = ["/account/delete-account"];
 
 const logout = async () => {
   await logoutUser();
@@ -22,7 +25,7 @@ const logout = async () => {
     <v-main style="min-height: 100vh">
       <Header />
       <div class="container">
-        <div class="nav-container">
+        <div class="nav-container" v-if="!NotShowNavRoutes.includes(route.path)">
           <nav>
             <ul>
               <li><RouterLink to="/account/profile"> Profil </RouterLink></li>

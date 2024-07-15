@@ -14,6 +14,7 @@ import AdminLayout from "@/layout/AdminLayout.vue";
 import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
 import ProfileView from "@/pages/Account/ProfileView.vue";
+import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "Home", component: HomeView },
@@ -60,6 +61,11 @@ const routes: RouteRecordRaw[] = [
         path: "profile",
         name: "Profile",
         component: ProfileView,
+      },
+      {
+        path: "delete-account",
+        name: "Delete Account",
+        component: DeleteAccountView,
       },
     ],
   },

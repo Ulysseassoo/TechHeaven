@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { type User } from "./../interfaces/User";
 import { defineStore } from "pinia";
 

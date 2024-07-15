@@ -64,7 +64,7 @@ export const shouldBeAdmin = (req, res, next) => {
         if(sessionUser.role !== "ROLE_ADMIN") {
             return res.status(401).send({
                 status: 401,
-                message: "Vous n'avez pas accès à cette route"
+                message: "Vous n'avez pas accès à cette ressource"
             });
         }
 
