@@ -64,9 +64,15 @@ const { data, errors, validateField, handleSubmit } = useForm({
     subtitle="Modifier les informations personnelles"
   >
     <template v-slot:append>
-      <v-btn @click="dialog = true" icon="fa-solid fa-pen" size="x-small"></v-btn>
+      <v-btn
+        @click="dialog = true"
+        icon="fa-solid fa-pen"
+        size="x-small"
+      ></v-btn>
     </template>
-    <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2">
+    <v-card-text
+      class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
+    >
       <div class="flex items-center">
         <div class="body-1-light">
           <div>{{ user?.firstname }} {{ user?.lastname }}</div>
@@ -92,11 +98,17 @@ const { data, errors, validateField, handleSubmit } = useForm({
   <v-dialog v-model="dialog" width="auto" persistent max-width="800px">
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center">
-        <div class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center">
+        <div
+          class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center"
+        >
           Infos personnelles
         </div>
 
-        <v-btn icon="fa-solid fa-xmark" variant="text" @click="dialog = false"></v-btn>
+        <v-btn
+          icon="fa-solid fa-xmark"
+          variant="text"
+          @click="dialog = false"
+        ></v-btn>
       </v-card-title>
       <v-divider class="mb-4"></v-divider>
       <v-card-text>

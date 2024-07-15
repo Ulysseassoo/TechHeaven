@@ -26,7 +26,7 @@ const handleDeleteAccount = async () => {
     loading.value = true;
 
     toast.error(
-      "Une erreur est survenue lors de la suppression de votre compte. Veuillez réessayer plus tard."
+      "Une erreur est survenue lors de la suppression de votre compte. Veuillez réessayer plus tard.",
     );
   }
 };
@@ -39,20 +39,20 @@ const handleDeleteAccount = async () => {
 
     <div class="mt-4">
       <span>
-        La suppression de votre compte est une action permanente. Une fois votre compte
-        supprimé, vous ne pouvez plus y accéder et il ne peut pas être restauré. Lors de
-        la suppression de votre compte : <br />
+        La suppression de votre compte est une action permanente. Une fois votre
+        compte supprimé, vous ne pouvez plus y accéder et il ne peut pas être
+        restauré. Lors de la suppression de votre compte : <br />
         <ul class="list">
           <li>
-            vous n’aurez plus accès aux informations et données stockées dans votre compte
-            (y compris l’historique de vos messages après-vente, vos alertes, l’historique
-            et les détails de vos commandes)
+            vous n’aurez plus accès aux informations et données stockées dans
+            votre compte (y compris l’historique de vos messages après-vente,
+            vos alertes, l’historique et les détails de vos commandes)
           </li>
           <li>vous cesserez de recevoir des communications de suivi,</li>
           <li>
-            vous devrez créer un nouveau compte si vous souhaitez passer une nouvelle
-            commande. Si vous cliquez sur « Supprimer le compte », vous serez
-            automatiquement déconnecté de votre compte.
+            vous devrez créer un nouveau compte si vous souhaitez passer une
+            nouvelle commande. Si vous cliquez sur « Supprimer le compte », vous
+            serez automatiquement déconnecté de votre compte.
           </li>
         </ul>
       </span>
@@ -77,10 +77,11 @@ const handleDeleteAccount = async () => {
 
     <div class="mt-12">
       <p>
-        Veuillez noter que des données spécifiques peuvent être conservées pendant une
-        certaine période si un achat ou une revente a eu lieu. Pour plus de détails sur
-        nos pratiques en matière de confidentialité des données, nous vous encourageons à
-        visiter notre Plateforme et à consulter notre
+        Veuillez noter que des données spécifiques peuvent être conservées
+        pendant une certaine période si un achat ou une revente a eu lieu. Pour
+        plus de détails sur nos pratiques en matière de confidentialité des
+        données, nous vous encourageons à visiter notre Plateforme et à
+        consulter notre
         <RouterLink class="link" to="/legal/data-protection"
           >Politique de confidentialité</RouterLink
         >
