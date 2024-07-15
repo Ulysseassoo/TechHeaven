@@ -24,4 +24,36 @@ router.get('/deliveries', async (req, res) => {
     }
 });
 
+
+// Mettre à jour le statut de livraison
+router.patch('/deliveries/:id', async (req, res) => {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ['address', 'status', 'following_number', 'delivered'];
+    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+
+    if (!isValidOperation) {
+        return res.status(400).send({ error: 'Invalid updates!' });
+    }
+
+    try {
+        const delivery = await Delivery.findById(req.params.id);
+
+        if (!delivery) {
+            return res.status(404).send();
+        }
+
+        updates.forEach(update => delivery[update] = req.body[update]);
+
+        // Si la livraison est marquée comme livrée, changer le statut à "Livré"
+        if (delivery.delivered) {
+            delivery.status = "Livré";
+        }
+
+        await delivery.save();
+        res.send(delivery);
+    } catch (e) {
+        res.status(400).send(e);
+    }
+});
+
 export default router;
