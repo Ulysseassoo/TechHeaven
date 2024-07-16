@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { logoutUser } from "@/api/auth";
+import Footer from "@/components/Footer.vue";
 import Header from "@/components/Header.vue";
 import { useUserStore } from "@/store/UserStore";
 import { RouterLink, useRoute, useRouter } from "vue-router";
@@ -25,10 +26,7 @@ const logout = async () => {
     <v-main style="min-height: 100vh">
       <Header />
       <div class="container">
-        <div
-          class="nav-container"
-          v-if="!NotShowNavRoutes.includes(route.path)"
-        >
+        <div class="nav-container" v-if="!NotShowNavRoutes.includes(route.path)">
           <nav>
             <ul>
               <li><RouterLink to="/account/profile"> Profil </RouterLink></li>
@@ -48,6 +46,7 @@ const logout = async () => {
       </div>
     </v-main>
   </v-layout>
+  <Footer />
 </template>
 
 <style scoped>

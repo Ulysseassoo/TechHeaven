@@ -59,7 +59,7 @@ export const sendPasswordRenewalNotification = async (userEmail) => {
         <p>Bonjour,</p>
         <p>Nous vous contactons pour vous informer qu'il est nécessaire de changer votre mot de passe pour des raisons de sécurité. Il est recommandé de changer régulièrement votre mot de passe pour protéger votre compte.</p>
         <p>Pour changer votre mot de passe, veuillez cliquer sur le lien ci-dessous :</p>
-        <p><a href="${process.env.WEBSITE_URL}/changer-mot-de-passe">Changer mon mot de passe</a></p>
+        <p><a href="${process.env.WEBSITE_URL}/account/profile?changePassword=true">Changer mon mot de passe</a></p>
         <p>Si vous n'avez pas demandé ce changement, veuillez contacter notre service clientèle immédiatement.</p>
         <p>Merci,</p>
         <p>L'équipe de techheaven.com</p>

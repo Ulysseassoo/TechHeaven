@@ -7,6 +7,7 @@ import { useForm } from "@/hooks/useForm";
 import { updateUser } from "@/api/user";
 import { toast } from "vue3-toastify";
 import { useUserStore } from "@/store/UserStore";
+import ChangePassword from "@/components/Account/ChangePassword.vue";
 
 const props = defineProps<{ user: User }>();
 const dialog = ref(false);
@@ -64,15 +65,9 @@ const { data, errors, validateField, handleSubmit } = useForm({
     subtitle="Modifier les informations personnelles"
   >
     <template v-slot:append>
-      <v-btn
-        @click="dialog = true"
-        icon="fa-solid fa-pen"
-        size="x-small"
-      ></v-btn>
+      <v-btn @click="dialog = true" icon="fa-solid fa-pen" size="x-small"></v-btn>
     </template>
-    <v-card-text
-      class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
-    >
+    <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2">
       <div class="flex items-center">
         <div class="body-1-light">
           <div>{{ user?.firstname }} {{ user?.lastname }}</div>
@@ -81,11 +76,7 @@ const { data, errors, validateField, handleSubmit } = useForm({
         </div>
       </div>
       <div class="d-flex ga-2 flex-column mt-2">
-        <p
-          class="text-decoration-underline font-weight-bold cursor-pointer w-auto align-self-start"
-        >
-          Modifier mon mot de passe
-        </p>
+        <ChangePassword :email="props.user.email" />
         <RouterLink
           to="/account/delete-account"
           class="text-decoration-underline font-weight-bold w-auto align-self-start link"
@@ -98,17 +89,11 @@ const { data, errors, validateField, handleSubmit } = useForm({
   <v-dialog v-model="dialog" width="auto" persistent max-width="800px">
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center">
-        <div
-          class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center"
-        >
+        <div class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center">
           Infos personnelles
         </div>
 
-        <v-btn
-          icon="fa-solid fa-xmark"
-          variant="text"
-          @click="dialog = false"
-        ></v-btn>
+        <v-btn icon="fa-solid fa-xmark" variant="text" @click="dialog = false"></v-btn>
       </v-card-title>
       <v-divider class="mb-4"></v-divider>
       <v-card-text>

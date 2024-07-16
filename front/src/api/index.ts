@@ -19,6 +19,11 @@ export interface UserFormProps {
   password: string;
 }
 
+export interface ChangeOldPasswordProps extends UserFormProps {
+  oldPassword?: string;
+  confirmPassword?: string;
+}
+
 export interface UpdateProps<T> {
   id: string;
   data: Partial<T>;
