@@ -61,6 +61,14 @@ export const shouldBeAdmin = (req, res, next) => {
         id: user.userId,
       },
     });
+
+    if(!sessionUser) {
+      return res.status(403).send({
+        status: 403,
+        message: "Le token est invalide"
+      });
+    }
+
     if (sessionUser.role !== "ROLE_ADMIN") {
       return res.status(401).send({
         status: 401,

@@ -12,8 +12,8 @@ const addressSchema = new mongoose.Schema({
 
 const preferenceSchema = new mongoose.Schema({
   id: { type: String, unique: true, required: true },
-  user_id: { type: mongoose.Schema.Types.ObjectId, required: true },
-  alert_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Alert', required: true },
+  user_id: { type: String, required: true },
+  alert_id: { type: String, required: true },
   isEnabled: { type: Boolean, required: true }
 });
 
