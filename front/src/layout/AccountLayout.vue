@@ -26,7 +26,10 @@ const logout = async () => {
     <v-main style="min-height: 100vh">
       <Header />
       <div class="container">
-        <div class="nav-container" v-if="!NotShowNavRoutes.includes(route.path)">
+        <div
+          class="nav-container"
+          v-if="!NotShowNavRoutes.includes(route.path)"
+        >
           <nav>
             <ul>
               <li><RouterLink to="/account/profile"> Profil </RouterLink></li>

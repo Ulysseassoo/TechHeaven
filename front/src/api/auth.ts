@@ -1,4 +1,10 @@
-import { getApi, postApi, putApi, type ChangeOldPasswordProps, type Config } from ".";
+import {
+  getApi,
+  postApi,
+  putApi,
+  type ChangeOldPasswordProps,
+  type Config,
+} from ".";
 import { HOST } from "@/constants";
 import type { User } from "@/interfaces/User";
 
