@@ -60,7 +60,7 @@ model Alert {
 model Preference {
   user_id  String
   alert_id String
-  status   Boolean
+  isEnabled   Boolean
   user     User    @relation(fields: [user_id], references: [id])
   alert    Alert   @relation(fields: [alert_id], references: [id])
 

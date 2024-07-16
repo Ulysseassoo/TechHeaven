@@ -10,6 +10,13 @@ const addressSchema = new mongoose.Schema({
   id: { type: String, unique: true, required: true, sparse: true },
 });
 
+const preferenceSchema = new mongoose.Schema({
+  id: { type: String, unique: true, required: true },
+  user_id: { type: mongoose.Schema.Types.ObjectId, required: true },
+  alert_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Alert', required: true },
+  isEnabled: { type: Boolean, required: true }
+});
+
 const passwordRecoverySchema = new mongoose.Schema({
   code_validation_time: { type: Date, default: null },
   last_request: { type: Date, default: null },
@@ -32,7 +39,7 @@ const userSchema = new mongoose.Schema({
   number_connexion_attempts: { type: Number, default: 0 },
   blocked_until: { type: Date, default: null },
   addresses: { type: [addressSchema], default: [] },
-  preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }],
+  preferences: { type: [preferenceSchema], default: [] },
   passwordRecovery: {
     type: passwordRecoverySchema,
     default: null,
