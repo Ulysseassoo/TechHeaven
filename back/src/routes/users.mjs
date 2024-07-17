@@ -24,7 +24,14 @@ router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
   try {
     const user = await User.findOne({
       id: req.user.id,
-    }).select("-password");
+    })
+      .select("-password")
+      .populate({
+        path: "preferences",
+        populate: {
+          path: "alert",
+        },
+      });
 
     if (!user) {
       return res
@@ -91,6 +98,23 @@ router.post("/users", authValidator, async (req, res) => {
         id: true,
       },
     });
+
+    // Create preference for user
+    const alert = await db.alert.findFirst({
+      where: {
+        type: "NEWSLETTER",
+      },
+    });
+
+    if (alert) {
+      await db.preference.create({
+        data: {
+          user_id: user.id,
+          alert_id: alert.id,
+          isEnabled: false,
+        }
+      });
+    }
 
     const confirmationToken = generateConfirmationToken(user.id);
     await sendConfirmationEmail(email, confirmationToken);
@@ -327,12 +351,10 @@ router.put(
       const { id, alertId, preferenceId } = req.params;
 
       if (req.user.id !== id) {
-        return res
-          .status(401)
-          .json({
-            status: 401,
-            message: "Vous n'avez pas accès à cette route.",
-          });
+        return res.status(401).json({
+          status: 401,
+          message: "Vous n'avez pas accès à cette route.",
+        });
       }
 
       const preference = await db.preference.findUnique({
@@ -353,6 +375,7 @@ router.put(
           id: preference.id,
         },
         data: {
+          ...preference,
           isEnabled: !preference.isEnabled,
         },
       });
@@ -371,40 +394,38 @@ router.put(
 );
 
 router.post(
-    "/users/:id/alerts/:alertId/preferences",
-    shouldBeAuthenticate,
-    async (req, res) => {
-      try {
-        const { id, alertId } = req.params;
-  
-        if (req.user.id !== id) {
-          return res
-            .status(401)
-            .json({
-              status: 401,
-              message: "Vous n'avez pas accès à cette route.",
-            });
-        }
-  
-        const preference = await db.preference.create({
-          data: {
-            isEnabled: req.body.isEnabled,
-            alert_id: alertId,
-            user_id: id,
-          },
-        });
-  
-        return res.status(201).json({
-          status: 201,
-          data: preference,
-        });
-      } catch (error) {
-        return res.status(401).send({
+  "/users/:id/alerts/:alertId/preferences",
+  shouldBeAuthenticate,
+  async (req, res) => {
+    try {
+      const { id, alertId } = req.params;
+
+      if (req.user.id !== id) {
+        return res.status(401).json({
           status: 401,
-          message: error.message || error,
+          message: "Vous n'avez pas accès à cette route.",
         });
       }
+
+      const preference = await db.preference.create({
+        data: {
+          isEnabled: req.body.isEnabled,
+          alert_id: alertId,
+          user_id: id,
+        },
+      });
+
+      return res.status(201).json({
+        status: 201,
+        data: preference,
+      });
+    } catch (error) {
+      return res.status(401).send({
+        status: 401,
+        message: error.message || error,
+      });
     }
+  }
 );
 
 export default router;

@@ -34,6 +34,13 @@ async function main() {
         },
     });
 
+    const alert = await db.alert.create({
+        data: {
+            name: "Newsletter",
+            type: "NEWSLETTER",
+        }
+    })
+
     for (let i = 0; i < 100; i++) {
         const u = await db.user.create({
             data: {
@@ -47,6 +54,14 @@ async function main() {
                 has_confirmed_account: true,
                 phone: faker.phone.number(),
             },
+        });
+
+        await db.preference.create({
+            data: {
+                user_id: u.id,
+                alert_id: alert.id,
+                isEnabled: false,
+            }
         });
 
         for (let i = 0; i < 3; i++) {

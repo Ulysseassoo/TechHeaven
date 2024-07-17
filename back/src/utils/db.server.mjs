@@ -12,7 +12,6 @@ if (!global.__db) {
 
 db = global.__db
 
-
 const extendedDb = db.$extends({
     name: 'db',
     query: {
