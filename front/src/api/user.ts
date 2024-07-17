@@ -1,6 +1,7 @@
 import { deleteApi, getApi, putApi } from "@/api";
-import type { ApiSuccess, UpdateProps } from "@/api";
+import type { ApiSuccess, UpdatePreference, UpdateProps } from "@/api";
 import { HOST } from "@/constants";
+import type { Preference } from "@/interfaces/Preference";
 import type { Stats, User } from "@/interfaces/User";
 
 interface SearchQueryParams {
@@ -66,6 +67,18 @@ export const updateUser = async ({ id, data, config }: UpdateProps<User>) => {
   const token = localStorage.getItem("token");
   const response = await putApi<User>(url, data, {
     ...config,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response;
+};
+
+export const updateUserPreference = async ({ userId, alertId, preferenceId }: UpdatePreference) => {
+  const url = `${HOST}/users/${userId}/alerts/${alertId}/preferences/${preferenceId}`;
+  const token = localStorage.getItem("token");
+  const response = await putApi<Preference>(url, {}, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

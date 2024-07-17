@@ -30,6 +30,12 @@ export interface UpdateProps<T> {
   config: AxiosRequestConfig;
 }
 
+export interface UpdatePreference {
+  userId: string;
+  preferenceId: string;
+  alertId: string;
+}
+
 export interface ApiSuccess {
   status: number;
   message: string;

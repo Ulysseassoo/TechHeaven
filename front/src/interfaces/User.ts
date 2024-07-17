@@ -1,4 +1,5 @@
 import type { Address } from "./Address";
+import type { Preference } from "./Preference";
 
 export interface User {
   id: string;
@@ -14,6 +15,7 @@ export interface User {
   number_connexion_attempts: number;
   blocked_until: string | null;
   addresses: Address[];
+  preferences: Preference[];
 }
 
 export interface UserCountDate {

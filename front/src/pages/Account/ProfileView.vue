@@ -16,7 +16,7 @@ const user = computed(() => store.user as User);
           <EditUserInformationsCard :user="user" />
         </v-col>
         <v-col class="md:col-span-2 lg:col-span-6">
-          <PreferencesCard />
+          <PreferencesCard :user="user" />
         </v-col>
       </v-row>
     </v-container>
