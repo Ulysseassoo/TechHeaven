@@ -75,14 +75,22 @@ export const updateUser = async ({ id, data, config }: UpdateProps<User>) => {
   return response;
 };
 
-export const updateUserPreference = async ({ userId, alertId, preferenceId }: UpdatePreference) => {
+export const updateUserPreference = async ({
+  userId,
+  alertId,
+  preferenceId,
+}: UpdatePreference) => {
   const url = `${HOST}/users/${userId}/alerts/${alertId}/preferences/${preferenceId}`;
   const token = localStorage.getItem("token");
-  const response = await putApi<Preference>(url, {}, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  const response = await putApi<Preference>(
+    url,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 
   return response;
 };
