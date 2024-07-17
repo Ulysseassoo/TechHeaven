@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/store/UserStore";
 import EditUserInformationsCard from "@/components/Account/EditUserInformationsCard.vue";
+import PreferencesCard from "@/components/Account/PreferencesCard.vue";
 import type { User } from "@/interfaces/User";
 import { computed } from "vue";
 const store = useUserStore();
@@ -13,6 +14,9 @@ const user = computed(() => store.user as User);
       <v-row class="gap-y-6 md:gap-y-7 md:mt-7">
         <v-col class="md:col-span-2 lg:col-span-6">
           <EditUserInformationsCard :user="user" />
+        </v-col>
+        <v-col class="md:col-span-2 lg:col-span-6">
+          <PreferencesCard />
         </v-col>
       </v-row>
     </v-container>
