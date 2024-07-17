@@ -94,6 +94,39 @@ export const sendPasswordResetEmail = async (userEmail, code) => {
     }
 }
 
+export const sendNewsletterEmail = async (userEmail) => {
+    const mailOptions = {
+        from: COMPANY_MAIL,
+        to: userEmail,
+        subject: 'Découvrez les Dernières Innovations avec TechHeaven !',
+        html: `
+          <h1>Bienvenue chez TechHeaven</h1>
+          <p>Bonjour,</p>
+          <p>Nous sommes ravis de vous accueillir dans notre communauté de passionnés de technologie. Chez TechHeaven, nous nous engageons à vous fournir les dernières nouvelles et innovations technologiques pour améliorer votre quotidien.</p>
+          <h2>Les Dernières Nouveautés</h2>
+          <ul>
+            <li><strong>Gadget de la Semaine:</strong> Découvrez notre nouveau smartphone avec des fonctionnalités révolutionnaires.</li>
+            <li><strong>Conseils et Astuces:</strong> Apprenez comment optimiser l'utilisation de vos appareils pour une efficacité maximale.</li>
+            <li><strong>Événements à Venir:</strong> Ne manquez pas nos webinaires et ateliers exclusifs pour en savoir plus sur les tendances technologiques.</li>
+          </ul>
+          <h2>Rejoignez la Communauté TechHeaven</h2>
+          <p>Participez à nos forums de discussion, échangez avec d'autres passionnés et obtenez des réponses à toutes vos questions techniques. Ensemble, nous pouvons pousser les limites de la technologie.</p>
+          <p>Pour plus d'informations, visitez notre site web : <a href="https://tech-heaven.fr">TechHeaven</a></p>
+          <p>Merci de faire partie de notre communauté !</p>
+          <p>Cordialement,</p>
+          <p>L'équipe TechHeaven</p>
+        `
+      };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.log(error.message)
+        console.error("🚀 ~ sendNewsletterEmail ~ error:", error)
+        throw Error("Erreur lors de l\'envoi de l\'email");
+    }
+}
+
 export const sendInvoiceEmail = async (userEmail, invoice) => {
     const pdfPath = generateInvoicePDF(invoice);
     

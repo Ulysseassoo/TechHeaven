@@ -32,7 +32,6 @@ preferenceSchema.pre('save', async function (next) {
 
     next();
   } catch (error) {
-    // Handle errors, for example, by passing the error to `next()`.
     next(error);
   }
 });
