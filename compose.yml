@@ -30,7 +30,6 @@
           - SMTP_HOST=${SMTP_HOST}
           - SMTP_PORT=${SMTP_PORT}
           - DATABASE_URL_MONGODB=${DATABASE_URL_MONGODB}
-          - SHIPPO_API_KEY=${SHIPPO_API_KEY}
           - DOORDASH_API_KEY=${DOORDASH_API_KEY}
         depends_on:
           - db
