@@ -14,7 +14,7 @@ const passwordRecoverySchema = new mongoose.Schema({
   code_validation_time: { type: Date, default: null },
   last_request: { type: Date, default: null },
   verification_code: { type: String, default: null },
-  id: { type: String, unique: true, required: true },
+  id: { type: String, unique: true, required: true, sparse: true },
 });
 
 const userSchema = new mongoose.Schema({
