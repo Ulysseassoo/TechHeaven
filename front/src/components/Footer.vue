@@ -164,7 +164,7 @@ const legacyLinks = [
             type="input"
             :hide-details="true"
             density="compact"
-            style="min-width: 150px;"
+            style="min-width: 150px"
           />
           <Button content="Subscribe" />
         </div>
