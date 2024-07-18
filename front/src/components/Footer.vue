@@ -164,6 +164,7 @@ const legacyLinks = [
             type="input"
             :hide-details="true"
             density="compact"
+            style="min-width: 150px"
           />
           <Button content="Subscribe" />
         </div>
@@ -218,10 +219,13 @@ h2 {
 .newsletter {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 50px;
 }
 .newsletter-input {
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .help-links {
@@ -233,6 +237,7 @@ h2 {
   padding: 40px 0;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 h3 {
