@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
 import { createAlertValidator } from "../validator/alertValidator.mjs";
 import { shouldBeAdmin } from "../middlewares/authentication.mjs";
+import Alert from "../models/Alert.mjs";
 
 const router = express.Router();
 
@@ -50,11 +51,31 @@ router.post(
 
 router.get("/alerts", shouldBeAdmin, async (req, res) => {
   try {
-    const alerts = await db.alert.findMany();
+    const { page = 1, limit = 10, search } = req.query;
+    const query = {};
+
+    if (search !== undefined && search !== "") {
+      const searchQuery = new RegExp(search, "i");
+      query.$or = [
+        { name: { $regex: searchQuery } },
+        { type: { $regex: searchQuery } },
+      ];
+    }
+
+    const alerts = await Alert.find(query)
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const count = await Alert.countDocuments(query);
+
     return res.status(200).json({
-        status: 200,
-        data: alerts
-    })
+      status: 200,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalCount: count,
+      data: alerts,
+    });
   } catch (error) {
     return res
       .status(500)

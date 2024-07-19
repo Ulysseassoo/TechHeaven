@@ -62,7 +62,7 @@ router.beforeEach(async (to, from, next) => {
             next({ name: "Home" });
           }
         }
-        next();
+        return next();
       }
     } else {
       next();

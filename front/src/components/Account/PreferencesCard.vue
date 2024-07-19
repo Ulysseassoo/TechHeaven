@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { updateUserPreference } from "@/api/user";
-import { AlertTypes, type Preference } from "@/interfaces/Preference";
+import { type Preference } from "@/interfaces/Preference";
+import { AlertTypes } from "@/interfaces/Alert";
 import type { User } from "@/interfaces/User";
 import { useUserStore } from "@/store/UserStore";
 import { computed } from "vue";
@@ -37,19 +38,14 @@ const togglePreference = async (preference: Preference) => {
     title="Préférences en matière d'e-mail"
     subtitle="Modifier vos préférences d'alertes par e-mail"
   >
-    <v-card-text
-      class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
-    >
+    <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2">
       <div v-for="preference in user.preferences" :key="preference.id">
         <v-switch
           :model-value="preference.isEnabled"
           color="success"
           @update:modelValue="togglePreference(preference)"
         >
-          <template
-            v-slot:label
-            v-if="preference.alert.type === AlertTypes.NEWSLETTER"
-          >
+          <template v-slot:label v-if="preference.alert.type === AlertTypes.NEWSLETTER">
             Recevoir notre newsletter.
           </template>
         </v-switch>
