@@ -37,7 +37,11 @@ const submitAction = async () => {
     :modalTitle="canEdit ? 'Editer' : 'Alerte'"
   >
     <template v-slot:ModalContent>
-      <AlertForm :alert="alert" ref="alertFormRef" :disabled="!canEdit ? true : false" />
+      <AlertForm
+        :alert="alert"
+        ref="alertFormRef"
+        :disabled="!canEdit ? true : false"
+      />
     </template>
   </CustomModal>
 </template>

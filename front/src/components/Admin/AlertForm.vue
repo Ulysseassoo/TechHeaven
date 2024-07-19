@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { z } from "zod";
 import type { AxiosRequestConfig } from "axios";
-import { AlertTypes, type Alert } from '@/interfaces/Alert';
+import { AlertTypes, type Alert } from "@/interfaces/Alert";
 import { updateAlert } from "@/api/alert";
 import { useForm } from "@/hooks/useForm";
 import { useFields } from "@/hooks/useGetFields";
@@ -61,7 +61,13 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
+      <v-col
+        v-for="field in fields"
+        :key="field.field"
+        cols="12"
+        md="12"
+        sm="12"
+      >
         <v-text-field
           variant="outlined"
           :label="field.label"

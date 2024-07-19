@@ -9,7 +9,6 @@ import DataTable from "@/components/DataTable.vue";
 import ModalButton from "@/components/ModalButton.vue";
 import AlertModal from "@/components/Admin/AlertModal.vue";
 
-
 const columns: TableColumn<Alert>[] = [
   { value: "name", label: "Nom" },
   { value: "type", label: "Type" },
@@ -23,7 +22,7 @@ const itemsPerPage = ref<number>(10);
 const totalCount = ref<number>(0);
 const totalPages = ref<number>(0);
 const page = ref<number>(1);
-  const actions = [
+const actions = [
   {
     label: "Voir",
     id: "view",
