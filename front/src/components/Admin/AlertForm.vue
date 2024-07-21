@@ -2,7 +2,7 @@
 import { z } from "zod";
 import type { AxiosRequestConfig } from "axios";
 import { AlertTypes, type Alert } from "@/interfaces/Alert";
-import { updateAlert,createAlert } from "@/api/alert";
+import { updateAlert, createAlert } from "@/api/alert";
 import { useForm } from "@/hooks/useForm";
 import { useFields } from "@/hooks/useGetFields";
 import { toast } from "vue3-toastify";
@@ -25,7 +25,7 @@ type FormValues = z.infer<typeof validationSchema>;
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    if(props.alert) {
+    if (props.alert) {
       const result = await updateAlert({
         id: props.alert.id,
         data: formData,
@@ -76,7 +76,13 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
+      <v-col
+        v-for="field in fields"
+        :key="field.field"
+        cols="12"
+        md="12"
+        sm="12"
+      >
         <v-text-field
           variant="outlined"
           :label="field.label"

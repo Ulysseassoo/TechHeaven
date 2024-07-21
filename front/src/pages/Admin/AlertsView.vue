@@ -30,7 +30,7 @@ const actions = [
     renderCell: (row: Alert) =>
       h(AlertModal, {
         alert: row,
-        type: 'detail',
+        type: "detail",
         icon: "fa-solid fa-eye",
         tooltipLabel: "Voir",
       }),
@@ -41,7 +41,7 @@ const actions = [
     renderCell: (row: Alert) =>
       h(AlertModal, {
         alert: row,
-        type: 'edit',
+        type: "edit",
         icon: "fa-solid fa-pen",
         tooltipLabel: "Modifier",
         callback: () => fetchAlerts(),
