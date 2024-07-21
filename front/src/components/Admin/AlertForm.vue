@@ -2,13 +2,13 @@
 import { z } from "zod";
 import type { AxiosRequestConfig } from "axios";
 import { AlertTypes, type Alert } from "@/interfaces/Alert";
-import { updateAlert } from "@/api/alert";
+import { updateAlert,createAlert } from "@/api/alert";
 import { useForm } from "@/hooks/useForm";
 import { useFields } from "@/hooks/useGetFields";
 import { toast } from "vue3-toastify";
 
 interface Props {
-  alert: Alert;
+  alert?: Alert;
   disabled?: boolean;
 }
 
@@ -25,13 +25,23 @@ type FormValues = z.infer<typeof validationSchema>;
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    const result = await updateAlert({
-      id: props.alert.id,
-      data: formData,
-      config,
-    });
-    if (result.status === 200) {
-      toast.success("Alerte mis à jour avec succès");
+    if(props.alert) {
+      const result = await updateAlert({
+        id: props.alert.id,
+        data: formData,
+        config,
+      });
+      if (result.status === 200) {
+        toast.success("Alerte mis à jour avec succès");
+      }
+    } else {
+      const result = await createAlert({
+        data: formData as Alert,
+        config,
+      });
+      if (result.status === 200) {
+        toast.success("Alerte crée avec succès");
+      }
     }
   } catch (error) {
     console.log(error);
@@ -40,7 +50,12 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
 };
 
 const { data, errors, validateField, handleSubmit } = useForm({
-  initialValues: props.alert,
+  initialValues: {
+    id: props.alert?.id || "",
+    name: props.alert?.name || "",
+    type: props.alert?.type || AlertTypes.NONE,
+    param: props.alert?.param || "",
+  },
   validationSchema,
   onSubmit,
 });
@@ -61,13 +76,7 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col
-        v-for="field in fields"
-        :key="field.field"
-        cols="12"
-        md="12"
-        sm="12"
-      >
+      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
         <v-text-field
           variant="outlined"
           :label="field.label"

@@ -2,8 +2,10 @@ import {
   deleteApi,
   getApi,
   putApi,
+  postApi,
   type ApiSuccess,
   type UpdateProps,
+  type CreateProps,
 } from "@/api";
 import { HOST } from "@/constants";
 import type { Alert } from "@/interfaces/Alert";
@@ -57,6 +59,19 @@ export const updateAlert = async ({ id, data, config }: UpdateProps<Alert>) => {
   const url = `${HOST}/alerts/${id}`;
   const token = localStorage.getItem("token");
   const response = await putApi<Alert>(url, data, {
+    ...config,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response;
+};
+
+export const createAlert = async ({ data, config }: CreateProps<Alert>) => {
+  const url = `${HOST}/alerts`;
+  const token = localStorage.getItem("token");
+  const response = await postApi<Alert>(url, data, {
     ...config,
     headers: {
       Authorization: `Bearer ${token}`,

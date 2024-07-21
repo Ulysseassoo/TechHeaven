@@ -5,11 +5,15 @@ import type { Alert } from "@/interfaces/Alert";
 import { ref } from "vue";
 import type { Ref } from "vue";
 
+type FormType = "create" | "edit" | "detail";
+
 interface Props {
-  alert: Alert;
-  canEdit?: boolean;
-  tooltipLabel: string;
-  icon: string;
+  alert?: Alert;
+  type?: FormType;
+  tooltipLabel?: string;
+  btnContent?: string;
+  color?: string;
+  icon?: string;
   callback?: () => Promise<void>;
 }
 
@@ -33,15 +37,19 @@ const submitAction = async () => {
   <CustomModal
     :tooltipLabel="tooltipLabel"
     :icon="icon"
-    :submit-action="canEdit ? submitAction : undefined"
-    :modalTitle="canEdit ? 'Editer' : 'Alerte'"
+    :submit-action="type !== 'detail' ? submitAction : undefined"
+    :modalTitle="
+      type === 'create'
+        ? 'Créer une alerte'
+        : type === 'edit'
+        ? 'Modifier une alerte'
+        : 'Alerte'
+    "
+    :btnContent="btnContent"
+    :color="color"
   >
     <template v-slot:ModalContent>
-      <AlertForm
-        :alert="alert"
-        ref="alertFormRef"
-        :disabled="!canEdit ? true : false"
-      />
+      <AlertForm :alert="alert" ref="alertFormRef" :disabled="type === 'detail'" />
     </template>
   </CustomModal>
 </template>

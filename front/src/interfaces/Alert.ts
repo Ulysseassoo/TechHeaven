@@ -7,4 +7,6 @@ export interface Alert {
 
 export enum AlertTypes {
   NEWSLETTER = "NEWSLETTER",
+  PRODUCT = "PRODUCT",
+  NONE = ""
 }

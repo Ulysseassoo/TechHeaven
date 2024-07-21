@@ -30,6 +30,11 @@ export interface UpdateProps<T> {
   config: AxiosRequestConfig;
 }
 
+export interface CreateProps<T>{
+  data: T;
+  config: AxiosRequestConfig;
+}
+
 export interface UpdatePreference {
   userId: string;
   preferenceId: string;

@@ -30,6 +30,7 @@ const actions = [
     renderCell: (row: Alert) =>
       h(AlertModal, {
         alert: row,
+        type: 'detail',
         icon: "fa-solid fa-eye",
         tooltipLabel: "Voir",
       }),
@@ -40,7 +41,7 @@ const actions = [
     renderCell: (row: Alert) =>
       h(AlertModal, {
         alert: row,
-        canEdit: true,
+        type: 'edit',
         icon: "fa-solid fa-pen",
         tooltipLabel: "Modifier",
         callback: () => fetchAlerts(),
@@ -162,7 +163,12 @@ onMounted(() => {
           v-model="search"
           @input="debouncedSearchedAlerts"
         ></v-text-field>
-        <v-btn color="tertiary">Nouvelle Alerte</v-btn>
+        <AlertModal
+          btnContent="Nouvelle alerte"
+          color="tertiary"
+          type="create"
+          :callback="() => fetchAlerts()"
+        />
       </template>
     </DataTable>
   </div>
