@@ -9,25 +9,17 @@ import { registerUser } from "@/api/auth";
 const validationSchema = z
   .object({
     email: z.string().email("L'email doit être valide."),
-    firstname: z
-      .string()
-      .min(2, "Le prénom doit contenir au moins 2 caractères."),
+    firstname: z.string().min(2, "Le prénom doit contenir au moins 2 caractères."),
     lastname: z.string().min(2, "Le nom doit contenir au moins 2 caractères."),
     password: z
       .string()
       .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
-      .regex(
-        /[a-z]/,
-        "Le mot de passe doit contenir au moins une lettre minuscule.",
-      )
-      .regex(
-        /[A-Z]/,
-        "Le mot de passe doit contenir au moins une lettre majuscule.",
-      )
+      .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule.")
+      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
       .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
-        "Le mot de passe doit contenir au moins un symbole.",
+        "Le mot de passe doit contenir au moins un symbole."
       ),
     confirmPassword: z.string(),
   })
@@ -64,8 +56,7 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     });
 
     if (result.data) {
-      successMessage.value =
-        "Vous avez reçu un mail. Merci de confirmer votre compte !";
+      successMessage.value = "Vous avez reçu un mail. Merci de confirmer votre compte !";
     }
   } catch (error) {
     successMessage.value = undefined;
@@ -82,13 +73,12 @@ const transform = {
   },
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
-  useForm({
-    initialValues,
-    validationSchema,
-    onSubmit,
-    transform,
-  });
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
+  initialValues,
+  validationSchema,
+  onSubmit,
+  transform,
+});
 
 const fields = computed<Field[]>(() => [
   {
@@ -130,7 +120,7 @@ const fields = computed<Field[]>(() => [
 </script>
 
 <template>
-  <VSheet>
+  <VSheet style="background: #f8f9fc">
     <VAlert
       type="success"
       title="Succès"
