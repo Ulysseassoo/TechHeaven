@@ -30,7 +30,7 @@ export interface UpdateProps<T> {
   config: AxiosRequestConfig;
 }
 
-export interface CreateProps<T>{
+export interface CreateProps<T> {
   data: T;
   config: AxiosRequestConfig;
 }
