@@ -70,13 +70,13 @@ router.get("/promotions/:id", async (req, res) => {
 router.post("/promotions", promotionValidator, shouldBeAdmin, async (req, res) => {
     try {
 
-        const { isOneTime, expiryDate } = req.body
+        const { is_one_time, expiry_date } = req.body
         const type = randomBytes(6).toString('hex').slice(0, 6)
 
         const promotion = await db.promotion.create({
             data: {
-                is_one_time: isOneTime,
-                expiry_date: expiryDate,
+                is_one_time,
+                expiry_date,
                 type,
                 created_at: new Date(),
             },
@@ -94,7 +94,6 @@ router.post("/promotions", promotionValidator, shouldBeAdmin, async (req, res) =
             data: promotion
         })
     } catch (error) {
-        console.log("🚀 ~ router.get ~ error:", error)
         return res.status(401).send({
             status: 401,
             message: error.message || error,
