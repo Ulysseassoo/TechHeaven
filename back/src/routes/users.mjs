@@ -90,7 +90,7 @@ router.post("/users", authValidator, async (req, res) => {
     }
 });
 
-router.get("/users", shouldBeAdmin, async (req, res) => {
+router.get("/users", async (req, res) => {
     try {
         const { page = 1, limit = 10, search } = req.query;
         const query = {};
@@ -148,7 +148,7 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.get("/users/:id", shouldBeAdmin, async (req, res) => {
+router.get("/users/:id", async (req, res) => {
     const id = req.params.id
 
     try {

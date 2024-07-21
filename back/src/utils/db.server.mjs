@@ -34,6 +34,7 @@ const extendedDb = db.$extends({
         $allModels: {
             async create({ args, query, model }) {
                 const result = await query(args);
+                console.log(result, 'this is result from postgres')
                 await mongoCreate({
                     data: {
                         ...args.data,

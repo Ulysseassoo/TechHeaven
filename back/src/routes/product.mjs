@@ -5,33 +5,9 @@ import { productValidator } from "../validator/productValidator.mjs";
 import { db } from "../utils/db.server.mjs";
 import Product from "../models/Product.mjs";
 
-// // Middleware pour vérifier et mettre à jour l'alerte de fin de stock
-// const checkLowStockAlert = async (productId) => {
-//     const product = await db.product.findUnique({
-//         where: {
-//             id: productId
-//         }
-//     });
-
-//     const lowStockThreshold = 25; // Seuil de stock bas
-
-//     if (product && product.stock_quantity <= lowStockThreshold) {
-//         // Mettre à jour le champ lowStockAlert
-//         await db.product.update({
-//             where: {
-//                 id: productId
-//             },
-//             data: {
-//                 lowStockAlert: true
-//             }
-//         });
-//     }
-// };
-
 const router = express.Router();
 
-// Créer un nouveau produit
-router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
+router.post("/products", productValidator, async (req, res) => {
     try {
         const errors = validationResult(req);
 
@@ -47,7 +23,7 @@ router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
             });
         }
 
-        const { name, description, price, stock_quantity, brand } = req.body;
+        const { name, description, price, quantity, brand, promotion, promotion_type } = req.body;
 
         const product = await db.product.create({
             data: {
@@ -55,7 +31,9 @@ router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
                 description,
                 price,
                 brand,
-                stock_quantity,
+                quantity,
+                promotion, 
+                promotion_type
             }
         });
 
@@ -65,18 +43,38 @@ router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
     }
 });
 
-// Récupérer tous les produits
 router.get("/products", async (req, res) => {
     try {
-        const products = await Product.findToClient({});
+        const { page = 1, limit = 10, search } = req.query;
+        const query = {};
 
-        return res.status(200).json({ status: 200, data: products });
+        if (search !== undefined && search !== "") {
+            const searchQuery = new RegExp(search, 'i');
+            query.$or = [
+                { type: { $regex: searchQuery } },
+            ]
+        }
+
+        const products = await Product.findToClient(query, page, limit);
+
+        const count = await Product.countDocuments(query);
+
+        return res.status(200).json({
+            status: 200,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page,
+            totalCount: count,
+            data: products
+        })
+
     } catch (error) {
-        return res.status(500).json({ status: 500, message: "Erreur lors de la récupération des produits", error: error.message });
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
     }
 });
 
-// Récupérer un produit par son ID
 router.get("/products/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -97,11 +95,10 @@ router.get("/products/:id", async (req, res) => {
     }
 });
 
-// Mettre à jour un produit
-router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) => {
+router.put("/products/:id", productValidator, async (req, res) => {
     const { id } = req.params;
 
-    const { name, description, price, brand, stock_quantity } = req.body;
+    const { name, description, price, brand, quantity, promotion, promotion_type } = req.body;
 
     try {
         const product = await db.product.findUnique({
@@ -123,7 +120,9 @@ router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) =>
                 description,
                 price,
                 brand,
-                stock_quantity,
+                quantity,
+                promotion, 
+                promotion_type
             }
         });
 
@@ -133,33 +132,7 @@ router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) =>
     }
 });
 
-// // Route pour mettre à jour la quantité en stock d'un produit
-// router.put("/products/:id/stock", async (req, res) => {
-//     try {
-//         const { id } = req.params;
-//         const { quantity } = req.body;
-
-//         // Mettre à jour la quantité en stock
-//         await postgresqlDb.product.update({
-//             where: {
-//                 id: parseInt(id)
-//             },
-//             data: {
-//                 stock_quantity: quantity
-//             }
-//         });
-
-//         // Vérifier et mettre à jour l'alerte de fin de stock
-//         await checkLowStockAlert(parseInt(id));
-
-//         return res.status(200).json({ status: 200, message: "Quantité en stock mise à jour avec succès" });
-//     } catch (error) {
-//         return res.status(500).json({ status: 500, message: "Erreur lors de la mise à jour de la quantité en stock", error: error.message });
-//     }
-// });
-
-// Supprimer un produit
-router.delete("/products/:id", shouldBeAdmin, async (req, res) => {
+router.delete("/products/:id", async (req, res) => {
     const { id } = req.params;
 
     try {
