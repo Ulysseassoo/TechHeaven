@@ -197,7 +197,7 @@ model Invoice {
   status    String   @default("pending") // "pending", "paid", "cancelled"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  paymentIntentId String?
   user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 }
