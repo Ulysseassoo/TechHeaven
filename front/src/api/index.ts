@@ -19,10 +19,26 @@ export interface UserFormProps {
   password: string;
 }
 
+export interface ChangeOldPasswordProps extends UserFormProps {
+  oldPassword?: string;
+  confirmPassword?: string;
+}
+
 export interface UpdateProps<T> {
   id: string;
   data: Partial<T>;
   config: AxiosRequestConfig;
+}
+
+export interface CreateProps<T> {
+  data: T;
+  config: AxiosRequestConfig;
+}
+
+export interface UpdatePreference {
+  userId: string;
+  preferenceId: string;
+  alertId: string;
 }
 
 export interface ApiSuccess {

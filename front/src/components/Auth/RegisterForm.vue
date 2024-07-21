@@ -130,7 +130,7 @@ const fields = computed<Field[]>(() => [
 </script>
 
 <template>
-  <VSheet>
+  <VSheet style="background: #f8f9fc">
     <VAlert
       type="success"
       title="Succès"
