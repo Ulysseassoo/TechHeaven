@@ -15,16 +15,10 @@ const searchBar = ref(null);
   <header>
     <section class="header">
       <div>
-        <img
-          width="120px"
-          style="object-fit: contain"
-          src="../assets/logo.png"
-        />
+        <img width="120px" style="object-fit: contain" src="../assets/logo.png" />
       </div>
       <div class="search-section">
-        <RouterLink class="router-link" to="/register"
-          >Qui sommes nous ?</RouterLink
-        >
+        <RouterLink class="router-link" to="/register">Qui sommes nous ?</RouterLink>
         <RouterLink class="router-link" to="/register">Nos produits</RouterLink>
         <VTextField
           :style="{
@@ -39,10 +33,12 @@ const searchBar = ref(null);
           density="compact"
         />
       </div>
-      <div style="display: flex">
-        <User />
+      <section style="display: flex">
+        <RouterLink class="router-link" to="/account/profile">
+          <User />
+        </RouterLink>
         <Basket />
-      </div>
+      </section>
     </section>
     <section class="search-section-mobile">
       <VTextField
@@ -57,12 +53,6 @@ const searchBar = ref(null);
         :hide-details="true"
         density="compact"
       />
-    </section>
-    <section style="display: flex">
-      <RouterLink class="router-link" to="/account/profile">
-        <User />
-      </RouterLink>
-      <Basket />
     </section>
   </header>
 </template>
