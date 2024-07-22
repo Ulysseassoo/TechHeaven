@@ -8,7 +8,6 @@ import { useFields } from "@/hooks/useGetFields";
 import { toast } from "vue3-toastify";
 import { VNumberInput } from "vuetify/labs/components";
 
-
 interface Props {
   product?: Product;
   disabled?: boolean;
@@ -55,12 +54,12 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
 
 const { data, errors, validateField, handleSubmit } = useForm({
   initialValues: {
-    id: props.product?.id?? "",
-    name: props.product?.name?? "",
-    description: props.product?.description?? "",
-    brand: props.product?.brand?? "",
-    quantity: props.product?.quantity?? 0,
-    price: props.product?.price?? 0,
+    id: props.product?.id ?? "",
+    name: props.product?.name ?? "",
+    description: props.product?.description ?? "",
+    brand: props.product?.brand ?? "",
+    quantity: props.product?.quantity ?? 0,
+    price: props.product?.price ?? 0,
   },
   validationSchema,
   onSubmit,
@@ -72,10 +71,10 @@ defineExpose({
 
 const fieldsConfig: any[] = [
   { label: "Nom", field: "name", type: "string" },
-    { label: "Description", field: "description", type: "string" },
-    { label: "Marque", field: "brand", type: "string" },
-    { label: "Quantité", field: "quantity", type: "number" },
-    { label: "Prix", field: "price", type: "number" },
+  { label: "Description", field: "description", type: "string" },
+  { label: "Marque", field: "brand", type: "string" },
+  { label: "Quantité", field: "quantity", type: "number" },
+  { label: "Prix", field: "price", type: "number" },
 ];
 
 const { fields } = useFields<FormValues>({ errors, fieldsConfig });
@@ -84,7 +83,13 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
+      <v-col
+        v-for="field in fields"
+        :key="field.field"
+        cols="12"
+        md="12"
+        sm="12"
+      >
         <VNumberInput
           v-if="field.type === 'number'"
           variant="outlined"

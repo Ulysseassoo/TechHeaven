@@ -42,8 +42,8 @@ const submitAction = async () => {
       type === 'create'
         ? 'Créer un produit'
         : type === 'edit'
-        ? 'Modifier un produit'
-        : 'Produit'
+          ? 'Modifier un produit'
+          : 'Produit'
     "
     :btnContent="btnContent"
     :color="color"
