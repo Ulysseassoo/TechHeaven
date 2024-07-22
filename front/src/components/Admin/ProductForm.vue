@@ -7,6 +7,8 @@ import { useForm } from "@/hooks/useForm";
 import { useFields } from "@/hooks/useGetFields";
 import { toast } from "vue3-toastify";
 import { VNumberInput } from "vuetify/labs/components";
+import { useUserStore } from "@/store/UserStore";
+
 
 
 interface Props {
@@ -15,6 +17,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const store = useUserStore();
 
 const validationSchema = z.object({
   id: z.string(),
@@ -98,6 +101,11 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
           :type="field.type"
           placeholder="-"
           persistent-placeholder
+          :disabled="
+            store?.user?.role === 'ROLE_ADMIN' &&
+            field.field === 'quantity' &&
+            product !== undefined
+          "
         ></VNumberInput>
         <v-text-field
           v-else
