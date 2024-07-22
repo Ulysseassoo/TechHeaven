@@ -1,8 +1,10 @@
 import request from 'supertest';
+import * as dotenv from "dotenv";
 import express from 'express';
 import AddressRoutes from '../src/routes/addresses.mjs';
 import { db } from '../src/utils/db.server.mjs';
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 app.use('/api', AddressRoutes);

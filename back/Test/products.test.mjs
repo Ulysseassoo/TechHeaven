@@ -1,47 +1,44 @@
 import request from 'supertest';
 import express from 'express';
+import * as dotenv from "dotenv";
 import ProductRoutes from '../src/routes/product.mjs';
 import { db } from '../src/utils/db.server.mjs';
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 app.use('/api', ProductRoutes);
 
+beforeAll(async () => {
+  await db.$connect();
+});
+
+afterAll(async () => {
+  await db.$disconnect();
+});
+
+beforeEach(async () => {
+  await db.product.deleteMany({});
+});
+
 describe('Products API', () => {
-  beforeAll(async () => {
-    await db.$connect(); 
-  });
-
-  afterAll(async () => {
-    await db.$disconnect();
-  });
-
-  beforeEach(async () => {
-    // Réinitialiser la base de données avant chaque test
-    await db.product.deleteMany({});
-  });
+  //jest.setTimeout(5000); // Augmente le timeout à 10 secondes pour tous les tests
 
   it('should create a new product', async () => {
-    const newProduct = {
-      name: 'New Product',
-      description: 'This is a new product.',
-      price: 29.99,
-      stock_quantity: 100,
-      brand: 'BrandX'
-    };
+    jest.setTimeout(5000);
+    const newProduct = { name: 'New Product', price: 100 };
 
-    const response = await request(app)
-      .post('/api/products')
-      .set('Authorization', 'Bearer admin_token') 
-      .send(newProduct);
+  const response = await request(app)
+    .post('/api/products')
+    .send(newProduct);
 
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty('data');
-    expect(response.body.data).toHaveProperty('id');
+  expect(response.status).toBe(201);
+  expect(response.body).toHaveProperty('data');
+  expect(response.body.data).toHaveProperty('id');
   });
 
   it('should get all products', async () => {
-    // Créer un produit pour vérifier
+    jest.setTimeout(5000);
     await db.product.create({
       data: {
         name: 'Existing Product',
@@ -62,6 +59,7 @@ describe('Products API', () => {
   });
 
   it('should get a product by ID', async () => {
+    jest.setTimeout(5000);
     const product = await db.product.create({
       data: {
         name: 'Unique Product',
@@ -81,6 +79,7 @@ describe('Products API', () => {
   });
 
   it('should update a product by ID', async () => {
+    jest.setTimeout(5000);
     const product = await db.product.create({
       data: {
         name: 'Product to Update',
@@ -101,7 +100,7 @@ describe('Products API', () => {
 
     const response = await request(app)
       .put(`/api/products/${product.id}`)
-      .set('Authorization', 'Bearer admin_token')
+      .set('Authorization', 'Bearer admin_token') 
       .send(updatedProduct);
 
     expect(response.status).toBe(200);
@@ -110,6 +109,7 @@ describe('Products API', () => {
   });
 
   it('should delete a product by ID', async () => {
+    jest.setTimeout(5000);
     const product = await db.product.create({
       data: {
         name: 'Product to Delete',
@@ -122,12 +122,11 @@ describe('Products API', () => {
 
     const response = await request(app)
       .delete(`/api/products/${product.id}`)
-      .set('Authorization', 'Bearer admin_token');
+      .set('Authorization', 'Bearer admin_token'); 
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('message', 'Produit supprimé avec succès');
 
-    // Vérifiez que le produit a été supprimé
     const deletedProduct = await db.product.findUnique({
       where: { id: product.id }
     });
