@@ -91,9 +91,9 @@ const actions = [
   },
 ];
 
-const deleteAllProductsSelected = async (ids: string[]) => {
+const deleteAllProductsSelected = async (ids: Product[]) => {
   try {
-    const deletePromises = ids.map((id) => deleteProduct(id));
+    const deletePromises = ids.map((row) => deleteProduct(row.id));
     const responses = await Promise.all(deletePromises);
     const allDeleted = responses.every((response) => response.status === 200);
     if (allDeleted) {

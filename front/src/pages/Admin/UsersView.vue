@@ -126,9 +126,9 @@ onMounted(() => {
 });
 
 const debouncedSearchUsers = useDebounce(fetchUsers, 500);
-const deleteAllUsersSelected = async (ids: string[]) => {
+const deleteAllUsersSelected = async (ids: User[]) => {
   try {
-    const deletePromises = ids.map((userId) => deleteUser(userId));
+    const deletePromises = ids.map((row) => deleteUser(row.id));
     const responses = await Promise.all(deletePromises);
     const allDeleted = responses.every((response) => response.status === 200);
     if (allDeleted) {

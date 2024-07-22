@@ -3,11 +3,14 @@ import moment from "moment";
 import { computed, ref, watch } from "vue";
 import type { RendererElement, RendererNode, VNode } from "vue";
 import type { TableColumn } from "../interfaces/Table";
+import { toast } from "vue3-toastify";
 
 interface Action {
   label: string;
   id: string;
-  renderCell: (item: any) => VNode<
+  renderCell: (
+    item: any
+  ) => VNode<
     RendererNode,
     RendererElement,
     {
@@ -25,14 +28,14 @@ interface DataTableProps {
   totalPages: number;
   totalCount: number;
   isLoading: boolean;
-  deleteAll?: (ids: string[]) => Promise<void>;
+  deleteAll?: (ids: any[]) => Promise<void>;
 }
 
 const props = defineProps<DataTableProps>();
 const emit = defineEmits(["update:itemsPerPage", "update:currentPage"]);
 const sortBy = ref("");
 const sortOrder = ref<"asc" | "desc">("asc");
-const selectedItems = ref<string[]>([]);
+const selectedItems = ref<any[]>([]);
 const localItemsPerPage = ref(props.itemsPerPage);
 const currentPage = ref(props.currentPage);
 const selectAll = ref(false);
@@ -44,21 +47,21 @@ watch(
   () => props.itemsPerPage,
   (newItemsPerPage) => {
     localItemsPerPage.value = newItemsPerPage;
-  },
+  }
 );
 
 watch(
   () => props.currentPage,
   (newPage) => {
     currentPage.value = newPage;
-  },
+  }
 );
 
 watch(
   () => props.data,
   (newData) => {
     data.value = newData;
-  },
+  }
 );
 
 const emitItemsPerPage = () => {
@@ -85,16 +88,13 @@ const sortedData = computed(() => {
 
 const allSelected = computed(
   () =>
-    sortedData.value.length > 0 &&
-    selectedItems.value.length === sortedData.value.length,
+    sortedData.value.length > 0 && selectedItems.value.length === sortedData.value.length
 );
 
-const startItem = computed(
-  () => (currentPage.value - 1) * localItemsPerPage.value + 1,
-);
+const startItem = computed(() => (currentPage.value - 1) * localItemsPerPage.value + 1);
 
 const endItem = computed(() =>
-  Math.min(currentPage.value * localItemsPerPage.value, props.totalCount),
+  Math.min(currentPage.value * localItemsPerPage.value, props.totalCount)
 );
 
 const handleSort = (column: string) => {
@@ -110,7 +110,7 @@ const toggleSelectAll = () => {
   if (!selectAll.value) {
     selectAll.value = true;
     sortedData.value.forEach((row) => {
-      selectedItems.value.push(row.id);
+      selectedItems.value.push(row);
     });
   } else {
     selectAll.value = false;
@@ -131,6 +131,43 @@ const handleDeleteAll = async () => {
     loadingDelete.value = false;
   }
 };
+
+const convertToCSV = (data: any[], columns: TableColumn<any>[]): string => {
+  const header = columns.map((col) => col.label).join(";");
+  const rows = data.map((row) => {
+    return columns
+      .map((col) => {
+        const cellValue = row[col.value];
+        return typeof cellValue === "string"
+          ? `"${cellValue.replace(/"/g, '""')}"`
+          : cellValue;
+      })
+      .join(";");
+  });
+  return [header, ...rows].join("\n");
+};
+
+// Fonction pour sauvegarder le fichier CSV
+const exportToCSV = async () => {
+  const csvData = convertToCSV(sortedData.value, props.columns);
+  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+
+  if ("showSaveFilePicker" in window) {
+    const handle = await (window as any).showSaveFilePicker({
+      suggestedName: "data.csv",
+      types: [
+        {
+          description: "CSV file",
+          accept: { "text/csv": [".csv"] },
+        },
+      ],
+    });
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+    toast.success("Le fichier a été enregistré avec succès.");
+  }
+};
 </script>
 
 <template>
@@ -139,6 +176,9 @@ const handleDeleteAll = async () => {
       <div class="header">
         <slot name="header"> </slot>
       </div>
+      <v-btn color="primary" @click="exportToCSV" :disabled="selectedItems.length <= 0"
+        >Exporter en CSV</v-btn
+      >
       <v-btn
         color="danger"
         v-if="deleteAll"
@@ -156,10 +196,7 @@ const handleDeleteAll = async () => {
         <tr>
           <th>
             <v-container fluid class="checkbox_container">
-              <v-checkbox
-                v-model="allSelected"
-                @change="toggleSelectAll"
-              ></v-checkbox>
+              <v-checkbox v-model="allSelected" @change="toggleSelectAll"></v-checkbox>
             </v-container>
           </th>
           <th
@@ -169,9 +206,7 @@ const handleDeleteAll = async () => {
           >
             {{ column.label }}
             <v-icon v-if="sortBy === column.value">{{
-              sortOrder === "asc"
-                ? "fa-solid fa-sort-up"
-                : "fa-solid fa-sort-down"
+              sortOrder === "asc" ? "fa-solid fa-sort-up" : "fa-solid fa-sort-down"
             }}</v-icon>
           </th>
           <th>Actions</th>
@@ -181,7 +216,7 @@ const handleDeleteAll = async () => {
         <tr v-for="row in sortedData" :key="row.id">
           <td>
             <v-container fluid class="checkbox_container">
-              <v-checkbox v-model="selectedItems" :value="row.id"></v-checkbox>
+              <v-checkbox v-model="selectedItems" :value="row"></v-checkbox>
             </v-container>
           </td>
           <td v-for="column in columns" :key="column.label">
@@ -192,9 +227,7 @@ const handleDeleteAll = async () => {
               {{ moment(row[column.value]).format("LLL") }}
             </div>
             <div
-              v-else-if="
-                row[column.value] === undefined || row[column.value] === null
-              "
+              v-else-if="row[column.value] === undefined || row[column.value] === null"
             >
               -
             </div>
