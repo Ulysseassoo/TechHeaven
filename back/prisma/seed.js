@@ -79,6 +79,18 @@ async function main() {
         }
 
     }
+
+    for (let i = 0; i < 300; i++) {
+        await db.product.create({
+            data: {
+                name: faker.commerce.productName(),
+                description: faker.commerce.productDescription(),
+                price: parseFloat(faker.commerce.price()),
+                quantity: 90,
+                brand: faker.lorem.word(),
+            }
+        })
+    }
     
     setTimeout(async () => {
         console.log("Seeding completed")

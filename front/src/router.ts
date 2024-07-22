@@ -15,6 +15,7 @@ import AdminLayout from "@/layout/AdminLayout.vue";
 import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
 import ProfileView from "@/pages/Account/ProfileView.vue";
+import ProductsView from "@/pages/Admin/ProductsView.vue";
 import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
 
 const routes: RouteRecordRaw[] = [
@@ -54,6 +55,11 @@ const routes: RouteRecordRaw[] = [
         path: "alerts",
         name: "Alerts",
         component: AlertsView,
+      },
+      {
+        path: "products",
+        name: "Products",
+        component: ProductsView,
       },
     ],
   },
