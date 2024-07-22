@@ -9,16 +9,31 @@ import DataTable from "@/components/DataTable.vue";
 import ModalButton from "@/components/ModalButton.vue";
 import ProductModal from "@/components/Admin/ProductModal.vue";
 
-
 const columns: TableColumn<Product>[] = [
   { value: "name", label: "Nom" },
   { value: "description", label: "Description" },
   { value: "brand", label: "Marque" },
   { value: "quantity", label: "Quantité" },
-  { value: "price", label: "Prix", renderCell: (row) => row.price.toFixed(2) + " €"},
+  {
+    value: "price",
+    label: "Prix",
+    renderCell: (row) => row.price.toFixed(2) + " €",
+  },
 ];
 
-const { changeItemsPerPage, data, search, debouncedSearch, itemsPerPage, totalCount, totalPages, page, loading, changeCurrentPage, fetchData } = useGetPagination<Product>({
+const {
+  changeItemsPerPage,
+  data,
+  search,
+  debouncedSearch,
+  itemsPerPage,
+  totalCount,
+  totalPages,
+  page,
+  loading,
+  changeCurrentPage,
+  fetchData,
+} = useGetPagination<Product>({
   getData: getProducts,
 });
 
@@ -75,7 +90,6 @@ const actions = [
       ]),
   },
 ];
-
 
 const deleteAllProductsSelected = async (ids: string[]) => {
   try {
