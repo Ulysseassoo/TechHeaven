@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is not defined in the environment variables');
+  // throw new Error('STRIPE_SECRET_KEY is not defined in the environment variables');
 }
 
 const router = express.Router();

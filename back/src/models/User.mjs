@@ -1,5 +1,7 @@
 import mongoose from "../middlewares/mongooseConfig.mjs";
 
+import { productHasPromotionSchema } from './ProductHasPromotion.mjs'
+
 const addressSchema = new mongoose.Schema({
   city: { type: String, required: true },
   country: { type: String, required: true },
@@ -33,6 +35,7 @@ const userSchema = new mongoose.Schema({
   blocked_until: { type: Date, default: null },
   addresses: { type: [addressSchema], default: [] },
   preferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Preference' }],
+  used_promotions: [{ type: [productHasPromotionSchema], ref: 'ProductHasPromotion' }],
   passwordRecovery: {
     type: passwordRecoverySchema,
     default: null,

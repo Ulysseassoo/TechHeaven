@@ -1,10 +1,9 @@
 import express from 'express';
-import Delivery from "../models/Delivery.mjs";
+import Delivery from "../models/delivery.mjs";
 import {shouldBeAuthenticate, shouldBeAdmin} from "../middlewares/authentication.mjs";
 
 const router = express.Router();
 
-// Ajouter une nouvelle livraison
 router.post('/deliveries',shouldBeAuthenticate, async (req, res) => {
     const delivery = new Delivery(req.body);
     try {
@@ -15,7 +14,6 @@ router.post('/deliveries',shouldBeAuthenticate, async (req, res) => {
     }
 });
 
-// Récupérer toutes les livraisons
 router.get('/deliveries',shouldBeAuthenticate, async (req, res) => {
     try {
         const deliveries = await Delivery.find({});
@@ -26,7 +24,6 @@ router.get('/deliveries',shouldBeAuthenticate, async (req, res) => {
 });
 
 
-// Mettre à jour le statut de livraison
 router.patch('/deliveries/:id',shouldBeAuthenticate, async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['address', 'status', 'following_number', 'delivered'];
@@ -45,7 +42,6 @@ router.patch('/deliveries/:id',shouldBeAuthenticate, async (req, res) => {
 
         updates.forEach(update => delivery[update] = req.body[update]);
 
-        // Si la livraison est marquée comme livrée, changer le statut à "Livré"
         if (delivery.delivered) {
             delivery.status = "Livré";
         }
