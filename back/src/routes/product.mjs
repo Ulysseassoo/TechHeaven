@@ -66,7 +66,9 @@ router.get("/products", async (req, res) => {
 
     if (search !== undefined && search !== "") {
       const searchQuery = new RegExp(search, "i");
-      query.$or = [{ type: { $regex: searchQuery } }];
+      query.$or = [{ name: { $regex: searchQuery } },
+        { description: { $regex: searchQuery } }
+      ];
     }
 
     const products = await Product.findToClient(query, page, limit);

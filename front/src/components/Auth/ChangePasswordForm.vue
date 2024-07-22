@@ -14,12 +14,18 @@ const validationSchema = z
     password: z
       .string()
       .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
-      .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule.")
-      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
+      .regex(
+        /[a-z]/,
+        "Le mot de passe doit contenir au moins une lettre minuscule.",
+      )
+      .regex(
+        /[A-Z]/,
+        "Le mot de passe doit contenir au moins une lettre majuscule.",
+      )
       .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
-        "Le mot de passe doit contenir au moins un symbole."
+        "Le mot de passe doit contenir au moins un symbole.",
       ),
     confirmPassword: z.string(),
   })
@@ -58,12 +64,13 @@ const transform = {
   },
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
-  initialValues,
-  validationSchema,
-  onSubmit,
-  transform,
-});
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
+  useForm({
+    initialValues,
+    validationSchema,
+    onSubmit,
+    transform,
+  });
 </script>
 
 <template>
@@ -118,7 +125,8 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
           >Submit</VBtn
         >
         <span
-          >Already have an account ? <RouterLink to="/login">Login here</RouterLink></span
+          >Already have an account ?
+          <RouterLink to="/login">Login here</RouterLink></span
         >
       </Stack>
     </VForm>

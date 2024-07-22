@@ -19,6 +19,7 @@
     "buffer": "^6.0.3",
     "chart.js": "^4.4.3",
     "moment": "^2.30.1",
+    "pinia": "^2.1.7",
     "vee-validate": "^4.12.6",
     "vue": "^3.4.21",
     "vue-chartjs": "^5.3.1",

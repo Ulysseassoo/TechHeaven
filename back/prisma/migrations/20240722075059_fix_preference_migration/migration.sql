@@ -18,6 +18,14 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "UserHasPromotion" (
+    "user_id" TEXT NOT NULL,
+    "promotion_id" TEXT NOT NULL,
+
+    CONSTRAINT "UserHasPromotion_pkey" PRIMARY KEY ("user_id","promotion_id")
+);
+
+-- CreateTable
 CREATE TABLE "Address" (
     "id" TEXT NOT NULL,
     "city" TEXT NOT NULL,
@@ -43,11 +51,12 @@ CREATE TABLE "Alert" (
 
 -- CreateTable
 CREATE TABLE "Preference" (
+    "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "alert_id" TEXT NOT NULL,
-    "status" BOOLEAN NOT NULL,
+    "isEnabled" BOOLEAN NOT NULL,
 
-    CONSTRAINT "Preference_pkey" PRIMARY KEY ("user_id","alert_id")
+    CONSTRAINT "Preference_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -76,11 +85,10 @@ CREATE TABLE "Product" (
     "description" TEXT NOT NULL,
     "brand" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
-    "promo" DOUBLE PRECISION,
-    "photo" TEXT,
-    "stock_quantity" INTEGER NOT NULL,
+    "promotion" DOUBLE PRECISION,
+    "promotion_type" TEXT,
     "categoryId" TEXT,
-    "lowStockAlert" BOOLEAN NOT NULL DEFAULT false,
+    "quantity" INTEGER NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
@@ -158,22 +166,13 @@ CREATE TABLE "ProductHasCategory" (
 
 -- CreateTable
 CREATE TABLE "Promotion" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "expiry_date" TIMESTAMP(3) NOT NULL,
     "is_one_time" BOOLEAN NOT NULL,
 
     CONSTRAINT "Promotion_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "ProductHasPromotion" (
-    "product_id" TEXT NOT NULL,
-    "promotion_id" INTEGER NOT NULL,
-    "user_id" TEXT NOT NULL,
-
-    CONSTRAINT "ProductHasPromotion_pkey" PRIMARY KEY ("product_id","promotion_id","user_id")
 );
 
 -- CreateTable
@@ -203,6 +202,12 @@ CREATE UNIQUE INDEX "Address_id_key" ON "Address"("id");
 CREATE UNIQUE INDEX "Alert_id_key" ON "Alert"("id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Preference_id_key" ON "Preference"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Preference_user_id_alert_id_key" ON "Preference"("user_id", "alert_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "PasswordRecovery_id_key" ON "PasswordRecovery"("id");
 
 -- CreateIndex
@@ -222,6 +227,15 @@ CREATE UNIQUE INDEX "OrderDetail_id_key" ON "OrderDetail"("id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Payment_id_key" ON "Payment"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Promotion_id_key" ON "Promotion"("id");
+
+-- AddForeignKey
+ALTER TABLE "UserHasPromotion" ADD CONSTRAINT "UserHasPromotion_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserHasPromotion" ADD CONSTRAINT "UserHasPromotion_promotion_id_fkey" FOREIGN KEY ("promotion_id") REFERENCES "Promotion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Address" ADD CONSTRAINT "Address_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -266,16 +280,4 @@ ALTER TABLE "ProductHasCategory" ADD CONSTRAINT "ProductHasCategory_product_id_f
 ALTER TABLE "ProductHasCategory" ADD CONSTRAINT "ProductHasCategory_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "Category"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ProductHasPromotion" ADD CONSTRAINT "ProductHasPromotion_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ProductHasPromotion" ADD CONSTRAINT "ProductHasPromotion_promotion_id_fkey" FOREIGN KEY ("promotion_id") REFERENCES "Promotion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "ProductHasPromotion" ADD CONSTRAINT "ProductHasPromotion_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -66,6 +66,11 @@ const SubModels = {
     main: Order,
     sub: "payment",
     sub_key: "order_id"
+  },
+  Prefrence: {
+    main: User,
+    sub: "preferences",
+    sub_key: "user_id"
   }
 }
 

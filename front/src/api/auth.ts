@@ -1,9 +1,15 @@
-import { getApi, postApi, type Config, type UserFormProps } from ".";
+import {
+  getApi,
+  postApi,
+  putApi,
+  type ChangeOldPasswordProps,
+  type Config,
+} from ".";
 import { HOST } from "@/constants";
 import type { User } from "@/interfaces/User";
 
 interface ChangePasswordProps extends Config {
-  data: UserFormProps;
+  data: ChangeOldPasswordProps;
 }
 
 interface CheckCodeProps extends Config {
@@ -52,7 +58,7 @@ export const changeUserPassword = async ({
   config,
 }: ChangePasswordProps) => {
   const token = localStorage.getItem("token");
-  const response = await postApi<UserFormProps>(
+  const response = await putApi<ChangeOldPasswordProps>(
     HOST + "/change/password",
     data,
     {

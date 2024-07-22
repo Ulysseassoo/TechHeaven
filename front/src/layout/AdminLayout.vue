@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { logoutUser } from "@/api/auth";
+import { useUserStore } from "@/store/UserStore";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { VListItem } from "vuetify/components";
@@ -19,10 +20,21 @@ const items = ref([
     title: "Factures",
     route: "/admin/invoices",
   },
+  {
+    icon: "fa-solid fa-bell",
+    title: "Alertes",
+    route: "/admin/alerts",
+  },
+  {
+    icon: "fa-brands fa-product-hunt",
+    title: "Produits",
+    route: "/admin/products",
+  },
 ]);
 
 const route = useRoute();
 const router = useRouter();
+const store = useUserStore();
 
 const isRouteActive = (routeName: string) =>
   computed(() => route.path === routeName);
@@ -33,6 +45,7 @@ const logout = async () => {
     name: "Login",
     replace: true,
   });
+  store.setUser(null);
 };
 </script>
 

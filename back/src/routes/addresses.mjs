@@ -68,7 +68,7 @@ router.post("/addresses", addressValidator, async (req, res) => {
                 country,
                 postal_code,
                 address,
-                is_selected: is_selected ?? false, 
+                is_selected: Boolean(is_selected) ?? false, 
                 other,
                 user_id
             }

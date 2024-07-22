@@ -67,13 +67,14 @@ model Alert {
 }
 
 model Preference {
-  user_id  String
-  alert_id String
-  status   Boolean
-  user     User    @relation(fields: [user_id], references: [id])
-  alert    Alert   @relation(fields: [alert_id], references: [id])
+  id        String  @id @unique @default(uuid())
+  user_id   String
+  alert_id  String
+  isEnabled Boolean
+  user      User    @relation(fields: [user_id], references: [id])
+  alert     Alert   @relation(fields: [alert_id], references: [id])
 
-  @@id([user_id, alert_id])
+  @@unique([user_id, alert_id])
 }
 
 model PasswordRecovery {

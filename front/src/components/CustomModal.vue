@@ -9,7 +9,7 @@ interface Props {
   saveText?: string;
   dialogMaxWidth?: string;
   modalTitle?: string;
-  submitAction?: () => Promise<void>;
+  submitAction?: () => Promise<boolean | undefined>;
 }
 
 const props = defineProps<Props>();
@@ -19,10 +19,12 @@ const handleSubmit = async () => {
   try {
     loading.value = true;
     if (props.submitAction) {
-      await props.submitAction();
+      const submitPromise = await props.submitAction();
+      if (submitPromise === true) {
+        dialog.value = false;
+      }
     }
     loading.value = false;
-    dialog.value = false;
   } catch (error) {
     loading.value = false;
     throw error;

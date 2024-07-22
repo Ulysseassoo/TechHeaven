@@ -12,8 +12,11 @@ const productSchema = new mongoose.Schema({
   id: { type: String, unique: true, required: true },
 });
 
-productSchema.statics.findToClient = async function (query) {
-  const products = await this.find(query);
+productSchema.statics.findToClient = async function (query, page, limit) {
+  const products = await this.find(query)
+  .limit(limit * 1)
+  .skip((page - 1) * limit)
+  .exec();
   return products;
 };
 
