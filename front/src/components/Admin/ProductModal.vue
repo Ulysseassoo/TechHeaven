@@ -25,7 +25,8 @@ const submitAction = async () => {
   try {
     if (productFormRef.value) {
       const productFormSubmit = await productFormRef.value.handleSubmit();
-      if (props.callback && productFormSubmit !== undefined) await props.callback();
+      if (props.callback && productFormSubmit !== undefined)
+        await props.callback();
       return productFormSubmit !== undefined;
     }
   } catch (error) {
@@ -43,8 +44,8 @@ const submitAction = async () => {
       type === 'create'
         ? 'Créer un produit'
         : type === 'edit'
-        ? 'Modifier un produit'
-        : 'Produit'
+          ? 'Modifier un produit'
+          : 'Produit'
     "
     :btnContent="btnContent"
     :color="color"

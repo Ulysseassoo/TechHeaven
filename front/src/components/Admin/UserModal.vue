@@ -21,7 +21,8 @@ const submitAction = async () => {
   try {
     if (userFormRef.value) {
       const userFormSubmit = await userFormRef.value.handleSubmit();
-      if (props.callback && userFormSubmit !== undefined) await props.callback();
+      if (props.callback && userFormSubmit !== undefined)
+        await props.callback();
       return userFormSubmit !== undefined;
     }
   } catch (error) {
@@ -38,7 +39,11 @@ const submitAction = async () => {
     :modalTitle="canEdit ? 'Editer' : 'Utilisateur'"
   >
     <template v-slot:ModalContent>
-      <UserForm :user="user" ref="userFormRef" :disabled="!canEdit ? true : false" />
+      <UserForm
+        :user="user"
+        ref="userFormRef"
+        :disabled="!canEdit ? true : false"
+      />
     </template>
   </CustomModal>
 </template>

@@ -25,7 +25,8 @@ const submitAction = async () => {
   try {
     if (alertFormRef.value) {
       const productFormSubmit = await alertFormRef.value.handleSubmit();
-      if (props.callback && productFormSubmit !== undefined) await props.callback();
+      if (props.callback && productFormSubmit !== undefined)
+        await props.callback();
       return productFormSubmit !== undefined;
     }
   } catch (error) {
@@ -43,14 +44,18 @@ const submitAction = async () => {
       type === 'create'
         ? 'Créer une alerte'
         : type === 'edit'
-        ? 'Modifier une alerte'
-        : 'Alerte'
+          ? 'Modifier une alerte'
+          : 'Alerte'
     "
     :btnContent="btnContent"
     :color="color"
   >
     <template v-slot:ModalContent>
-      <AlertForm :alert="alert" ref="alertFormRef" :disabled="type === 'detail'" />
+      <AlertForm
+        :alert="alert"
+        ref="alertFormRef"
+        :disabled="type === 'detail'"
+      />
     </template>
   </CustomModal>
 </template>
