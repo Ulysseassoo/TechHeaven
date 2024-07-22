@@ -9,7 +9,6 @@ import { toast } from "vue3-toastify";
 import { VNumberInput } from "vuetify/labs/components";
 import { useUserStore } from "@/store/UserStore";
 
-
 interface Props {
   product?: Product;
   disabled?: boolean;
