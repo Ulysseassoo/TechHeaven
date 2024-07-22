@@ -110,6 +110,7 @@ export const useForm = <T extends Object>(options: useFormOptions<T>) => {
       // Appel à la fonction de soumission du formulaire
       await onSubmit(transformedData, config);
       resetFields();
+      return true
     } catch (error: any) {
       if (error instanceof ZodError) {
         error.errors.forEach((err) => {

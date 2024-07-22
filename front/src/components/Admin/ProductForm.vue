@@ -20,9 +20,9 @@ const store = useUserStore();
 
 const validationSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  brand: z.string(),
+  name: z.string().min(1),
+  description: z.string().min(1),
+  brand: z.string().min(1),
   quantity: z.number().min(1),
   price: z.number().min(1),
 });
@@ -86,13 +86,7 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col
-        v-for="field in fields"
-        :key="field.field"
-        cols="12"
-        md="12"
-        sm="12"
-      >
+      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
         <VNumberInput
           v-if="field.type === 'number'"
           variant="outlined"
