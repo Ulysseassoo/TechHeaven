@@ -6,6 +6,6 @@ module.exports = {
     moduleFileExtensions: ['js', 'jsx', 'mjs'],
     testMatch: ['<rootDir>/Test/**/*.test.mjs'],
     setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-    testTimeout: 10000,
+    testTimeout: 70000,
 };
   

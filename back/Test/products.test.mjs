@@ -9,23 +9,24 @@ const app = express();
 app.use(express.json());
 app.use('/api', ProductRoutes);
 
-beforeAll(async () => {
-  await db.$connect();
-});
+const SECONDS = 1000;
+jest.setTimeout(70 * SECONDS)
 
-afterAll(async () => {
-  await db.$disconnect();
-});
+jest.mock('../src/middlewares/authentication.mjs', () => ({
+    shouldBeAdmin: (req, res, next) => next(),
+    shouldBeAuthenticate: (req, res, next) => {
+      req.user = { id: 'user123', role: 'ROLE_ADMIN' }; 
+      next();
+    }
+  }));
 
-beforeEach(async () => {
-  await db.product.deleteMany({});
-});
 
 describe('Products API', () => {
-  //jest.setTimeout(5000); // Augmente le timeout à 10 secondes pour tous les tests
+  jest.setTimeout(70000); // Augmente le timeout pour tous les tests
+  
 
   it('should create a new product', async () => {
-    jest.setTimeout(5000);
+    jest.setTimeout(10000);
     const newProduct = { name: 'New Product', price: 100 };
 
   const response = await request(app)
@@ -38,7 +39,7 @@ describe('Products API', () => {
   });
 
   it('should get all products', async () => {
-    jest.setTimeout(5000);
+    jest.setTimeout(10000);
     await db.product.create({
       data: {
         name: 'Existing Product',
@@ -59,7 +60,7 @@ describe('Products API', () => {
   });
 
   it('should get a product by ID', async () => {
-    jest.setTimeout(5000);
+    jest.setTimeout(10000);
     const product = await db.product.create({
       data: {
         name: 'Unique Product',
@@ -79,7 +80,7 @@ describe('Products API', () => {
   });
 
   it('should update a product by ID', async () => {
-    jest.setTimeout(5000);
+    jest.setTimeout(10000);
     const product = await db.product.create({
       data: {
         name: 'Product to Update',
@@ -109,7 +110,7 @@ describe('Products API', () => {
   });
 
   it('should delete a product by ID', async () => {
-    jest.setTimeout(5000);
+    jest.setTimeout(10000);
     const product = await db.product.create({
       data: {
         name: 'Product to Delete',

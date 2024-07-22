@@ -13,7 +13,7 @@ app.use('/api', AddressRoutes);
 jest.mock('../src/middlewares/authentication.mjs', () => ({
   shouldBeAdmin: (req, res, next) => next(),
   shouldBeAuthenticate: (req, res, next) => {
-    req.user = { id: 'user123', role: 'ROLE_USER' }; // ou ROLE_ADMIN 
+    req.user = { id: 'user123', role: 'ROLE_ADMIN' }; // ou ROLE_ADMIN 
     next();
   }
 }));

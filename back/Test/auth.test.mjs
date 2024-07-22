@@ -12,6 +12,15 @@ const app = express();
 app.use(express.json());
 app.use('/api/auth', AuthRouter);
 
+
+jest.mock('../src/middlewares/authentication.mjs', () => ({
+    shouldBeAdmin: (req, res, next) => next(),
+    shouldBeAuthenticate: (req, res, next) => {
+      req.user = { id: 'user123', role: 'ROLE_ADMIN' };
+      next();
+    }
+}));
+
 beforeAll(async () => {
   await db.$connect();
 });
