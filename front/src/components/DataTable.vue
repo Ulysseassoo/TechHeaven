@@ -8,9 +8,7 @@ import { toast } from "vue3-toastify";
 interface Action {
   label: string;
   id: string;
-  renderCell: (
-    item: any
-  ) => VNode<
+  renderCell: (item: any) => VNode<
     RendererNode,
     RendererElement,
     {
@@ -47,21 +45,21 @@ watch(
   () => props.itemsPerPage,
   (newItemsPerPage) => {
     localItemsPerPage.value = newItemsPerPage;
-  }
+  },
 );
 
 watch(
   () => props.currentPage,
   (newPage) => {
     currentPage.value = newPage;
-  }
+  },
 );
 
 watch(
   () => props.data,
   (newData) => {
     data.value = newData;
-  }
+  },
 );
 
 const emitItemsPerPage = () => {
@@ -88,13 +86,16 @@ const sortedData = computed(() => {
 
 const allSelected = computed(
   () =>
-    sortedData.value.length > 0 && selectedItems.value.length === sortedData.value.length
+    sortedData.value.length > 0 &&
+    selectedItems.value.length === sortedData.value.length,
 );
 
-const startItem = computed(() => (currentPage.value - 1) * localItemsPerPage.value + 1);
+const startItem = computed(
+  () => (currentPage.value - 1) * localItemsPerPage.value + 1,
+);
 
 const endItem = computed(() =>
-  Math.min(currentPage.value * localItemsPerPage.value, props.totalCount)
+  Math.min(currentPage.value * localItemsPerPage.value, props.totalCount),
 );
 
 const handleSort = (column: string) => {
@@ -176,7 +177,10 @@ const exportToCSV = async () => {
       <div class="header">
         <slot name="header"> </slot>
       </div>
-      <v-btn color="primary" @click="exportToCSV" :disabled="selectedItems.length <= 0"
+      <v-btn
+        color="primary"
+        @click="exportToCSV"
+        :disabled="selectedItems.length <= 0"
         >Exporter en CSV</v-btn
       >
       <v-btn
@@ -196,7 +200,10 @@ const exportToCSV = async () => {
         <tr>
           <th>
             <v-container fluid class="checkbox_container">
-              <v-checkbox v-model="allSelected" @change="toggleSelectAll"></v-checkbox>
+              <v-checkbox
+                v-model="allSelected"
+                @change="toggleSelectAll"
+              ></v-checkbox>
             </v-container>
           </th>
           <th
@@ -206,7 +213,9 @@ const exportToCSV = async () => {
           >
             {{ column.label }}
             <v-icon v-if="sortBy === column.value">{{
-              sortOrder === "asc" ? "fa-solid fa-sort-up" : "fa-solid fa-sort-down"
+              sortOrder === "asc"
+                ? "fa-solid fa-sort-up"
+                : "fa-solid fa-sort-down"
             }}</v-icon>
           </th>
           <th>Actions</th>
@@ -227,7 +236,9 @@ const exportToCSV = async () => {
               {{ moment(row[column.value]).format("LLL") }}
             </div>
             <div
-              v-else-if="row[column.value] === undefined || row[column.value] === null"
+              v-else-if="
+                row[column.value] === undefined || row[column.value] === null
+              "
             >
               -
             </div>
