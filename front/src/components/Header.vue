@@ -39,24 +39,26 @@ const searchBar = ref(null);
           density="compact"
         />
       </div>
-      <div style="display: flex">
-        <User />
+      <section style="display: flex">
+        <RouterLink class="router-link" to="/account/profile">
+          <User />
+        </RouterLink>
         <Basket />
-      </div>
+      </section>
     </section>
     <section class="search-section-mobile">
       <VTextField
-          :style="{
-            display: width > BREAKPOINT_FOR_SEARCHBAR ? 'none' : 'initial',
-          }"
-          variant="outlined"
-          label="Qu'est ce que vous cherchez"
-          v-model="searchBar"
-          :error="false"
-          type="input"
-          :hide-details="true"
-          density="compact"
-        />
+        :style="{
+          display: width > BREAKPOINT_FOR_SEARCHBAR ? 'none' : 'initial',
+        }"
+        variant="outlined"
+        label="Qu'est ce que vous cherchez"
+        v-model="searchBar"
+        :error="false"
+        type="input"
+        :hide-details="true"
+        density="compact"
+      />
     </section>
   </header>
 </template>

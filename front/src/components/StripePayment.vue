@@ -21,7 +21,9 @@ export default defineComponent({
     const cardElement = ref<any | null>(null);
 
     onMounted(async () => {
-      stripe.value = await loadStripe("pk_test_TJk0aw2sfo1t8MbZcbJ1ZQ0c00DP4rASiG"); //clé publique Stripe
+      stripe.value = await loadStripe(
+        "pk_test_TJk0aw2sfo1t8MbZcbJ1ZQ0c00DP4rASiG",
+      ); //clé publique Stripe
       if (stripe.value) {
         const elements = stripe.value.elements();
         cardElement.value = elements.create("card");
@@ -44,7 +46,7 @@ export default defineComponent({
               name: "Nom du client",
             },
           },
-        }
+        },
       );
 
       if (error) {
