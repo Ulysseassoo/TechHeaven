@@ -4,16 +4,17 @@ import { z } from "zod";
 import type { AxiosRequestConfig } from "axios";
 import { useForm } from "@/hooks/useForm";
 import { useRouter } from "vue-router";
-import { loginUser } from "@/api/auth";
+import { loginUser, getUserInformation } from "@/api/auth";
+import { useUserStore } from "@/store/UserStore";
 
 const validationSchema = z.object({
   email: z.string().email("L'email doit être valide."),
-  password: z
-    .string()
-    .min(1, "Le mot de passe doit contenir au moins 1 caractères."),
+  password: z.string().min(1, "Le mot de passe doit contenir au moins 1 caractères."),
 });
 
 const router = useRouter();
+
+const store = useUserStore();
 
 type FormValues = z.infer<typeof validationSchema>;
 
@@ -27,7 +28,13 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     const result = await loginUser({ data: formData, config });
     if (result.data) {
       localStorage.setItem("token", result.data);
-      router.push("/");
+      const response = await getUserInformation();
+      store.setUser(response.data);
+      if (response.data.role === "ROLE_ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push("/");
+      }
     }
   } catch (error) {
     throw error;
@@ -43,13 +50,12 @@ const transform = {
   },
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
-  useForm({
-    initialValues,
-    validationSchema,
-    onSubmit,
-    transform,
-  });
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
+  initialValues,
+  validationSchema,
+  onSubmit,
+  transform,
+});
 </script>
 
 <template>
@@ -85,22 +91,16 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
         type="password"
         @input="validateField('password')"
       ></VTextField>
-      <div
-        style="
-          display: flex;
-          flex-direction: row-reverse;
-          margin-bottom: 0.4rem;
-        "
-      >
+      <div style="display: flex; flex-direction: row-reverse; margin-bottom: 0.4rem">
         <RouterLink to="/forgot-password" style="color: black"
           >Forgot password ?</RouterLink
         >
       </div>
       <VCard class="mb-12" color="surface-variant" variant="tonal">
         <VCardText class="text-medium-emphasis text-caption">
-          Warning: After 3 consecutive failed login attempts, you account will
-          be temporarily locked for three hours. If you must login now, you can
-          also click "Forgot login password?" below to reset the login password.
+          Warning: After 3 consecutive failed login attempts, you account will be
+          temporarily locked for three hours. If you must login now, you can also click
+          "Forgot login password?" below to reset the login password.
         </VCardText>
       </VCard>
       <Stack
