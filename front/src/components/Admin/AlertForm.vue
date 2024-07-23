@@ -76,7 +76,13 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
+      <v-col
+        v-for="field in fields"
+        :key="field.field"
+        cols="12"
+        md="12"
+        sm="12"
+      >
         <v-text-field
           variant="outlined"
           :label="field.label"

@@ -25,7 +25,8 @@ const submitAction = async () => {
   try {
     if (categoryFormRef.value) {
       const productFormSubmit = await categoryFormRef.value.handleSubmit();
-      if (props.callback && productFormSubmit !== undefined) await props.callback();
+      if (props.callback && productFormSubmit !== undefined)
+        await props.callback();
       return productFormSubmit !== undefined;
     }
   } catch (error) {
@@ -43,8 +44,8 @@ const submitAction = async () => {
       type === 'create'
         ? 'Créer une catégorie'
         : type === 'edit'
-        ? 'Modifier une catégorie'
-        : 'Catégorie'
+          ? 'Modifier une catégorie'
+          : 'Catégorie'
     "
     :btnContent="btnContent"
     :color="color"
