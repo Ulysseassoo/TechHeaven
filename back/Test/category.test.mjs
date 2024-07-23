@@ -6,7 +6,15 @@ import { db } from '../src/utils/db.server.mjs';
 import Category from '../src/models/Category.mjs';
 
 
-jest.mock('../src/utils/db.server.mjs');
+jest.mock('../src/utils/db.server.mjs', () => ({
+  db: {
+    category: {
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn()
+    }
+  }
+}));
 jest.mock('../src/models/Category.mjs');
 
 
