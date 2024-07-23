@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import * as dotenv from "dotenv";
+import { sendNotificationEmail, sendPasswordResetEmail } from '../src/utils/mailer.mjs';
 
 dotenv.config();
 const app = express();
@@ -19,6 +20,23 @@ jest.mock('../src/middlewares/authentication.mjs', () => ({
       req.user = { id: 'user123', role: 'ROLE_ADMIN' };
       next();
     }
+}));
+
+jest.mock('../src/utils/db.server.mjs', () => ({
+  db: {
+    user: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    passwordRecovery: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    $connect: jest.fn(),
+    $disconnect: jest.fn(),
+  }
 }));
 
 beforeAll(async () => {
@@ -37,7 +55,10 @@ beforeEach(async () => {
 describe('Auth API', () => {
   // Test de la route "/verify"
   it('should confirm the user account with a valid token', async () => {
-    const token = jwt.sign({ userId: 'user-id', type: 'confirmation' }, 'secret', { expiresIn: '1h' });
+    const token = jwt.sign({ userId: 'user-id', type: 'confirmation' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    db.user.findUnique.mockResolvedValueOnce({ id: 'user-id', has_confirmed_account: false });
+    db.user.update.mockResolvedValueOnce({ id: 'user-id', has_confirmed_account: true });
 
     const response = await request(app)
       .post('/api/auth/verify')
