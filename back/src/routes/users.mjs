@@ -17,9 +17,36 @@ import {
   getTotalUsers,
   getCountUsersByNotificationType,
 } from "../utils/stats.mjs";
+import Order from "../models/Order.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
+
+router.get("/users/:id/orders", shouldBeAuthenticate, async (req, res) => {
+  try {
+    const user = await User.findOne({
+      id: req.user.id,
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "Utilisateur inexistant." });
+    }
+
+    const orders = await Order.find({ user_id: user.id }).populate('order_details');
+
+    return res.status(200).json({
+      status: 200,
+      data: orders,
+    });
+  } catch (error) {
+    return res.status(401).send({
+      status: 401,
+      message: error.message || error,
+    });
+  }
+})
 
 router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
   try {

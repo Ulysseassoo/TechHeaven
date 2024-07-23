@@ -19,6 +19,7 @@ import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
 import ProfileView from "@/pages/Account/ProfileView.vue";
 import UserAddressesView from "@/pages/Account/UserAddressesView.vue";
+import UserOrdersView from "@/pages/Account/UserOrdersView.vue";
 import ProductsView from "@/pages/Admin/ProductsView.vue";
 import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
 import PrivacyPolicyView from "@/pages/PrivacyPolicyView.vue";
@@ -88,6 +89,11 @@ const routes: RouteRecordRaw[] = [
         path: "profile",
         name: "Profile",
         component: ProfileView,
+      },
+      {
+        path: "orders",
+        name: "Orders",
+        component: UserOrdersView,
       },
       {
         path: "addresses",
