@@ -39,7 +39,7 @@ const SubModels = {
   },
   OrderDetail: {
     main: Order,
-    sub: "orderDetails",
+    sub: "order_details",
     sub_key: "order_id"
   },
   ProductHasCategory: {
