@@ -11,7 +11,9 @@ defineProps<{
   <div class="basket-preview-product-container">
     <img class="basket-preview-product-image" :src="airpods" alt="" />
     <p class="basket-preview-product-price">{{ productPrice }} €</p>
-    <p v-if="productQuantity" class="basket-preview-product-quantity">{{ productQuantity }}</p>
+    <p v-if="productQuantity" class="basket-preview-product-quantity">
+      {{ productQuantity }}
+    </p>
   </div>
 </template>
 

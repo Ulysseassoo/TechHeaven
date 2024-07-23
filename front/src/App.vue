@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useProductStore } from '@/store/productStore';
+import { onMounted } from "vue";
+import { useProductStore } from "@/store/productStore";
 
-const productStore = useProductStore()
+const productStore = useProductStore();
 
 onMounted(() => {
-  productStore.fetchProducts()
-})
+  productStore.fetchProducts();
+});
 </script>
 
 <template>

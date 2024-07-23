@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 
 import User from "@/components/Icons/User.vue";
 import Basket from "@/components/Icons/Basket.vue";
-import { useBasketStore } from '@/store/basketStore';
+import { useBasketStore } from "@/store/basketStore";
 
 import { useWindowSize } from "../hooks/useWindowSize";
 const BREAKPOINT_FOR_SEARCHBAR = 820;
@@ -11,7 +11,7 @@ const { width } = useWindowSize();
 
 const searchBar = ref(null);
 
-const basketStore = useBasketStore()
+const basketStore = useBasketStore();
 const basketProductCount = computed(() => basketStore.basketProductCount);
 </script>
 
@@ -47,9 +47,11 @@ const basketProductCount = computed(() => basketStore.basketProductCount);
         <User />
         <div class="basket-icon">
           <RouterLink class="router-link" to="/basket">
-            <Basket/>
+            <Basket />
           </RouterLink>
-          <p v-if="basketProductCount" class="basket-quantity">{{ basketProductCount }}</p>
+          <p v-if="basketProductCount" class="basket-quantity">
+            {{ basketProductCount }}
+          </p>
         </div>
       </div>
     </section>
@@ -113,5 +115,4 @@ const basketProductCount = computed(() => basketStore.basketProductCount);
   align-items: center;
   font-size: 10px;
 }
-
 </style>
