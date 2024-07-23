@@ -19,30 +19,45 @@ router.post("/categories", shouldBeAdmin, async (req, res) => {
     return res.status(201).json({ status: 201, data: category });
   } catch (error) {
     console.log("🚀 ~ router.post ~ error:", error);
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la création de la catégorie",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la création de la catégorie",
+      error: error.message,
+    });
   }
 });
 
 // Récupérer toutes les catégories
 router.get("/categories", async (req, res) => {
   try {
-    const categories = await Category.findToClient({});
+    const { page = 1, limit = 10, search } = req.query;
+    const query = {};
 
-    return res.status(200).json({ status: 200, data: categories });
+    if (search !== undefined && search !== "") {
+      const searchQuery = new RegExp(search, "i");
+      query.$or = [{ name: { $regex: searchQuery } }];
+    }
+
+    const categories = await Category.find(query)
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+
+    const count = await Category.countDocuments(query);
+
+    return res.status(200).json({
+      status: 200,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      totalCount: count,
+      data: categories,
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la récupération des catégories",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la récupération des catégories",
+      error: error.message,
+    });
   }
 });
 
@@ -63,13 +78,11 @@ router.get("/categories/:id", async (req, res) => {
 
     return res.status(200).json({ status: 200, data: category });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la récupération de la catégorie",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la récupération de la catégorie",
+      error: error.message,
+    });
   }
 });
 
@@ -90,13 +103,11 @@ router.put("/categories/:id", shouldBeAdmin, async (req, res) => {
 
     return res.status(200).json({ status: 200, data: updatedCategory });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la mise à jour de la catégorie",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la mise à jour de la catégorie",
+      error: error.message,
+    });
   }
 });
 
@@ -115,13 +126,11 @@ router.delete("/categories/:id", shouldBeAdmin, async (req, res) => {
       .status(200)
       .json({ status: 200, message: "Catégorie supprimée avec succès" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la suppression de la catégorie",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la suppression de la catégorie",
+      error: error.message,
+    });
   }
 });
 

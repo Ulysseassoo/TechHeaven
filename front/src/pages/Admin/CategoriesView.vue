@@ -1,35 +1,43 @@
 <script setup lang="ts">
-import { h, onMounted, ref } from "vue";
+import { h, onMounted } from "vue";
 import type { TableColumn } from "@/interfaces/Table";
-import type { Alert } from "@/interfaces/Alert";
+import type { Category } from "@/interfaces/Category";
+import { useGetPagination } from "@/hooks/useGetPagination";
+import { deleteCategory, getCategories } from "@/api/category";
 import { toast, type ToastOptions } from "vue3-toastify";
-import { useDebounce } from "@/hooks/useDebounce";
-import { deleteAlert, getAlerts } from "@/api/alert";
 import DataTable from "@/components/DataTable.vue";
 import ModalButton from "@/components/ModalButton.vue";
-import AlertModal from "@/components/Admin/AlertModal.vue";
+import CategoryModal from "@/components/Admin/CategoryModal.vue";
 
-const columns: TableColumn<Alert>[] = [
+const columns: TableColumn<Category>[] = [
+  { value: "id", label: "Id" },
   { value: "name", label: "Nom" },
-  { value: "type", label: "Type" },
-  { value: "param", label: "Paramètre" },
 ];
 
-const loading = ref<boolean>(true);
-const search = ref<string>("");
-const alerts = ref<Alert[]>([]);
-const itemsPerPage = ref<number>(10);
-const totalCount = ref<number>(0);
-const totalPages = ref<number>(0);
-const page = ref<number>(1);
+const {
+  changeItemsPerPage,
+  data,
+  search,
+  debouncedSearch,
+  itemsPerPage,
+  totalCount,
+  totalPages,
+  page,
+  loading,
+  changeCurrentPage,
+  fetchData,
+} = useGetPagination<Category>({
+  getData: getCategories,
+});
+
 const actions = [
   {
     label: "Voir",
     id: "view",
     icon: "fa-solid fa-eye",
-    renderCell: (row: Alert) =>
-      h(AlertModal, {
-        alert: row,
+    renderCell: (row: Category) =>
+      h(CategoryModal, {
+        category: row,
         type: "detail",
         icon: "fa-solid fa-eye",
         tooltipLabel: "Voir",
@@ -38,33 +46,33 @@ const actions = [
   {
     label: "Modifier",
     id: "edit",
-    renderCell: (row: Alert) =>
-      h(AlertModal, {
-        alert: row,
+    renderCell: (row: Category) =>
+      h(CategoryModal, {
+        category: row,
         type: "edit",
         icon: "fa-solid fa-pen",
         tooltipLabel: "Modifier",
-        callback: () => fetchAlerts(),
+        callback: () => fetchData(),
       }),
   },
   {
     label: "Supprimer",
     id: "delete",
-    renderCell: (row: Alert) =>
+    renderCell: (row: Category) =>
       h("div", [
         h(ModalButton, {
           icon: "fa-solid fa-trash",
           tooltipLabel: "Supprimer",
           action: async () => {
             try {
-              const response = await deleteAlert(row.id);
+              const response = await deleteCategory(row.id);
               if (response.message !== undefined) {
                 toast.success(response.message, {
                   autoClose: 2000,
                   position: toast.POSITION.BOTTOM_RIGHT,
                 } as ToastOptions);
               }
-              fetchAlerts();
+              fetchData();
             } catch (error: any) {
               throw error || "Une erreur est survenue, veuillez réessayer";
             }
@@ -76,42 +84,19 @@ const actions = [
   },
 ];
 
-async function fetchAlerts() {
-  loading.value = true;
+const deleteAllProductsSelected = async (ids: Category[]) => {
   try {
-    const response = await getAlerts({
-      limit: itemsPerPage.value,
-      page: page.value,
-      search: search.value !== "" ? search.value : undefined,
-    });
-    alerts.value = response.data;
-    if (
-      response.totalCount !== undefined &&
-      response.totalPages !== undefined
-    ) {
-      totalCount.value = response.totalCount;
-      totalPages.value = response.totalPages;
-    }
-    loading.value = false;
-  } catch (error) {
-    loading.value = false;
-  }
-}
-
-const debouncedSearchedAlerts = useDebounce(fetchAlerts, 500);
-const deleteAllAlertsSelected = async (ids: Alert[]) => {
-  try {
-    const deletePromises = ids.map((row) => deleteAlert(row.id));
+    const deletePromises = ids.map((row) => deleteCategory(row.id));
     const responses = await Promise.all(deletePromises);
     const allDeleted = responses.every((response) => response.status === 200);
     if (allDeleted) {
-      toast.success("Toutes les alertes sélectionnés ont été supprimés.", {
+      toast.success("Toutes les catégories sélectionnés ont été supprimés.", {
         autoClose: 2000,
         position: toast.POSITION.BOTTOM_RIGHT,
       } as ToastOptions);
     }
-    fetchAlerts();
-  } catch (error) {
+    fetchData();
+  } catch (error: any) {
     toast.error("Une erreur est survenue.", {
       autoClose: 2000,
       position: toast.POSITION.BOTTOM_RIGHT,
@@ -119,19 +104,8 @@ const deleteAllAlertsSelected = async (ids: Alert[]) => {
   }
 };
 
-const changeItemsPerPage = (value: number) => {
-  itemsPerPage.value = value;
-  page.value = 1;
-  fetchAlerts();
-};
-
-const changeCurrentPage = (value: number) => {
-  page.value = value;
-  fetchAlerts();
-};
-
 onMounted(() => {
-  fetchAlerts();
+  fetchData();
 });
 </script>
 
@@ -140,12 +114,12 @@ onMounted(() => {
     <h1>Catégories</h1>
     <DataTable
       :columns="columns"
-      :data="alerts"
+      :data="data"
       :actions="actions"
       :itemsPerPage="itemsPerPage"
       @update:itemsPerPage="changeItemsPerPage"
       @update:currentPage="changeCurrentPage"
-      :deleteAll="deleteAllAlertsSelected"
+      :deleteAll="deleteAllProductsSelected"
       :totalCount="totalCount"
       :currentPage="page"
       :totalPages="totalPages"
@@ -155,19 +129,19 @@ onMounted(() => {
         <v-text-field
           prepend-inner-icon="fa-solid fa-magnifying-glass"
           density="compact"
-          label="Rechercher une alerte"
+          label="Rechercher une catégorie"
           variant="solo"
           hide-details
           single-line
           style="max-width: 300px"
           v-model="search"
-          @input="debouncedSearchedAlerts"
+          @input="debouncedSearch"
         ></v-text-field>
-        <AlertModal
-          btnContent="Nouvelle alerte"
+        <CategoryModal
+          btnContent="Nouvelle catégorie"
           color="tertiary"
           type="create"
-          :callback="() => fetchAlerts()"
+          :callback="() => fetchData()"
         />
       </template>
     </DataTable>

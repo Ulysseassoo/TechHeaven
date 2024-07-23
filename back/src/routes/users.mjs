@@ -123,6 +123,25 @@ router.post("/users", authValidator, async (req, res) => {
       });
     }
 
+    const alerts = await db.alert.findMany({
+      where: {
+        id: {
+          not: alert.id
+        }
+      }
+    });
+
+    for (let j = 0; j < alerts.length; j++) {
+      const z = alerts[j];
+      await db.preference.create({
+        data: {
+          user_id: user.id,
+          alert_id: z.id,
+          isEnabled: false,
+        },
+      });
+    }
+
     const confirmationToken = generateConfirmationToken(user.id);
     await sendConfirmationEmail(email, confirmationToken);
 

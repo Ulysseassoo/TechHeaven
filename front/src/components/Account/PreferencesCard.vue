@@ -38,24 +38,32 @@ const togglePreference = async (preference: Preference) => {
     title="Préférences en matière d'e-mail"
     subtitle="Modifier vos préférences d'alertes par e-mail"
   >
-    <v-card-text
-      class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2"
-    >
+    <v-card-text class="p-4 mb-8 bg-white md:h-full md:mb-0 md:p-6 md:rounded-2 multiple">
       <div v-for="preference in user.preferences" :key="preference.id">
         <v-switch
           :model-value="preference.isEnabled"
           color="success"
           @update:modelValue="togglePreference(preference)"
         >
+          <template v-slot:label v-if="preference.alert.type === AlertTypes.NEWSLETTER">
+            Subscribe to our newsletter
+          </template>
           <template
             v-slot:label
-            v-if="preference.alert.type === AlertTypes.NEWSLETTER"
+            v-else-if="preference.alert.type === AlertTypes.CATEGORY"
           >
-            Recevoir notre newsletter.
+            Subscribe to the products updates of the category {{ preference.alert.param }}
           </template>
         </v-switch>
       </div>
     </v-card-text>
   </v-card>
 </template>
-<style scoped></style>
+<style scoped>
+.multiple {
+  overflow-y: scroll;
+  font-size: 0.875rem;
+  height: 300px;
+  padding-bottom: 1rem;
+}
+</style>

@@ -4,6 +4,9 @@ import { shouldBeAdmin } from "../middlewares/authentication.mjs";
 import { productValidator } from "../validator/productValidator.mjs";
 import { db } from "../utils/db.server.mjs";
 import Product from "../models/Product.mjs";
+import Category from "../models/Category.mjs";
+import { findUsersWithCategoryPreference } from "../cron/sendNewsletterAlert.mjs";
+import { sendProductReleaseEmail } from "../utils/mailer.mjs";
 
 const router = express.Router();
 
@@ -33,7 +36,7 @@ router.post("/products", productValidator, async (req, res) => {
       brand,
       promotion,
       promotion_type,
-      categoryId
+      categoryId,
     } = req.body;
 
     const product = await db.product.create({
@@ -45,19 +48,31 @@ router.post("/products", productValidator, async (req, res) => {
         quantity,
         promotion,
         promotion_type,
-        categoryId
+        categoryId,
       },
     });
 
+    if (categoryId !== undefined) {
+      const category = await Category.findOne({
+        id: categoryId,
+      });
+
+      if (category) {
+        const users = await findUsersWithCategoryPreference();
+        for (let i = 0; i < users.length; i++) {
+          const element = users[i];
+          sendProductReleaseEmail(element.email, category.name, product.name);
+        }
+      }
+    }
+
     return res.status(201).json({ status: 201, data: product });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la création du produit",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la création du produit",
+      error: error.message,
+    });
   }
 });
 
@@ -68,8 +83,9 @@ router.get("/products", async (req, res) => {
 
     if (search !== undefined && search !== "") {
       const searchQuery = new RegExp(search, "i");
-      query.$or = [{ name: { $regex: searchQuery } },
-        { description: { $regex: searchQuery } }
+      query.$or = [
+        { name: { $regex: searchQuery } },
+        { description: { $regex: searchQuery } },
       ];
     }
 
@@ -98,8 +114,7 @@ router.get("/products/:id", async (req, res) => {
 
     const product = await Product.findOne({
       id,
-    })
-    .populate("category");
+    }).populate("category");
 
     if (!product) {
       return res
@@ -109,13 +124,11 @@ router.get("/products/:id", async (req, res) => {
 
     return res.status(200).json({ status: 200, data: product });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la récupération du produit",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la récupération du produit",
+      error: error.message,
+    });
   }
 });
 
@@ -162,13 +175,11 @@ router.put("/products/:id", productValidator, async (req, res) => {
 
     return res.status(200).json({ status: 200, data: updatedProduct });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la mise à jour du produit",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la mise à jour du produit",
+      error: error.message,
+    });
   }
 });
 
@@ -186,13 +197,11 @@ router.delete("/products/:id", async (req, res) => {
       .status(200)
       .json({ status: 200, message: "Produit supprimé avec succès" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        status: 500,
-        message: "Erreur lors de la suppression du produit",
-        error: error.message,
-      });
+    return res.status(500).json({
+      status: 500,
+      message: "Erreur lors de la suppression du produit",
+      error: error.message,
+    });
   }
 });
 

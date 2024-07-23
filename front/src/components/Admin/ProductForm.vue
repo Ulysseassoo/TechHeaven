@@ -44,7 +44,7 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
         data: formData as Product,
         config,
       });
-      if (result.status === 200) {
+      if (result.status === 201) {
         toast.success("Produit crée avec succès");
       }
     }
@@ -85,13 +85,7 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col
-        v-for="field in fields"
-        :key="field.field"
-        cols="12"
-        md="12"
-        sm="12"
-      >
+      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
         <VNumberInput
           v-if="field.type === 'number'"
           variant="outlined"

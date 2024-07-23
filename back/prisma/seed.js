@@ -7,6 +7,8 @@ import { db } from "../src/utils/db.server.mjs";
 
 const prisma = new PrismaClient();
 
+const categories = ["Computers", "Mobile Phones", "Cameras", "Audio & Video", "Wearable Technology", "Accessories"];
+
 dotenv.config();
 
 const getRandomDateBetween2023And2024 = () => {
@@ -40,19 +42,36 @@ async function main() {
     },
   });
 
-  for (let i = 0; i < 300; i++) {
-    await db.product.create({
+  for (let i = 0; i < categories.length; i++) {
+    const category = await db.category.create({
       data: {
-        name: faker.commerce.productName(),
-        description: faker.commerce.productDescription(),
-        price: parseFloat(faker.commerce.price()),
-        quantity: 90,
-        brand: faker.lorem.word(),
+        name: categories[i]
+      }
+    });
+
+    await db.alert.create({
+      data: {
+        name: "Newsletter",
+        type: "CATEGORY",
+        param: categories[i]
       },
     });
+
+    for (let i = 0; i < 30; i++) {
+      await db.product.create({
+        data: {
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          price: parseFloat(faker.commerce.price()),
+          quantity: 90,
+          brand: faker.lorem.word(),
+          categoryId: category.id,
+        },
+      });
+    }
   }
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     const u = await db.user.create({
       data: {
         firstname: faker.person.firstName(),
@@ -74,6 +93,25 @@ async function main() {
         isEnabled: false,
       },
     });
+
+    const alerts = await db.alert.findMany({
+      where: {
+        id: {
+          not: alert.id
+        }
+      }
+    });
+
+    for (let j = 0; j < alerts.length; j++) {
+      const z = alerts[j];
+      await db.preference.create({
+        data: {
+          user_id: u.id,
+          alert_id: z.id,
+          isEnabled: false,
+        },
+      });
+    }
 
     for (let k = 0; k < 2; k++) {
       const or = await db.order.create({

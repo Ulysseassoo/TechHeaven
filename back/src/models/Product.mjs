@@ -16,6 +16,11 @@ const productSchema = new mongoose.Schema({
 
 productSchema.pre('save', async function (next) {
 
+  if(!this.categoryId) {
+    next()
+    return
+  }
+  
   try {
     const category = await Category.findOne({ id: this.categoryId });
     if (!category) {
