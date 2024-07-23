@@ -18,10 +18,16 @@ const searchBar = ref(null);
   <header>
     <section class="header">
       <div>
-        <img width="120px" style="object-fit: contain" src="../assets/logo.png" />
+        <img
+          width="120px"
+          style="object-fit: contain"
+          src="../assets/logo.png"
+        />
       </div>
       <div class="search-section">
-        <RouterLink class="router-link" to="/register">Qui sommes nous ?</RouterLink>
+        <RouterLink class="router-link" to="/register"
+          >Qui sommes nous ?</RouterLink
+        >
         <RouterLink class="router-link" to="/register">Nos produits</RouterLink>
         <VTextField
           :style="{
@@ -39,7 +45,11 @@ const searchBar = ref(null);
       <section style="display: flex">
         <RouterLink
           class="router-link"
-          :to="store.user !== undefined && store.user ? '/account/profile' : '/login'"
+          :to="
+            store.user !== undefined && store.user
+              ? '/account/profile'
+              : '/login'
+          "
         >
           <User />
         </RouterLink>
