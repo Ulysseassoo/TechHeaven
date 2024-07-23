@@ -3,10 +3,13 @@ import { ref } from "vue";
 
 import User from "@/components/Icons/User.vue";
 import Basket from "@/components/Icons/Basket.vue";
+import { useUserStore } from "@/store/UserStore";
 
 import { useWindowSize } from "../hooks/useWindowSize";
 const BREAKPOINT_FOR_SEARCHBAR = 820;
 const { width } = useWindowSize();
+
+const store = useUserStore();
 
 const searchBar = ref(null);
 </script>
@@ -15,16 +18,10 @@ const searchBar = ref(null);
   <header>
     <section class="header">
       <div>
-        <img
-          width="120px"
-          style="object-fit: contain"
-          src="../assets/logo.png"
-        />
+        <img width="120px" style="object-fit: contain" src="../assets/logo.png" />
       </div>
       <div class="search-section">
-        <RouterLink class="router-link" to="/register"
-          >Qui sommes nous ?</RouterLink
-        >
+        <RouterLink class="router-link" to="/register">Qui sommes nous ?</RouterLink>
         <RouterLink class="router-link" to="/register">Nos produits</RouterLink>
         <VTextField
           :style="{
@@ -40,10 +37,13 @@ const searchBar = ref(null);
         />
       </div>
       <section style="display: flex">
-        <RouterLink class="router-link" to="/account/profile">
+        <RouterLink
+          class="router-link"
+          :to="store.user !== undefined && store.user ? '/account/profile' : '/login'"
+        >
           <User />
         </RouterLink>
-        <Basket />
+        <Basket v-if="store.user !== undefined && store.user" />
       </section>
     </section>
     <section class="search-section-mobile">
@@ -74,6 +74,10 @@ const searchBar = ref(null);
   gap: 25px;
   padding-top: 15px;
   padding-bottom: 15px;
+  @media (max-width: 820px) {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
 }
 
 .search-section {
@@ -81,6 +85,9 @@ const searchBar = ref(null);
   align-items: center;
   gap: 20px;
   flex-grow: 1;
+  @media (max-width: 820px) {
+    display: none;
+  }
 }
 
 .router-link {
