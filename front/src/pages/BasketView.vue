@@ -6,13 +6,12 @@ import BasketContainer from "@/components/Basket/BasketContainer.vue";
 import { useUserStore } from "@/store/UserStore";
 import router from "@/router";
 
-const useStore = useUserStore()
-const { user } = useStore
+const useStore = useUserStore();
+const { user } = useStore;
 
 if (!user) {
-  router.push('/products')
+  router.push("/products");
 }
-
 </script>
 <template>
   <Header />

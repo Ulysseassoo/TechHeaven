@@ -4,8 +4,8 @@ import BasketPreview from "./../Basket/BasketPreview.vue";
 
 import { useUserStore } from "@/store/UserStore";
 
-const useStore = useUserStore()
-const { user } = useStore
+const useStore = useUserStore();
+const { user } = useStore;
 </script>
 
 <template>
