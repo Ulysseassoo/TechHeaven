@@ -100,6 +100,12 @@ router.post("/users", authValidator, async (req, res) => {
       },
     });
 
+    await db.cart.create({
+      data: {
+          user_id: user.id
+      }
+  })
+
     // Create preference for user
     const alert = await db.alert.findFirst({
       where: {

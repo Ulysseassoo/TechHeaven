@@ -15,7 +15,6 @@ import { createPinia } from "pinia";
 import router from "@/router";
 import { getUserInformation } from "./api/auth";
 import { useUserStore } from "./store/UserStore";
-const pinia = createPinia();
 
 const vuetify = createVuetify({
   icons: {
@@ -34,6 +33,8 @@ const vuetify = createVuetify({
     },
   },
 });
+
+const pinia = createPinia();
 
 const app = createApp(App);
 

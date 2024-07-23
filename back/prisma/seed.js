@@ -78,6 +78,12 @@ async function main() {
             })
         }
 
+        await db.cart.create({
+            data: {
+                user_id: u.id,
+            }
+        })
+
     }
 
     for (let i = 0; i < 300; i++) {

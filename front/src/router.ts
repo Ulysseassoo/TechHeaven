@@ -11,6 +11,8 @@ import OrdersView from "@/pages/Admin/OrdersView.vue";
 import InvoicesView from "@/pages/Admin/InvoicesView.vue";
 import AddressesView from "@/pages/Admin/AddressesView.vue";
 import AlertsView from "@/pages/Admin/AlertsView.vue";
+import ProductView from "@/pages/ProductView.vue";
+import BasketView from "@/pages/BasketView.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
 import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
@@ -25,6 +27,8 @@ import CgvView from "@/pages/CgvView.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "Home", component: HomeView },
+  { path: "/products", name: "ProductsGuest", component: ProductView },
+  { path: "/basket", name: "Basket", component: BasketView },
   {
     path: "/admin",
     name: "Admin",
