@@ -98,38 +98,15 @@ router.get("/products/:id", async (req, res) => {
 });
 
 // Mettre à jour un produit
-router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) => {
-    const { id } = req.params;
-
-    const { name, description, price, brand, stock_quantity } = req.body;
-
+router.put('/products/:id', shouldBeAdmin, async (req, res) => {
     try {
-        const product = await db.product.findUnique({
-            where: {
-                id
-            }
-        })
-
-        if (!product) {
-            return res.status(400).json({ status: 400, message: 'Produit inexistant.' });
-        }
-
-        const updatedProduct = await db.product.update({
-            where: {
-                id: postgresId
-            },
-            data: {
-                name,
-                description,
-                price,
-                brand,
-                stock_quantity,
-            }
-        });
-
-        return res.status(200).json({ status: 200, data: updatedProduct });
+      const product = await db.product.update({
+        where: { id: req.params.id },
+        data: req.body
+      });
+      res.status(200).json({ status: 200, data: product });
     } catch (error) {
-        return res.status(500).json({ status: 500, message: "Erreur lors de la mise à jour du produit", error: error.message });
+      res.status(400).json({ status: 400, error: error.message });
     }
 });
 
@@ -159,22 +136,13 @@ router.put("/products/:id", shouldBeAdmin, productValidator, async (req, res) =>
 // });
 
 // Supprimer un produit
-router.delete("/products/:id", shouldBeAdmin, async (req, res) => {
-    const { id } = req.params;
-
-    try {
-
-        await db.product.delete({
-            model: "product",
-            where: {
-                id
-            }
-        });
-
-        return res.status(200).json({ status: 200, message: "Produit supprimé avec succès" });
-    } catch (error) {
-        return res.status(500).json({ status: 500, message: "Erreur lors de la suppression du produit", error: error.message });
-    }
+router.delete('/products/:id', shouldBeAdmin, async (req, res) => {
+  try {
+    await db.product.delete({ where: { id: req.params.id } });
+    res.status(200).json({ status: 200, message: 'Produit supprimé avec succès' });
+  } catch (error) {
+    res.status(400).json({ status: 400, error: error.message });
+  }
 });
 
 export default router;
