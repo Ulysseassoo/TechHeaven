@@ -75,7 +75,7 @@ export const changeUserPassword = async ({
 
 export const verifyUser = async (token: string) => {
   const response = await postApi<any>(HOST + "/verify", {
-    token
+    token,
   });
 
   return response;
