@@ -12,8 +12,8 @@ router.post("/products", productValidator, async (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(401).send({
-        status: 401,
+      return res.status(422).send({
+        status: 422,
         message: errors
           .formatWith(({ msg, path }) => {
             return {
@@ -33,6 +33,7 @@ router.post("/products", productValidator, async (req, res) => {
       brand,
       promotion,
       promotion_type,
+      categoryId
     } = req.body;
 
     const product = await db.product.create({
@@ -44,6 +45,7 @@ router.post("/products", productValidator, async (req, res) => {
         quantity,
         promotion,
         promotion_type,
+        categoryId
       },
     });
 
@@ -96,7 +98,8 @@ router.get("/products/:id", async (req, res) => {
 
     const product = await Product.findOne({
       id,
-    });
+    })
+    .populate("category");
 
     if (!product) {
       return res
