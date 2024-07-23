@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 import User from "@/components/Icons/User.vue";
 import Basket from "@/components/Icons/Basket.vue";
+import { useBasketStore } from '@/store/basketStore';
 
 import { useWindowSize } from "../hooks/useWindowSize";
 const BREAKPOINT_FOR_SEARCHBAR = 820;
 const { width } = useWindowSize();
 
 const searchBar = ref(null);
+
+const basketStore = useBasketStore()
+const basketProductCount = computed(() => basketStore.basketProductCount);
 </script>
 
 <template>
@@ -25,7 +29,7 @@ const searchBar = ref(null);
         <RouterLink class="router-link" to="/register"
           >Qui sommes nous ?</RouterLink
         >
-        <RouterLink class="router-link" to="/register">Nos produits</RouterLink>
+        <RouterLink class="router-link" to="/products">Nos produits</RouterLink>
         <VTextField
           :style="{
             display: width > BREAKPOINT_FOR_SEARCHBAR ? 'initial' : 'none',
@@ -39,12 +43,15 @@ const searchBar = ref(null);
           density="compact"
         />
       </div>
-      <section style="display: flex">
-        <RouterLink class="router-link" to="/account/profile">
-          <User />
-        </RouterLink>
-        <Basket />
-      </section>
+      <div style="display: flex">
+        <User />
+        <div class="basket-icon">
+          <RouterLink class="router-link" to="/basket">
+            <Basket/>
+          </RouterLink>
+          <p v-if="basketProductCount" class="basket-quantity">{{ basketProductCount }}</p>
+        </div>
+      </div>
     </section>
     <section class="search-section-mobile">
       <VTextField
@@ -87,4 +94,24 @@ const searchBar = ref(null);
   text-decoration: none;
   color: black;
 }
+
+.basket-icon {
+  position: relative;
+}
+
+.basket-quantity {
+  position: absolute;
+  top: 0;
+  right: -20%;
+  width: 15px;
+  height: 15px;
+  background: red;
+  color: white;
+  border-radius: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+}
+
 </style>

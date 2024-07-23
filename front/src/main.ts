@@ -4,6 +4,7 @@ import { createApp } from "vue";
 import "@/style.css";
 import "vuetify/styles";
 import App from "@/App.vue";
+import { createPinia } from "pinia";
 import { createVuetify } from "vuetify";
 import customTheme from "@/plugins/vuetify";
 import "@mdi/font/css/materialdesignicons.css";
@@ -34,6 +35,8 @@ const vuetify = createVuetify({
     },
   },
 });
+
+const pinia = createPinia();
 
 const app = createApp(App);
 
