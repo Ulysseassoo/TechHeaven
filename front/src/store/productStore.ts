@@ -12,7 +12,11 @@ export const useProductStore = defineStore("products", () => {
     isLoading.value = true;
 
     try {
-      const res = await getProducts();
+      const res = await getProducts({
+        search: "",
+        page: 1,
+        limit: 10,
+      });
       products.value = res.data;
     } catch (err) {
       console.log(err, "Error occured in product store");

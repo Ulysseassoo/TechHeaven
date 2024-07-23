@@ -12,17 +12,17 @@ import InvoicesView from "@/pages/Admin/InvoicesView.vue";
 import AddressesView from "@/pages/Admin/AddressesView.vue";
 import AlertsView from "@/pages/Admin/AlertsView.vue";
 import ProductView from "@/pages/ProductView.vue";
+import ProductsView from "@/pages/Admin/ProductsView.vue";
 import BasketView from "@/pages/BasketView.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
 import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
 import ProfileView from "@/pages/Account/ProfileView.vue";
-import ProductsView from "@/pages/Admin/ProductsView.vue";
 import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "Home", component: HomeView },
-  { path: "/products", name: "Products", component: ProductView },
+  { path: "/products", name: "ProductsGuest", component: ProductView },
   { path: "/basket", name: "Basket", component: BasketView },
   {
     path: "/admin",
