@@ -22,7 +22,8 @@ const submitAction = async () => {
     if (addressFormRef.value) {
       const addressFormSubmit = await addressFormRef.value.handleSubmit();
       if (props.callback) await props.callback();
-      if (props.callback && addressFormSubmit !== undefined) await props.callback();
+      if (props.callback && addressFormSubmit !== undefined)
+        await props.callback();
       return addressFormSubmit !== undefined;
     }
   } catch (error) {
