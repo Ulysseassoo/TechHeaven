@@ -27,6 +27,7 @@ jest.mock('../src/utils/db.server.mjs', () => ({
     user: {
       create: jest.fn(),
       findUnique: jest.fn(),
+      update: jest.fn(),
       deleteMany: jest.fn(),
     },
     passwordRecovery: {
@@ -50,6 +51,8 @@ afterAll(async () => {
 beforeEach(async () => {
   await db.user.deleteMany({});
   await db.passwordRecovery.deleteMany({});
+  db.user.create.mockResolvedValue({ id: 'user-id' });
+  db.passwordRecovery.create.mockResolvedValue({ code: '123456', code_validation_time: moment().utc().add(5, 'm').toDate() });
 });
 
 describe('Auth API', () => {
@@ -138,10 +141,14 @@ describe('Auth API', () => {
 
   // Test de la route "/verify/code"
   it('should verify the reset code with correct code and email', async () => {
+    db.user.create.mockResolvedValueOnce({ id: 'user-id' });
+
     const user = await db.user.create({
       data: { email: 'test@example.com' }
     });
-
+  
+    expect(user).toHaveProperty('id');
+  
     const code = '123456';
     await db.passwordRecovery.create({
       data: {
@@ -150,11 +157,11 @@ describe('Auth API', () => {
         code_validation_time: moment().utc().add(5, 'm').toDate()
       }
     });
-
+  
     const response = await request(app)
       .post('/api/auth/verify/code')
       .send({ code, email: 'test@example.com' });
-
+  
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('status', 200);
     expect(response.body).toHaveProperty('message', 'Ok');
@@ -198,7 +205,8 @@ describe('Auth API', () => {
     const user = await db.user.create({
       data: { email: 'test@example.com' }
     });
-
+  
+    // Créer un code de réinitialisation expiré
     const expiredCode = '123456';
     await db.passwordRecovery.create({
       data: {
@@ -207,11 +215,13 @@ describe('Auth API', () => {
         code_validation_time: moment().utc().subtract(1, 'm').toDate() // Code expiré
       }
     });
-
+  
+    // Tenter de changer le mot de passe
     const response = await request(app)
       .post('/api/auth/change/password')
       .send({ email: 'test@example.com', password: 'newpassword123' });
-
+  
+    // Vérifier la réponse
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('status', 401);
     expect(response.body).toHaveProperty('message', 'Le code a expiré');
