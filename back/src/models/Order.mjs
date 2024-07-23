@@ -3,8 +3,8 @@ import mongoose from "../middlewares/mongooseConfig.mjs";
 
 const orderSchema = new mongoose.Schema({
   id: { type: String, unique: true, required: true },
-    date: { type: Date, default: Date.now },
-    status: String,
+    created_at: { type: Date, default: Date.now },
+    status: { type: String, default: "En cours" },
     total_amount: Number,
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     order_details: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderDetail' }],

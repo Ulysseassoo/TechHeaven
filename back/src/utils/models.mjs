@@ -57,9 +57,9 @@ const SubModels = {
     sub: "delivery",
     sub_key: "order_id"
   },
-  CartHasProduct: {
+  CartHasProducts: {
     main: Cart,
-    sub: "cartHasProducts",
+    sub: "carts_has_products",
     sub_key: "cart_id"
   },
   Payment: {
