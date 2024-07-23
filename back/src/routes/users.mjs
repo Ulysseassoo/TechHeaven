@@ -15,6 +15,7 @@ import {
   getTotalRevenue,
   getTotalRevenuePerDate,
   getTotalUsers,
+  getCountUsersByNotificationType,
 } from "../utils/stats.mjs";
 
 const router = express.Router();
@@ -167,6 +168,7 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     const newUsers = await getNewUsersOverTime();
     const totalRevenue = await getTotalRevenue();
     const totalRevenuePerDate = await getTotalRevenuePerDate();
+    const totalUsersByNotificationType = await getCountUsersByNotificationType();
 
     return res.status(200).json({
       status: 200,
@@ -175,6 +177,7 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
         newUsers,
         totalRevenue,
         totalRevenuePerDate,
+        totalUsersByNotificationType,
       },
     });
   } catch (error) {

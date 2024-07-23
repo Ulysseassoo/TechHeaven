@@ -45,7 +45,7 @@ router.get("/addresses", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.post("/addresses", addressValidator, async (req, res) => {
+router.post("/users/:userId/addresses", addressValidator, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -60,7 +60,8 @@ router.post("/addresses", addressValidator, async (req, res) => {
             });
         }
 
-        const { city, country, postal_code, address, is_selected, other, user_id } = req.body;
+        const { userId } = req.params;
+        const { city, country, postal_code, address, is_selected, other } = req.body;
 
         const newAddress = await db.address.create({
             data: {
@@ -70,9 +71,33 @@ router.post("/addresses", addressValidator, async (req, res) => {
                 address,
                 is_selected: Boolean(is_selected) ?? false, 
                 other,
-                user_id
+                user_id: userId
             }
         })
+
+        if(Boolean(is_selected)) {
+            const addresses = await db.address.findMany({
+                where: {
+                    user_id: newAddress.user_id,
+                    id: {
+                        not: newAddress.id
+                    }
+                }
+            })
+
+            for (let i = 0; i < addresses.length; i++) {
+                const element = addresses[i];
+                await db.address.update({
+                    where: {
+                        id: element.id
+                    },
+                    data: {
+                        ...element,
+                        is_selected: false
+                    }
+                })
+            }
+        }
 
         return res.status(201).json({
             status: 201,
@@ -172,6 +197,30 @@ router.put("/addresses/:id", shouldBeAuthenticate, addressValidator, async (req,
                 other
             }
         });
+
+        if(Boolean(is_selected)) {
+            const addresses = await db.address.findMany({
+                where: {
+                    user_id: existingAddress.user_id,
+                    id: {
+                        not: id
+                    }
+                }
+            })
+
+            for (let i = 0; i < addresses.length; i++) {
+                const element = addresses[i];
+                await db.address.update({
+                    where: {
+                        id: element.id
+                    },
+                    data: {
+                        ...element,
+                        is_selected: false
+                    }
+                })
+            }
+        }
 
         return res.status(200).json({
             status: 200,

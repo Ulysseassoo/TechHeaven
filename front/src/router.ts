@@ -15,8 +15,13 @@ import AdminLayout from "@/layout/AdminLayout.vue";
 import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
 import ProfileView from "@/pages/Account/ProfileView.vue";
+import UserAddressesView from "@/pages/Account/UserAddressesView.vue";
 import ProductsView from "@/pages/Admin/ProductsView.vue";
 import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
+import PrivacyPolicyView from "@/pages/PrivacyPolicyView.vue";
+import ConfidentialityView from "@/pages/ConfidentialityView.vue";
+import CopywrightPolicyView from "@/pages/CopywrightPolicyView.vue";
+import CgvView from "@/pages/CgvView.vue";
 
 const routes: RouteRecordRaw[] = [
   { path: "/", name: "Home", component: HomeView },
@@ -75,6 +80,11 @@ const routes: RouteRecordRaw[] = [
         component: ProfileView,
       },
       {
+        path: "addresses",
+        name: "UserAddresses",
+        component: UserAddressesView,
+      },
+      {
         path: "delete-account",
         name: "Delete Account",
         component: DeleteAccountView,
@@ -93,6 +103,26 @@ const routes: RouteRecordRaw[] = [
     path: "/forgot-password",
     name: "ResetPassword",
     component: ResetPasswordView,
+  },
+  {
+    path: "/privacy-policy",
+    name: "PrivacyPolicy",
+    component: PrivacyPolicyView,
+  },
+  {
+    path: "/terms",
+    name: "TermsOfService",
+    component: ConfidentialityView,
+  },
+  {
+    path: "/cgv",
+    name: "CGB",
+    component: CgvView,
+  },
+  {
+    path: "/copywright-policy",
+    name: "CopywrightPolicy",
+    component: CopywrightPolicyView,
   },
   { path: "/:pathMatch(.*)", name: "NotFound", component: NotFoundView },
 ];

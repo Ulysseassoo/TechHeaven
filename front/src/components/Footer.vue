@@ -62,11 +62,11 @@ const legacyLinks = [
   {
     title: "Terms",
     items: [
-      { label: "Privacy policy", link: "#" },
-      { label: "Terms & conditions", link: "#" },
-      { label: "Copyright policy", link: "#" },
-      { label: "Security", link: "#" },
-      { label: "Fees & charges", link: "#" },
+      { label: "Privacy policy", link: "/privacy-policy" },
+      { label: "Terms & conditions", link: "/terms" },
+      { label: "Copyright policy", link: "/copywright-policy" },
+      { label: "CGV", link: "/cgv" },
+      { label: "Fees & charges", link: "/fees" },
     ],
   },
   {
@@ -75,56 +75,6 @@ const legacyLinks = [
       { label: "Categories", link: "#" },
       { label: "Promotions", link: "#" },
       { label: "New products", link: "#" },
-    ],
-  },
-  {
-    title: "Terms",
-    items: [
-      { label: "Privacy policy", link: "#" },
-      { label: "Terms & conditions", link: "#" },
-      { label: "Copyright policy", link: "#" },
-      { label: "Security", link: "#" },
-      { label: "Fees & charges", link: "#" },
-    ],
-  },
-  {
-    title: "About us",
-    items: [
-      { label: "Who we are ?", link: "#" },
-      { label: "Community", link: "#" },
-      { label: "Contact us", link: "#" },
-      { label: "Customer services", link: "#" },
-      { label: "Support", link: "#" },
-      { label: "Help", link: "#" },
-    ],
-  },
-  {
-    title: "About us",
-    items: [
-      { label: "Who we are ?", link: "#" },
-      { label: "Community", link: "#" },
-      { label: "Contact us", link: "#" },
-      { label: "Customer services", link: "#" },
-      { label: "Support", link: "#" },
-      { label: "Help", link: "#" },
-    ],
-  },
-  {
-    title: "Products",
-    items: [
-      { label: "Categories", link: "#" },
-      { label: "Promotions", link: "#" },
-      { label: "New products", link: "#" },
-    ],
-  },
-  {
-    title: "Terms",
-    items: [
-      { label: "Privacy policy", link: "#" },
-      { label: "Terms & conditions", link: "#" },
-      { label: "Copyright policy", link: "#" },
-      { label: "Security", link: "#" },
-      { label: "Fees & charges", link: "#" },
     ],
   },
 ];
@@ -151,8 +101,7 @@ const legacyLinks = [
         <div>
           <h2>Join our newsletter</h2>
           <p style="font-size: 12px; font-weight: 500">
-            We do send emails only if you ask for it, we will not spam you, it's
-            promise !
+            We do send emails only if you ask for it, we will not spam you, it's promise !
           </p>
         </div>
         <div class="newsletter-input">
