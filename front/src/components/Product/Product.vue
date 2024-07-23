@@ -2,8 +2,11 @@
 import airpods from "@/assets/airpods.png";
 import type { Product } from "@/interfaces/Product";
 import { useBasketStore } from "@/store/basketStore";
+import { useUserStore } from "@/store/UserStore";
 
 const basketStore = useBasketStore();
+const userStore = useUserStore();
+const { user } = userStore
 const { addItemToBasket } = basketStore;
 defineProps<{
   product: Product;
@@ -25,9 +28,10 @@ defineProps<{
 
     <div class="product-buttons">
       <v-btn color="#F1F2F5"> Voir l'article </v-btn>
-      <v-btn color="#3281ED" @click="addItemToBasket(product)">
+      <v-btn v-if="user" color="#3281ED" @click="addItemToBasket(product)">
         Ajouter au panier
       </v-btn>
+      <p class="product-buttons-connection" v-else>Vueillez vous connecter pour ajouter au panier</p>
     </div>
   </div>
 </template>
@@ -82,5 +86,10 @@ defineProps<{
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.product-buttons-connection {
+  font-size: 12px;
+  text-align: center;
 }
 </style>
