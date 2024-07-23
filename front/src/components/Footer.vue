@@ -101,7 +101,8 @@ const legacyLinks = [
         <div>
           <h2>Join our newsletter</h2>
           <p style="font-size: 12px; font-weight: 500">
-            We do send emails only if you ask for it, we will not spam you, it's promise !
+            We do send emails only if you ask for it, we will not spam you, it's
+            promise !
           </p>
         </div>
         <div class="newsletter-input">
