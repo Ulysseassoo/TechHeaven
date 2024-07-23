@@ -23,3 +23,27 @@ export const findUsersWithNewsletterPreference = async () => {
 
   return users;
 };
+
+export const findUsersWithCategoryPreference = async () => {
+  const users = await User.aggregate([
+    { $unwind: "$preferences" },
+    {
+      $lookup: {
+        from: "alerts",
+        localField: "preferences.alert",
+        foreignField: "_id",
+        as: "preferences.alertDetails",
+      },
+    },
+    { $unwind: "$preferences.alertDetails" },
+    {
+      $match: {
+        "preferences.alertDetails.type": "CATEGORY",
+        "preferences.isEnabled": true,
+      },
+    },
+    { $project: { email: 1 } },
+  ]);
+
+  return users;
+};

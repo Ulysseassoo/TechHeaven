@@ -40,10 +40,11 @@ const navigateBack = () => {
 <style scoped>
 .container {
   display: flex;
-  min-height: 100vh;
-  overflow: scroll;
+  height: 100vh;
+  overflow: hidden;
   @media only screen and (max-width: 810px) {
     min-height: 100vh;
+    height: auto;
     overflow-y: scroll;
     align-items: center;
   }

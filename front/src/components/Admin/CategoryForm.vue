@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { z } from "zod";
 import type { AxiosRequestConfig } from "axios";
-import { AlertTypes, type Alert } from "@/interfaces/Alert";
-import { updateAlert, createAlert } from "@/api/alert";
+import { type Category } from "@/interfaces/Category";
+import { updateCategory, createCategory } from "@/api/category";
 import { useForm } from "@/hooks/useForm";
 import { useFields } from "@/hooks/useGetFields";
 import { toast } from "vue3-toastify";
 
 interface Props {
-  alert?: Alert;
+  category?: Category;
   disabled?: boolean;
 }
 
@@ -16,31 +16,29 @@ const props = defineProps<Props>();
 
 const validationSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  param: z.string().nullable().optional(),
-  type: z.nativeEnum(AlertTypes),
+  name: z.string().min(1),
 });
 
 type FormValues = z.infer<typeof validationSchema>;
 
 const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   try {
-    if (props.alert) {
-      const result = await updateAlert({
-        id: props.alert.id,
+    if (props.category) {
+      const result = await updateCategory({
+        id: props.category.id,
         data: formData,
         config,
       });
       if (result.status === 200) {
-        toast.success("Alerte mis à jour avec succès");
+        toast.success("Produit mis à jour avec succès");
       }
     } else {
-      const result = await createAlert({
-        data: formData as Alert,
+      const result = await createCategory({
+        data: formData as Category,
         config,
       });
       if (result.status === 201) {
-        toast.success("Alerte crée avec succès");
+        toast.success("Catégorie crée avec succès");
       }
     }
   } catch (error) {
@@ -51,10 +49,8 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
 
 const { data, errors, validateField, handleSubmit } = useForm({
   initialValues: {
-    id: props.alert?.id || "",
-    name: props.alert?.name || "",
-    type: props.alert?.type || AlertTypes.NONE,
-    param: props.alert?.param || "",
+    id: props.category?.id ?? "",
+    name: props.category?.name ?? "",
   },
   validationSchema,
   onSubmit,
@@ -64,17 +60,13 @@ defineExpose({
   handleSubmit,
 });
 
-const fieldsConfig: any[] = [
-  { label: "Nom", field: "name", type: "string" },
-  { label: "Type", field: "type", type: "string" },
-  { label: "Paramètre optionnel", field: "param", type: "string" },
-];
+const fieldsConfig: any[] = [{ label: "Nom", field: "name", type: "string" }];
 
 const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 </script>
 
 <template>
-  <VForm @submit.prevent="handleSubmit">
+  <VForm @submit.prevent="handleSubmit" @keydown.enter.prevent="handleSubmit">
     <v-row dense>
       <v-col
         v-for="field in fields"

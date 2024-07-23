@@ -26,6 +26,11 @@ const items = ref([
     route: "/admin/alerts",
   },
   {
+    icon: "fa-solid fa-list",
+    title: "Catégories",
+    route: "/admin/categories",
+  },
+  {
     icon: "fa-brands fa-product-hunt",
     title: "Produits",
     route: "/admin/products",

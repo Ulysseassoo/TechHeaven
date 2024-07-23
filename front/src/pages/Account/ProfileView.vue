@@ -12,10 +12,10 @@ const user = computed(() => store.user as User);
     <p class="text-h4">Profil</p>
     <v-container>
       <v-row class="gap-y-6 md:gap-y-7 md:mt-7">
-        <v-col class="md:col-span-2 lg:col-span-6">
+        <v-col cols="12" sm="6">
           <EditUserInformationsCard :user="user" />
         </v-col>
-        <v-col class="md:col-span-2 lg:col-span-6">
+        <v-col cols="12" sm="6">
           <PreferencesCard :user="user" />
         </v-col>
       </v-row>

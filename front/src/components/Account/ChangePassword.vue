@@ -28,18 +28,12 @@ const validationSchema = z
     password: z
       .string()
       .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
-      .regex(
-        /[a-z]/,
-        "Le mot de passe doit contenir au moins une lettre minuscule.",
-      )
-      .regex(
-        /[A-Z]/,
-        "Le mot de passe doit contenir au moins une lettre majuscule.",
-      )
+      .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule.")
+      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
       .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
-        "Le mot de passe doit contenir au moins un symbole.",
+        "Le mot de passe doit contenir au moins un symbole."
       ),
     confirmPassword: z.string(),
   })
@@ -70,8 +64,8 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     });
     dialog.value = false;
     toast.success("Le mot de passe a été modifié avec succès");
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    toast.error(error.response.data.message || "Une erreur s'est produite");
     throw error;
   }
 };
@@ -106,17 +100,11 @@ const { data, handleSubmit, isSubmitting, errors, validateField } = useForm({
   <v-dialog v-model="dialog" width="auto" persistent max-width="800px">
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center">
-        <div
-          class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center"
-        >
+        <div class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center">
           Modifier mon mot de passe
         </div>
 
-        <v-btn
-          icon="fa-solid fa-xmark"
-          variant="text"
-          @click="dialog = false"
-        ></v-btn>
+        <v-btn icon="fa-solid fa-xmark" variant="text" @click="dialog = false"></v-btn>
       </v-card-title>
       <v-divider class="mb-4"></v-divider>
       <v-card-text>

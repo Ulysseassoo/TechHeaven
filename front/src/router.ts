@@ -10,6 +10,7 @@ import UsersView from "@/pages/Admin/UsersView.vue";
 import OrdersView from "@/pages/Admin/OrdersView.vue";
 import InvoicesView from "@/pages/Admin/InvoicesView.vue";
 import AddressesView from "@/pages/Admin/AddressesView.vue";
+import CategoriesView from "@/pages/Admin/CategoriesView.vue";
 import AlertsView from "@/pages/Admin/AlertsView.vue";
 import ProductView from "@/pages/ProductView.vue";
 import BasketView from "@/pages/BasketView.vue";
@@ -49,6 +50,11 @@ const routes: RouteRecordRaw[] = [
         path: "addresses",
         name: "Addresses",
         component: AddressesView,
+      },
+      {
+        path: "categories",
+        name: "Categories",
+        component: CategoriesView,
       },
       {
         path: "orders",
