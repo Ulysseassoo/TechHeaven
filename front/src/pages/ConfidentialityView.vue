@@ -33,16 +33,18 @@ import Footer from "@/components/Footer.vue";
         <br />
         <br />
         <p class="text-h6">Intellectual property</p>
-        All content on the Tech Heaven site is the exclusive property of Tech Heaven or
-        its partners. Any reproduction, distribution, modification or use of these
-        contents without prior written permission is strictly prohibited.
+        All content on the Tech Heaven site is the exclusive property of Tech
+        Heaven or its partners. Any reproduction, distribution, modification or
+        use of these contents without prior written permission is strictly
+        prohibited.
         <br />
         <br />
 
         <p class="text-h6">Personal data protection</p>
-        In accordance with the GDPR, Tech Heaven collects and processes personal data for
-        the management of its customers. You have the right to access, correct and delete
-        your data. To exercise these rights, please contact us at support@tech-heaven.fr.
+        In accordance with the GDPR, Tech Heaven collects and processes personal
+        data for the management of its customers. You have the right to access,
+        correct and delete your data. To exercise these rights, please contact
+        us at support@tech-heaven.fr.
       </span>
     </div>
   </v-container>

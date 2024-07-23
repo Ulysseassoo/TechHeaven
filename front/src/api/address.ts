@@ -72,7 +72,11 @@ export const updateAddress = async ({
   return response;
 };
 
-export const createAddress = async ({ data, config, userId }: CreateProps<Partial<Address>> & { userId?: string}) => {
+export const createAddress = async ({
+  data,
+  config,
+  userId,
+}: CreateProps<Partial<Address>> & { userId?: string }) => {
   const url = `${HOST}/users/${userId}/addresses`;
   const token = localStorage.getItem("token");
   const response = await postApi<Partial<Address>>(url, data, {

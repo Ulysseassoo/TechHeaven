@@ -69,7 +69,9 @@ const { data, errors, validateField, handleSubmit } = useForm({
           flex-direction: column;
         "
       >
-        <v-icon size="30px" class="text-grey-lighten-1 mr-2"> fa-solid fa-plus </v-icon>
+        <v-icon size="30px" class="text-grey-lighten-1 mr-2">
+          fa-solid fa-plus
+        </v-icon>
         <div class="text-h5 mb-1">Ajouter une adresse</div>
       </div>
     </v-card-item>
@@ -77,11 +79,17 @@ const { data, errors, validateField, handleSubmit } = useForm({
   <v-dialog v-model="dialog" width="auto" persistent max-width="800px">
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center">
-        <div class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center">
+        <div
+          class="text-subtitle-1 text-medium-emphasis ps-2 align-self-center"
+        >
           Ajouter une addresse
         </div>
 
-        <v-btn icon="fa-solid fa-xmark" variant="text" @click="dialog = false"></v-btn>
+        <v-btn
+          icon="fa-solid fa-xmark"
+          variant="text"
+          @click="dialog = false"
+        ></v-btn>
       </v-card-title>
       <v-divider class="mb-4"></v-divider>
       <v-card-text>
