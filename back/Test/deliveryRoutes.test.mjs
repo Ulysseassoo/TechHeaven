@@ -1,96 +1,102 @@
 import request from 'supertest';
 import express from 'express';
-import * as dotenv from 'dotenv';
-import { db } from '../src/utils/db.server.mjs';
-import DeliveryRoutes from '../src/routes/deliveryRoutes.mjs';
 import Delivery from '../src/models/Delivery.mjs';
+import deliveryRoutes from '../src/routes/deliveryRoutes.mjs';
 import { shouldBeAuthenticate } from '../src/middlewares/authentication.mjs';
-
-
-jest.mock('../src/models/Delivery.mjs');
-
-jest.mock('../src/middlewares/authentication.mjs', () => ({
-  shouldBeAuthenticate: (req, res, next) => next(),
-}));
-
-jest.mock('../src/utils/db.server.mjs', () => ({
-  db: {
-    delivery: {
-      create: jest.fn(),
-    },
-  },
-}));
-
-dotenv.config();
+//import { save } from 'pdfkit';
 
 const app = express();
 app.use(express.json());
-app.use(DeliveryRoutes);
+app.use(deliveryRoutes);
+
+
+jest.mock('../src/middlewares/authentication.mjs', () => ({
+    shouldBeAuthenticate: (req, res, next) => next(),
+}));
+
+
+const mockSave = jest.fn();
+const mockFind = jest.fn();
+const mockFindById = jest.fn();
+
+jest.mock('../src/models/Delivery.mjs', () => {
+    return jest.fn().mockImplementation(() => {
+        return {
+            save: mockSave,
+        };
+    });
+});
+
+Delivery.find = mockFind;
+Delivery.findById = mockFindById;
+
 
 describe('Delivery Routes', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    test('POST /deliveries - Success', async () => {
+        const deliveryData = {
+            id: '12345',
+            address: '123 Test Street',
+            status: 'Pending',
+            following_number: '1234567890',
+            delivered: false,
+        };
 
-  // Test pour ajouter une nouvelle livraison
-  it('should add a new delivery', async () => {
-    const mockDelivery = {
-      address: '123 Main St',
-      status: 'Pending',
-      following_number: 'ABC123',
-      delivered: false
-    };
-    const mockAddress = { id: '1', ...mockDelivery };
-    db.delivery.create.mockResolvedValue({ id: '1', ...mockDelivery });
 
-    const res = await request(app)
-      .post('/deliveries')
-      .send(mockDelivery)
-      .expect(201);
+        // Simuler la méthode `save`
+        mockSave.mockResolvedValue(deliveryData);
 
-    expect(res.body).toEqual(mockAddress);
-    expect(db.delivery.create).toHaveBeenCalled();
-  });
+        const response = await request(app)
+            .post('/deliveries')
+            .send(deliveryData);
 
-  // Test pour récupérer toutes les livraisons
-  it('should get all deliveries', async () => {
-    const mockDeliveries = [
-      { address: '123 Main St', status: 'Pending', following_number: 'ABC123', delivered: false },
-      { address: '456 Elm St', status: 'Shipped', following_number: 'DEF456', delivered: true }
-    ];
+        expect(response.status).toBe(201);
+        expect(response.body).toEqual(deliveryData);
+    });
 
-    Delivery.find.mockResolvedValue(mockDeliveries);
+    test('GET /deliveries - Success', async () => {
+        const deliveries = [
+            { id: '12345', address: '123 Test Street', status: 'Pending', following_number: '1234567890', delivered: false },
+            { id: '67890', address: '456 Another St', status: 'Delivered', following_number: '0987654321', delivered: true },
+        ];
 
-    const res = await request(app)
-      .get('/deliveries')
-      .expect(200);
+        // Simuler la méthode `find`
+        mockFind.mockResolvedValue(deliveries);
 
-    expect(res.body).toEqual(mockDeliveries);
-    expect(Delivery.find).toHaveBeenCalledWith({});
-  });
+        const response = await request(app).get('/deliveries');
 
-  // Test pour mettre à jour une livraison
-  it('should update delivery status', async () => {
-    const deliveryId = '1';
-    const mockDelivery = {
-      _id: deliveryId,
-      address: '123 Main St',
-      status: 'Pending',
-      following_number: 'ABC123',
-      delivered: true
-    };
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(deliveries);
+    });
 
-    Delivery.findById.mockResolvedValue(mockDelivery);
-    const saveMock = jest.fn().mockResolvedValue(mockDelivery);
-    Delivery.prototype.save = saveMock;
+    test('PATCH /deliveries/:id - Success', async () => {
+        const updatedDelivery = {
+            id: '12345',
+            address: '123 Test Street',
+            status: 'Livré', // Correspond à votre logique de mise à jour
+            following_number: '1234567890',
+            delivered: true,
+        };
 
-    const res = await request(app)
-      .patch(`/deliveries/${deliveryId}`)
-      .send({ delivered: true })
-      .expect(200);
+        // Simuler la méthode `findById`
+        mockFindById.mockResolvedValue({
+            ...updatedDelivery,
+            save: jest.fn().mockResolvedValue(updatedDelivery),
+        });
 
-    expect(res.body).toEqual(mockDelivery);
-    expect(Delivery.findById).toHaveBeenCalledWith(deliveryId);
-    expect(saveMock).toHaveBeenCalled();
-  });
+        const response = await request(app)
+            .patch('/deliveries/12345')
+            .send({ delivered: true });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(updatedDelivery);
+    });
+
+    test('PATCH /deliveries/:id - Failure due to invalid updates', async () => {
+        const response = await request(app)
+            .patch('/deliveries/12345')
+            .send({ invalidField: 'some value' });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe('Invalid updates!');
+    });
 });
