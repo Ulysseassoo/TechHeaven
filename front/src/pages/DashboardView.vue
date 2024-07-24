@@ -7,23 +7,18 @@ import { Chart, CategoryScale, BarElement, LinearScale, Title } from "chart.js";
 
 Chart.register(CategoryScale, BarElement, LinearScale, Title);
 
-const groupUsersByMonth = (
-  users: UserCountDate[],
-): { count: number; date: string }[] => {
-  const grouped = users.reduce(
-    (acc, user) => {
-      const monthYear = new Date(user.date).toLocaleString("fr-FR", {
-        year: "numeric",
-        month: "long",
-      });
-      if (!acc[monthYear]) {
-        acc[monthYear] = { count: 0, date: monthYear };
-      }
-      acc[monthYear].count += user.count;
-      return acc;
-    },
-    {} as Record<string, { count: number; date: string }>,
-  );
+const groupUsersByMonth = (users: UserCountDate[]): { count: number; date: string }[] => {
+  const grouped = users.reduce((acc, user) => {
+    const monthYear = new Date(user.date).toLocaleString("fr-FR", {
+      year: "numeric",
+      month: "long",
+    });
+    if (!acc[monthYear]) {
+      acc[monthYear] = { count: 0, date: monthYear };
+    }
+    acc[monthYear].count += user.count;
+    return acc;
+  }, {} as Record<string, { count: number; date: string }>);
 
   return Object.values(grouped);
 };
@@ -33,6 +28,9 @@ const stats = ref<Stats>({
   totalUsers: 0,
   newUsers: [],
   totalRevenue: 0,
+  averageOrder: 0,
+  userConversionRate: 0,
+  totalUsersByNotificationType: [],
 });
 const getStats = async () => {
   const response = await getUsersStats();
@@ -60,9 +58,7 @@ onMounted(() => getStats());
           <span class="headline">Nombre d'utilisateurs</span>
         </v-card-title>
         <v-card-text>
-          <span class="display-1 text-h3 font-weight-bold">{{
-            stats.totalUsers
-          }}</span>
+          <span class="display-1 text-h3 font-weight-bold">{{ stats.totalUsers }}</span>
         </v-card-text>
       </v-card>
     </v-col>
@@ -81,6 +77,33 @@ onMounted(() => getStats());
   </v-row>
 
   <v-row class="mt-8">
+    <v-col cols="12" md="6" sm="12">
+      <v-card class="py-4 px-4">
+        <v-card-title>
+          <span class="headline">Taux de conversion</span>
+        </v-card-title>
+        <v-card-text>
+          <span class="display-1 text-h3 font-weight-bold"
+            >{{ stats.userConversionRate.toFixed(2) }} %
+          </span>
+        </v-card-text>
+      </v-card>
+    </v-col>
+    <v-col cols="12" md="6" sm="12">
+      <v-card class="py-4 px-4">
+        <v-card-title>
+          <span class="headline">Prix moyen d'une commande</span>
+        </v-card-title>
+        <v-card-text>
+          <span class="display-1 text-h3 font-weight-bold"
+            >{{ stats.averageOrder }} €</span
+          >
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
+
+  <v-row class="mt-8">
     <v-col cols="12" md="12" sm="12">
       <v-card class="py-4 px-4">
         <v-card-title>
@@ -91,9 +114,7 @@ onMounted(() => getStats());
             v-if="!loading"
             id="users-chart"
             :data="{
-              labels: groupUsersByMonth(stats.newUsers).map(
-                (stat) => stat.date,
-              ),
+              labels: groupUsersByMonth(stats.newUsers).map((stat) => stat.date),
               datasets: datasets,
             }"
             :chartOptions="{

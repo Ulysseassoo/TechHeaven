@@ -27,4 +27,10 @@ export interface Stats {
   totalUsers: number;
   newUsers: UserCountDate[];
   totalRevenue: number;
+  averageOrder: number;
+  userConversionRate: number;
+  totalUsersByNotificationType: {
+    count: number;
+    type: string;
+  }[]
 }

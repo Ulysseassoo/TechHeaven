@@ -160,4 +160,61 @@ export const getTopSixSoldProducts = async () => {
   return stockHistory;
 };
 
+export const getUserConversionRate = async () => {
+  const result = await User.aggregate([
+    {
+      $facet: {
+        userCount: [{ $count: "count" }],
+        orderCount: [
+          {
+            $lookup: {
+              from: "orders",
+              pipeline: [{ $count: "count" }],
+              as: "orders"
+            }
+          },
+          { $unwind: "$orders" },
+          { $replaceRoot: { newRoot: "$orders" } }
+        ]
+      }
+    },
+    {
+      $project: {
+        userCount: { $arrayElemAt: ["$userCount.count", 0] },
+        orderCount: { $arrayElemAt: ["$orderCount.count", 0] }
+      }
+    },
+    {
+      $project: {
+        conversionRate: {
+          $multiply: [
+            { $divide: ["$orderCount", "$userCount"] },
+            100
+          ]
+        }
+      }
+    }
+  ])
 
+  return result.length > 0 ? result[0].conversionRate : 0;
+};
+
+export const getAverageOrderValue = async () => {
+  const result = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalOrderValue: { $sum: "$total_amount" },
+        orderCount: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        averageOrderValue: { $divide: ["$totalOrderValue", "$orderCount"] }
+      }
+    }
+  ])
+
+  return result.length > 0 ? result[0].averageOrderValue : 0;
+};

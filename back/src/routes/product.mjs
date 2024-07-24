@@ -143,6 +143,7 @@ router.put("/products/:id", shouldBeAdminOrKeeper, productValidator, async (req,
     quantity,
     promotion,
     promotion_type,
+    categoryId,
   } = req.body;
 
   try {
@@ -163,12 +164,14 @@ router.put("/products/:id", shouldBeAdminOrKeeper, productValidator, async (req,
         id,
       },
       data: {
+        ...product,
         name,
         description,
         price,
         brand,
         promotion,
         promotion_type,
+        categoryId,
         ...(req.user.role === 'ROLE_STORE_KEEPER' && { quantity }),
       },
     });

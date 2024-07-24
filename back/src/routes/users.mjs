@@ -16,6 +16,8 @@ import {
   getTotalRevenuePerDate,
   getTotalUsers,
   getCountUsersByNotificationType,
+  getAverageOrderValue,
+  getUserConversionRate
 } from "../utils/stats.mjs";
 import Order from "../models/Order.mjs";
 
@@ -240,6 +242,8 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     const totalRevenue = await getTotalRevenue();
     const totalRevenuePerDate = await getTotalRevenuePerDate();
     const totalUsersByNotificationType = await getCountUsersByNotificationType();
+    const averageOrder = await getAverageOrderValue();
+    const userConversionRate = await getUserConversionRate();
 
     return res.status(200).json({
       status: 200,
@@ -249,6 +253,8 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
         totalRevenue,
         totalRevenuePerDate,
         totalUsersByNotificationType,
+        averageOrder,
+        userConversionRate
       },
     });
   } catch (error) {
