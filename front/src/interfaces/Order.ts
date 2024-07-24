@@ -16,11 +16,11 @@ export enum OrderStatus {
 }
 
 export interface OrderDetail {
-    id: string;
-    quantity: number;
-    product_name: string;
-    product_description: string;
-    unit_price: number;
-    order_id: string;
-    product_id: string;
+  id: string;
+  quantity: number;
+  product_name: string;
+  product_description: string;
+  unit_price: number;
+  order_id: string;
+  product_id: string;
 }
