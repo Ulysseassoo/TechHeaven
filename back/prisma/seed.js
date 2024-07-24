@@ -8,7 +8,68 @@ import { randomInt } from "crypto";
 
 const prisma = new PrismaClient();
 
-const categories = ["Computers", "Mobile Phones", "Cameras", "Audio & Video", "Wearable Technology", "Accessories"];
+const categories = ["Ordinateurs", "Téléphones Mobiles", "Appareils Photo", "Audio & Vidéo", "Technologie Portable", "Accessoires"];
+
+const productNames = [
+  "iPhone 14 Pro",
+  "Samsung Galaxy S22",
+  "Google Pixel 6",
+  "OnePlus 9 Pro",
+  "Sony Xperia 1 III",
+  "Huawei P50 Pro",
+  "Xiaomi Mi 11 Ultra",
+  "Oppo Find X3 Pro",
+  "Asus ROG Phone 5",
+  "Nokia 8.3 5G",
+  "Motorola Edge 20 Pro",
+  "Realme GT",
+  "Vivo X60 Pro",
+  "LG Wing",
+  "ZTE Axon 30 Ultra",
+  "Lenovo Legion Phone Duel",
+  "Microsoft Surface Duo",
+  "Honor Magic 3 Pro",
+  "Black Shark 4 Pro",
+  "Redmi Note 10 Pro",
+  "Poco F3",
+  "TCL 20 Pro 5G",
+  "Fairphone 4",
+  "Nubia Red Magic 6",
+  "Meizu 18 Pro",
+  "Alcatel 3L",
+  "HTC U20 5G",
+  "Infinix Zero 8",
+  "Tecno Phantom X",
+  "Ulefone Armor 11 5G",
+  "Doogee S97 Pro",
+  "Cubot KingKong 5 Pro",
+  "Oukitel WP10",
+  "Sony WH-1000XM4",
+  "Bose QuietComfort 45",
+  "Apple AirPods Pro",
+  "Samsung Galaxy Buds Pro",
+  "Jabra Elite 85t",
+  "Sennheiser Momentum True Wireless 2",
+  "Anker Soundcore Liberty Air 2 Pro",
+  "Beats Studio Buds",
+  "Google Pixel Buds A-Series",
+  "Sony WF-1000XM4",
+  "Bose Sport Earbuds",
+  "JBL Live Pro+",
+  "Skullcandy Indy ANC",
+  "Amazfit GTR 3 Pro",
+  "Garmin Fenix 6 Pro",
+  "Fitbit Sense",
+  "Samsung Galaxy Watch 4",
+  "Apple Watch Series 7",
+  "Huawei Watch GT 3",
+  "TicWatch Pro 3",
+  "Fossil Gen 6",
+  "Withings ScanWatch",
+  "Suunto 7",
+  "Polar Vantage V2",
+  "Coros Vertix 2"
+];
 
 dotenv.config();
 
@@ -70,10 +131,10 @@ async function main() {
       },
     });
 
-    for (let i = 0; i < 10; i++) {
+    for (let v = 0; v < 10; v++) {
       const p = await db.product.create({
         data: {
-          name: faker.commerce.productName(),
+          name: productNames[v * (i + 1)],
           description: faker.commerce.productDescription(),
           price: parseFloat(faker.commerce.price()),
           quantity: 110,
@@ -95,7 +156,7 @@ async function main() {
     }
   }
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
     const u = await db.user.create({
       data: {
         firstname: faker.person.firstName(),
@@ -159,14 +220,14 @@ async function main() {
       }
     }
 
-    for (let i = 0; i < 3; i++) {
+    for (let d = 0; d < 3; d++) {
       await db.address.create({
         data: {
           city: faker.location.city(),
           country: faker.location.country(),
           postal_code: faker.location.zipCode(),
           address: faker.location.streetAddress(),
-          is_selected: i === 0 ? true : false,
+          is_selected: d === 0 ? true : false,
           other: faker.location.secondaryAddress(),
           user_id: u.id,
         },
