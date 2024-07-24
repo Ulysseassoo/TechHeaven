@@ -48,7 +48,7 @@ const actions = [
     id: "view",
     icon: "fa-solid fa-eye",
     renderCell: (row: Product) =>
-    h(ProductModal, {
+      h(ProductModal, {
         product: row,
         type: "detail",
         icon: "fa-solid fa-eye",
@@ -71,28 +71,30 @@ const actions = [
     label: "Supprimer",
     id: "delete",
     renderCell: (row: Product) =>
-    isAdmin ? h("div", [
-        h(ModalButton, {
-          icon: "fa-solid fa-trash",
-          tooltipLabel: "Supprimer",
-          action: async () => {
-            try {
-              const response = await deleteProduct(row.id);
-              if (response.message !== undefined) {
-                toast.success(response.message, {
-                  autoClose: 2000,
-                  position: toast.POSITION.BOTTOM_RIGHT,
-                } as ToastOptions);
-              }
-              fetchData();
-            } catch (error: any) {
-              throw error || "Une erreur est survenue, veuillez réessayer";
-            }
-          },
-          title: "Attention",
-          description: "Voulez-vous vraiment confirmer votre action ?",
-        }),
-      ]) : null,
+      isAdmin
+        ? h("div", [
+            h(ModalButton, {
+              icon: "fa-solid fa-trash",
+              tooltipLabel: "Supprimer",
+              action: async () => {
+                try {
+                  const response = await deleteProduct(row.id);
+                  if (response.message !== undefined) {
+                    toast.success(response.message, {
+                      autoClose: 2000,
+                      position: toast.POSITION.BOTTOM_RIGHT,
+                    } as ToastOptions);
+                  }
+                  fetchData();
+                } catch (error: any) {
+                  throw error || "Une erreur est survenue, veuillez réessayer";
+                }
+              },
+              title: "Attention",
+              description: "Voulez-vous vraiment confirmer votre action ?",
+            }),
+          ])
+        : null,
   },
 ];
 

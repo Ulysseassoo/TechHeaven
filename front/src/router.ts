@@ -97,7 +97,7 @@ const routes: RouteRecordRaw[] = [
         name: "stock",
         component: ProductsView,
       },
-    ]
+    ],
   },
   {
     path: "/account",
