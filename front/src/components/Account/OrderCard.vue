@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { Order } from "@/interfaces/Order";
+import { OrderStatus, type Order } from "@/interfaces/Order";
 import moment from "moment";
-import { toast } from "vue3-toastify";
 
 interface Props {
   order: Order;
@@ -16,7 +15,7 @@ defineProps<Props>();
       <div class="d-flex justify-space-between normal-box">
         <div class="d-flex ga-8">
           <div class="d-flex flex-column ga-1">
-            <p class="text-subtitle-1">Order placed</p>
+            <p class="text-subtitle-1">Commande effectuée le</p>
             <p class="text-subtitle-1">
               {{ moment(order.created_at).format("DD MMMM YYYY") }}
             </p>
@@ -29,14 +28,35 @@ defineProps<Props>();
         </div>
 
         <div>
-          <p class="text-subtitle-2">Order # {{ order.id }}</p>
+          <p class="text-subtitle-2">Commande # {{ order.id }}</p>
           <RouterLink :to="`/orders/${order.id}`" class="text-subtitle-1"
-            >View order details</RouterLink
+            >Afficher les détails de commande</RouterLink
           >
         </div>
       </div>
     </v-card-title>
-    <v-card-item class="item"> </v-card-item>
+    <v-card-item class="item">
+      <p class="text-h6">
+        {{
+          order.status === OrderStatus.COMPLETED
+            ? "Livré : 19 Juillet"
+            : `Livraison ${OrderStatus.PENDING}`
+        }}
+      </p>
+      <div v-for="item in order.order_details" :key="item.id" class="mb-4">
+        <div class="d-flex justify-space-between">
+          <div class="d-flex flex-column">
+            <RouterLink
+              :to="`/products/${item.product_id}`"
+              class="text-subtitle-1 text-primary"
+              >{{ item.product_name }}</RouterLink
+            >
+            <p class="text-subtitle-2">{{ item.product_description }}</p>
+            <p class="text-subtitle-2">Quantité : {{ item.quantity }}</p>
+          </div>
+        </div>
+      </div>
+    </v-card-item>
 
     <v-card-actions> </v-card-actions>
   </v-card>
@@ -48,7 +68,7 @@ defineProps<Props>();
   border: 1px solid rgba(0, 0, 0, 0.12);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
-  height: 450px;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -56,6 +76,7 @@ defineProps<Props>();
   background: white;
   @media (max-width: 700px) {
     width: 100%;
+    overflow-y: scroll;
   }
 }
 

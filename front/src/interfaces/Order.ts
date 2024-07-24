@@ -22,4 +22,5 @@ export interface OrderDetail {
     product_description: string;
     unit_price: number;
     order_id: string;
+    product_id: string;
 }
