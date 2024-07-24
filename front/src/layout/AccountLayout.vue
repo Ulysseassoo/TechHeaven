@@ -3,16 +3,19 @@ import { logoutUser } from "@/api/auth";
 import Footer from "@/components/Footer.vue";
 import Header from "@/components/Header.vue";
 import { useUserStore } from "@/store/UserStore";
+import { useBasketStore } from "@/store/basketStore";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const store = useUserStore();
+const basketStore = useBasketStore();
 const route = useRoute();
 
 const NotShowNavRoutes = ["/account/delete-account"];
 
 const logout = async () => {
   await logoutUser();
+  basketStore.emptyBasket()
   await router.push({
     name: "Login",
     replace: true,

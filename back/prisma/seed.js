@@ -113,27 +113,6 @@ async function main() {
       });
     }
 
-    for (let k = 0; k < 2; k++) {
-      const or = await db.order.create({
-        data: {
-            user_id: u.id,
-            total_amount: 500,
-        }
-      });
-
-      for (let l = 0; l < 3; l++) {
-        await db.orderDetail.create({
-          data: {
-            quantity: 2,
-            product_name: faker.commerce.productName(),
-            product_description: faker.commerce.productDescription(),
-            unit_price: 175,
-            order_id: or.id,
-          },
-        });
-      }
-    }
-
     for (let i = 0; i < 3; i++) {
       await db.address.create({
         data: {
@@ -146,6 +125,55 @@ async function main() {
           user_id: u.id,
         },
       });
+    }
+
+    for (let k = 0; k < 2; k++) {
+
+      const or = await db.order.create({
+        data: {
+            user_id: u.id,
+            total_amount: 500,
+        }
+      });
+      
+      const category = await db.category.create({
+        data: {
+          name: categories[1]
+        }
+      });
+
+      const product = await db.product.create({
+        data: {
+          name: faker.commerce.productName(),
+          description: faker.commerce.productDescription(),
+          price: parseFloat(faker.commerce.price()),
+          quantity: 90,
+          brand: faker.lorem.word(),
+          categoryId: category.id,
+        },
+      });
+
+      for (let l = 0; l < 3; l++) {
+        await db.orderDetail.create({
+          data: {
+            quantity: 2,
+            product_name: product.name,
+            product_description: product.description,
+            unit_price: product.price,
+            order_id: or.id,
+            product_id: product.id
+          },
+        });
+      }
+
+      await db.delivery.create({
+        data: {
+          address: `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.zipCode()}, ${faker.location.country()}`,
+          client_name: `${u.firstname} ${u.lastname}`,
+          order_id: or.id,
+          following_number: faker.string.uuid()
+        }
+      })
     }
 
     await db.cart.create({

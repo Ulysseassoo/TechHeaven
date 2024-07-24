@@ -6,6 +6,7 @@ import { useForm } from "@/hooks/useForm";
 import { useRouter } from "vue-router";
 import { loginUser, getUserInformation } from "@/api/auth";
 import { useUserStore } from "@/store/UserStore";
+import { useBasketStore } from "@/store/basketStore";
 
 const validationSchema = z.object({
   email: z.string().email("L'email doit être valide."),
@@ -17,6 +18,7 @@ const validationSchema = z.object({
 const router = useRouter();
 
 const store = useUserStore();
+const basketStore = useBasketStore()
 
 type FormValues = z.infer<typeof validationSchema>;
 
@@ -30,6 +32,8 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     const result = await loginUser({ data: formData, config });
     if (result.data) {
       localStorage.setItem("token", result.data);
+      basketStore.fetchBasketProducts()
+      basketStore.fetchBasket()
       const response = await getUserInformation();
       store.setUser(response.data);
       if (response.data.role === "ROLE_ADMIN") {
@@ -45,7 +49,7 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
 
 const transform = {
   email: (oldValue: string) => {
-    return oldValue.trim().toLowerCase();
+    return oldValue.trim();
   },
   password: (oldValue: string) => {
     return oldValue.trim();

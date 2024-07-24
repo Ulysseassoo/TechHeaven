@@ -1,15 +1,25 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import BasketRecapProduct from "./BasketRecapProduct.vue";
+import BasketRecapProduct from "./../BasketRecapProduct.vue";
 import { useBasketStore } from "@/store/basketStore";
 import { useRouter } from "vue-router";
+import { createOrder } from "@/api/order";
+import { createInvoice } from "@/api/invoice";
+import { getPaymentLink } from "@/api/payment";
 
 const router = useRouter();
 const basketStore = useBasketStore();
 const basketProducts = computed(() => basketStore.basket);
 
-const goOrderPage = () => {
-  router.push("/order");
+const goOrderPage = async () => {
+  try {
+    const order = await createOrder();
+    await createInvoice(order.data.id);
+    const paymentLink = await getPaymentLink();
+    window.location.replace(paymentLink.data.link);
+  } catch (error) {
+    throw error;
+  }
 };
 </script>
 <template>
@@ -47,7 +57,7 @@ const goOrderPage = () => {
       </div>
 
       <v-btn @click="goOrderPage" class="recap-cta" color="#3281ED"
-        >Continuer la commande</v-btn
+        >Passer au paiement</v-btn
       >
     </div>
   </section>
@@ -59,6 +69,7 @@ const goOrderPage = () => {
 }
 
 h1 {
+  margin-bottom: 25px;
   font-size: 25px;
 }
 

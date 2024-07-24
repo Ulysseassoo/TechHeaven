@@ -6,10 +6,8 @@ const orderSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
   status: { type: String, default: "En cours" },
   total_amount: Number,
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  user_id: {type: String, required: true},
   order_details: { type: [orderDetailSchema], default: [] },
-  deliveries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Delivery" }],
-  payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Payment" }],
 });
 
 orderSchema.method("toClient", function () {
