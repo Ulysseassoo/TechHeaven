@@ -72,7 +72,7 @@ describe('Delivery Routes', () => {
         const updatedDelivery = {
             id: '12345',
             address: '123 Test Street',
-            status: 'Livré', // Correspond à votre logique de mise à jour
+            status: 'Livré',
             following_number: '1234567890',
             delivered: true,
         };
