@@ -18,7 +18,7 @@ const validationSchema = z.object({
 const router = useRouter();
 
 const store = useUserStore();
-const basketStore = useBasketStore()
+const basketStore = useBasketStore();
 
 type FormValues = z.infer<typeof validationSchema>;
 
@@ -32,8 +32,8 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     const result = await loginUser({ data: formData, config });
     if (result.data) {
       localStorage.setItem("token", result.data);
-      basketStore.fetchBasketProducts()
-      basketStore.fetchBasket()
+      basketStore.fetchBasketProducts();
+      basketStore.fetchBasket();
       const response = await getUserInformation();
       store.setUser(response.data);
       if (response.data.role === "ROLE_ADMIN") {

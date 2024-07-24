@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { useProductStore } from "@/store/productStore";
-import { useBasketStore } from '@/store/basketStore'
+import { useBasketStore } from "@/store/basketStore";
 
 const productStore = useProductStore();
 const basketStore = useBasketStore();
 
-productStore.fetchProducts()
-basketStore.fetchBasket()
-basketStore.fetchBasketProducts()
-
+productStore.fetchProducts();
+basketStore.fetchBasket();
+basketStore.fetchBasketProducts();
 </script>
 
 <template>

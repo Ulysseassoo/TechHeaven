@@ -11,7 +11,7 @@ export const createInvoice = async (orderId: string) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   return response;

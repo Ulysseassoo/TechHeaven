@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed } from "vue";
 import BasketDetails from "./BasketDetails.vue";
 import BasketRecap from "./BasketRecap.vue";
 

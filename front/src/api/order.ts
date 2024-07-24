@@ -11,7 +11,7 @@ export const createOrder = async () => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   return response;
