@@ -114,6 +114,11 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
             }
         })
 
+        const p = await db.cartHasProducts.findFirst({
+            where: {
+                product_id
+            },
+        })
         if (productInCart) {
 
             if (action === "delete") {
@@ -139,6 +144,7 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
                         id: productInCart.id
                     },
                     data: {
+                        ...p,
                         quantity: productInCart.quantity - 1
                     }
                 })
@@ -156,6 +162,7 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
                             id: productInCart.id,
                         },
                         data: {
+                            ...p,
                             quantity: productInCart.quantity + 1
                         }
                     })

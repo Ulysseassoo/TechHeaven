@@ -33,17 +33,17 @@ const goOrderPage = () => {
       <div class="recap-price-details">
         <div class="recap-price-subtotal">
           <p>Total avant TVA</p>
-          <p>{{ basketStore.getTotalPrice() * 0.8 }} EUR</p>
+          <p>{{ (basketStore.getTotalPrice() * 0.8).toFixed(2) }} EUR</p>
         </div>
         <div class="recap-price-fee">
           <p>TVA en France</p>
-          <p>{{ basketStore.getTotalPrice() * 0.2 }} EUR</p>
+          <p>{{ (basketStore.getTotalPrice() * 0.2).toFixed(2) }} EUR</p>
         </div>
       </div>
 
       <div class="recap-price-total">
         <p>Total</p>
-        <p>{{ basketStore.getTotalPrice() }} EUR</p>
+        <p>{{ basketStore.getTotalPrice().toFixed(2) }} EUR</p>
       </div>
 
       <v-btn @click="goOrderPage" class="recap-cta" color="#3281ED"

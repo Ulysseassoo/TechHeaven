@@ -27,7 +27,6 @@ const router = express.Router();
           product: true
         }
       })
-      console.log(products, 'products')
       if (!products.length) {
         return res.status(400).json({ message: "Panier vide." });
       }
