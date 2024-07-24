@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { OrderStatus, type Order } from "@/interfaces/Order";
+import type { Product } from "@/interfaces/Product";
 import moment from "moment";
+import { useProductStore } from "@/store/productStore";
+import { useRouter } from "vue-router";
+
+const productStore = useProductStore();
+const router = useRouter();
+
 
 interface Props {
   order: Order;
 }
+
+const goDetailPage = (product: Product) => {
+  productStore.setSelectedProduct(product);
+  router.push("/product-detail");
+};
 
 defineProps<Props>();
 </script>
@@ -29,9 +41,6 @@ defineProps<Props>();
 
         <div>
           <p class="text-subtitle-2">Commande # {{ order.id }}</p>
-          <RouterLink :to="`/orders/${order.id}`" class="text-subtitle-1"
-            >Afficher les détails de commande</RouterLink
-          >
         </div>
       </div>
     </v-card-title>
@@ -46,11 +55,25 @@ defineProps<Props>();
       <div v-for="item in order.order_details" :key="item.id" class="mb-4">
         <div class="d-flex justify-space-between">
           <div class="d-flex flex-column">
-            <RouterLink
-              :to="`/products/${item.product_id}`"
-              class="text-subtitle-1 text-primary"
-              >{{ item.product_name }}</RouterLink
+            <p
+              @click="
+                goDetailPage({
+                  id: item.product_id,
+                  name: item.product_name,
+                  description: item.product_description,
+                  brand: 'ee',
+                  promotion: null,
+                  promotion_type: null,
+                  price: item.unit_price,
+                  quantity: item.quantity,
+                  category: undefined,
+                  categoryId: null,
+                })
+              "
+              class="text-subtitle-1 text-primary cursor-pointer"
             >
+              {{ item.product_name }}
+            </p>
             <p class="text-subtitle-2">{{ item.product_description }}</p>
             <p class="text-subtitle-2">Quantité : {{ item.quantity }}</p>
           </div>
