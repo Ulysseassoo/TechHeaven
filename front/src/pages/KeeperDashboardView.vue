@@ -21,7 +21,7 @@ Chart.register(
   Tooltip,
   Legend,
   LinearScale,
-  Title
+  Title,
 );
 
 const loading = ref(true);
@@ -51,8 +51,17 @@ const datasets = computed(() => [
 const doughnutDataSet = computed(() => [
   {
     label: "Nombre vendus",
-    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"],
-    data: stats.value.topSixProductsInStock.map((stat) => stat.quantityDifference),
+    backgroundColor: [
+      "#FF6384",
+      "#36A2EB",
+      "#FFCE56",
+      "#4BC0C0",
+      "#9966FF",
+      "#FF9F40",
+    ],
+    data: stats.value.topSixProductsInStock.map(
+      (stat) => stat.quantityDifference,
+    ),
   },
 ]);
 
@@ -72,7 +81,9 @@ onMounted(() => getStats());
             v-if="!loading"
             id="stock-chart"
             :data="{
-              labels: stats.stockProductsEvolution.map((stock) => stock.product.name),
+              labels: stats.stockProductsEvolution.map(
+                (stock) => stock.product.name,
+              ),
               datasets: datasets,
             }"
             :chartOptions="{
@@ -93,7 +104,9 @@ onMounted(() => getStats());
             v-if="!loading && stats.topSixProductsInStock && doughnutDataSet"
             id="pie-chart"
             :data="{
-              labels: stats.topSixProductsInStock.map((stock) => stock.product.name),
+              labels: stats.topSixProductsInStock.map(
+                (stock) => stock.product.name,
+              ),
               datasets: doughnutDataSet,
             }"
             :chartOptions="{
