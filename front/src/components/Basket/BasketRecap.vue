@@ -14,7 +14,7 @@ const basketProducts = computed(() => basketStore.basket);
 const goOrderPage = () => {
   if (userStore.user?.addresses.length === 0) {
     toast.error(
-      "Veuillez renseigner une adresse de livraison avant de passer à la commande."
+      "Veuillez renseigner une adresse de livraison avant de passer à la commande.",
     );
     return;
   }
