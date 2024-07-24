@@ -86,8 +86,7 @@ describe('Invoice API', () => {
 
   it('should send invoice email', async () => {
     const response = await request(app)
-      .post(`/api/invoices/${fakeInvoice._id}/email`); // Mettre à jour le chemin pour correspondre à la route définie
-
+      .post(`/api/invoices/${fakeInvoice._id}/email`);
     expect(response.status).toBe(200);
     expect(sendInvoiceEmail).toHaveBeenCalledTimes(1);
   });
