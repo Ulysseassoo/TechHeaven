@@ -5,6 +5,7 @@ import { faker } from "@faker-js/faker";
 import moment from "moment";
 import { db } from "../src/utils/db.server.mjs";
 import { randomInt } from "crypto";
+import Product from "../src/models/Product.mjs";
 
 const prisma = new PrismaClient();
 
@@ -156,6 +157,9 @@ async function main() {
     }
   }
 
+  const someProducts = await Product.find();
+
+
   for (let i = 0; i < 100; i++) {
     const u = await db.user.create({
       data: {
@@ -206,14 +210,17 @@ async function main() {
         }
       });
 
-      for (let l = 0; l < 3; l++) {
+      const randomProducts = someProducts.sort(() => Math.random() - 0.5).slice(0, 3);
+
+      for (let l = 0; l < randomProducts.length; l++) {
         await db.orderDetail.create({
           data: {
             quantity: randomInt(100),
-            product_name: faker.commerce.productName(),
-            product_description: faker.commerce.productDescription(),
-            unit_price: 175,
+            product_name: randomProducts[l].name,
+            product_description: randomProducts[l].description,
+            unit_price: randomProducts[l].price,
             order_id: or.id,
+            product_id: randomProducts[l].id
           },
         });
         
