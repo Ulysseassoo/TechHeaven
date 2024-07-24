@@ -11,6 +11,7 @@ const userStore = useUserStore();
 const fetchData = async () => {
   await productStore.fetchProducts();
   if (userStore.user) {
+    await productStore.fetchProducts();
     await basketStore.fetchBasket();
     await basketStore.fetchBasketProducts();
   }
