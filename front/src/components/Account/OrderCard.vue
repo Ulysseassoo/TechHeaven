@@ -8,7 +8,6 @@ import { useRouter } from "vue-router";
 const productStore = useProductStore();
 const router = useRouter();
 
-
 interface Props {
   order: Order;
 }
