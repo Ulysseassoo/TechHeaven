@@ -12,6 +12,7 @@ import BasketRoutes from "./routes/cart.mjs"
 import DeliveryRoutes from "./routes/delivery.mjs";
 import deliveryRoutes from "./routes/delivery.mjs";
 import PromotionRoutes from "./routes/promotion.mjs";
+import StockHistoryRoutes from "./routes/stockHistory.mjs";
 import AlertRoutes from "./routes/alert.mjs";
 import deliveryRouter from "./routes/delivery.mjs";
 import cron from "node-cron";
@@ -50,6 +51,7 @@ app.use("/api", InvoiceRoutes);
 app.use("/api", SecurityRoutes);
 app.use("/api", AddressRoutes);
 app.use("/api", PromotionRoutes);
+app.use("/api", StockHistoryRoutes);
 app.use("/api", AlertRoutes);
 app.use('/api', deliveryRouter);
 app.use("/api", BasketRoutes);

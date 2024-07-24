@@ -8,7 +8,9 @@ import { toast, type ToastOptions } from "vue3-toastify";
 import DataTable from "@/components/DataTable.vue";
 import ModalButton from "@/components/ModalButton.vue";
 import ProductModal from "@/components/Admin/ProductModal.vue";
+import { useUserStore } from "@/store/UserStore";
 
+const store = useUserStore();
 const columns: TableColumn<Product>[] = [
   { value: "name", label: "Nom" },
   { value: "description", label: "Description" },
@@ -37,13 +39,15 @@ const {
   getData: getProducts,
 });
 
+const isAdmin = store?.user?.role === "ROLE_ADMIN";
+
 const actions = [
   {
     label: "Voir",
     id: "view",
     icon: "fa-solid fa-eye",
     renderCell: (row: Product) =>
-      h(ProductModal, {
+    h(ProductModal, {
         product: row,
         type: "detail",
         icon: "fa-solid fa-eye",
@@ -66,7 +70,7 @@ const actions = [
     label: "Supprimer",
     id: "delete",
     renderCell: (row: Product) =>
-      h("div", [
+    isAdmin ? h("div", [
         h(ModalButton, {
           icon: "fa-solid fa-trash",
           tooltipLabel: "Supprimer",
@@ -87,7 +91,7 @@ const actions = [
           title: "Attention",
           description: "Voulez-vous vraiment confirmer votre action ?",
         }),
-      ]),
+      ]) : null,
   },
 ];
 
@@ -126,7 +130,7 @@ onMounted(() => {
       :itemsPerPage="itemsPerPage"
       @update:itemsPerPage="changeItemsPerPage"
       @update:currentPage="changeCurrentPage"
-      :deleteAll="deleteAllProductsSelected"
+      :deleteAll="isAdmin ? deleteAllProductsSelected : undefined"
       :totalCount="totalCount"
       :currentPage="page"
       :totalPages="totalPages"
@@ -145,6 +149,7 @@ onMounted(() => {
           @input="debouncedSearch"
         ></v-text-field>
         <ProductModal
+          v-if="store?.user?.role === 'ROLE_ADMIN'"
           btnContent="Nouveau produit"
           color="tertiary"
           type="create"

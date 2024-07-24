@@ -6,6 +6,7 @@ import Promotion from '../models/Promotion.mjs';
 import Payment from '../models/Payment.mjs';
 import Cart from '../models/Cart.mjs';
 import Category from '../models/Category.mjs';
+import StockHistory from '../models/StockHistory.mjs';
 
 const Models = {
   User,
@@ -15,7 +16,8 @@ const Models = {
   Payment,
   Promotion,
   Cart,
-  Category
+  Category,
+  StockHistory
 };
 
 const SubModels = {

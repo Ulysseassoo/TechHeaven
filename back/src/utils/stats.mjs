@@ -1,5 +1,7 @@
 import Order from "../models/Order.mjs";
 import User from "../models/User.mjs";
+import StockHistory from "../models/StockHistory.mjs";
+
 
 export const getTotalUsers = async () => {
   const totalUsers = await User.countDocuments({});
@@ -82,3 +84,80 @@ export const getCountUsersByNotificationType = async () => {
 
   return usersByNotificationType;
 };
+
+export const getStockEvolutionFromStartToEnd = async () => {
+  const stockHistory = await StockHistory.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "productDetails"
+      }
+    },
+    { $unwind: "$productDetails" },
+    {
+      $group: {
+        _id: "$product_id",
+        startDate: { $min: "$date" },
+        endDate: { $max: "$date" },
+        startQuantity: { $first: "$quantity" },
+        endQuantity: { $last: "$quantity" },
+        product: { $first: "$productDetails" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        startDate: 1,
+        endDate: 1,
+        startQuantity: 1,
+        endQuantity: 1,
+        product: 1
+      },
+    },
+  ]);
+
+  return stockHistory;
+};
+
+export const getTopSixSoldProducts = async () => {
+  const stockHistory = await StockHistory.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "productDetails"
+      }
+    },
+    { $unwind: "$productDetails" },
+    {
+      $group: {
+        _id: "$product_id",
+        startDate: { $min: "$date" },
+        endDate: { $max: "$date" },
+        startQuantity: { $first: "$quantity" },
+        endQuantity: { $last: "$quantity" },
+        product: { $first: "$productDetails" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        startDate: 1,
+        endDate: 1,
+        startQuantity: 1,
+        endQuantity: 1,
+        quantityDifference: { $subtract: ["$startQuantity", "$endQuantity"] },
+        product: 1
+      },
+    },
+    { $sort: { quantityDifference: -1 } },
+    { $limit: 6 }
+  ]);
+
+  return stockHistory;
+};
+
+

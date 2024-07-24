@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import { faker } from "@faker-js/faker";
 import moment from "moment";
 import { db } from "../src/utils/db.server.mjs";
+import { randomInt } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -35,6 +36,18 @@ async function main() {
     },
   });
 
+  await db.user.create({
+    data: {
+      firstname: "store",
+      lastname: "keeper",
+      email: "storekeeper@prisma.io",
+      role: "ROLE_STORE_KEEPER",
+      password: globalPassword,
+      last_updated_password: new Date(),
+      has_confirmed_account: true,
+    },
+  });
+
   const alert = await db.alert.create({
     data: {
       name: "Newsletter",
@@ -57,17 +70,28 @@ async function main() {
       },
     });
 
-    for (let i = 0; i < 30; i++) {
-      await db.product.create({
+    for (let i = 0; i < 10; i++) {
+      const p = await db.product.create({
         data: {
           name: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
           price: parseFloat(faker.commerce.price()),
-          quantity: 90,
+          quantity: 110,
           brand: faker.lorem.word(),
           categoryId: category.id,
         },
       });
+
+
+      await db.product.update({
+        where: {
+          id: p.id,
+        },
+        data: {
+          ...p,
+          quantity: randomInt(1, 100),
+        }
+      })
     }
   }
 
@@ -124,13 +148,14 @@ async function main() {
       for (let l = 0; l < 3; l++) {
         await db.orderDetail.create({
           data: {
-            quantity: 2,
+            quantity: randomInt(100),
             product_name: faker.commerce.productName(),
             product_description: faker.commerce.productDescription(),
             unit_price: 175,
             order_id: or.id,
           },
         });
+        
       }
     }
 
