@@ -29,13 +29,10 @@ const navigateBack = () => {
           gap="0.5rem"
         >
           <ArrowLeft height="15px" width="15px" />
-          <span @click="navigateBack">Back to the website</span>
+          <span @click="navigateBack">De retour sur le site</span>
         </Stack>
-        <h1>Welcome to our website !</h1>
-        <DividerWithText
-          container-class="mt-8 mb-12 relative"
-          content="Log yourself"
-        />
+        <h1>Bienvenue !</h1>
+        <DividerWithText container-class="mt-8 mb-12 relative" content="Connectez vous" />
         <LoginForm />
       </div>
     </div>

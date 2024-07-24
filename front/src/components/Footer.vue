@@ -1,80 +1,50 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import Button from "@/components/Button.vue";
+import type { Category } from "@/interfaces/Category";
+import { onMounted, ref } from "vue";
+import { getCategories } from "@/api/category";
+
+const categories = ref<Category[]>([]);
+
+const fetchCategories = async () => {
+  try {
+    const result = await getCategories({
+      limit: 100,
+    });
+    categories.value = result.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+onMounted(() => fetchCategories());
 
 const email = ref(null);
 
-const links = [
-  {
-    url: "/",
-    label: "Smartphones",
-  },
-  {
-    url: "/",
-    label: "Télévisions",
-  },
-  {
-    url: "/",
-    label: "Tablettes",
-  },
-  {
-    url: "/",
-    label: "Promotions",
-  },
-  {
-    url: "/",
-    label: "Montres",
-  },
-  {
-    url: "/",
-    label: "Écouteurs & Casques",
-  },
-  {
-    url: "/",
-    label: "Clavier et souris",
-  },
-  {
-    url: "/",
-    label: "Ordinateurs",
-  },
-  {
-    url: "/",
-    label: "Accesssoires",
-  },
-  {
-    url: "/",
-    label: "Photos & Vidéos",
-  },
-];
-
 const legacyLinks = [
   {
-    title: "About us",
+    title: "A propos de nous",
     items: [
-      { label: "Who we are ?", link: "#" },
-      { label: "Community", link: "#" },
-      { label: "Contact us", link: "#" },
-      { label: "Customer services", link: "#" },
-      { label: "Support", link: "#" },
-      { label: "Help", link: "#" },
+      { label: "Accueil", link: "/" },
+      { label: "Nos produits", link: "/products" },
     ],
   },
   {
-    title: "Terms",
+    title: "Termes",
     items: [
-      { label: "Privacy policy", link: "/privacy-policy" },
-      { label: "Terms & conditions", link: "/terms" },
-      { label: "Copyright policy", link: "/copywright-policy" },
+      { label: "Politique de confidentialité", link: "/privacy-policy" },
+      { label: "Conditions générales", link: "/terms" },
+      { label: "Politique du droit d'auteur", link: "/copywright-policy" },
       { label: "CGV", link: "/cgv" },
-      { label: "Fees & charges", link: "/fees" },
     ],
   },
   {
-    title: "Products",
+    title: "Produits",
     items: [
-      { label: "Categories", link: "#" },
-      { label: "Promotions", link: "#" },
-      { label: "New products", link: "#" },
+      { label: "Catégories", link: "/products?category=all" },
+      { label: "Promotions", link: "/products?promo=true" },
+      { label: "Nouveau produits", link: "/products?new=true" },
     ],
   },
 ];
@@ -86,9 +56,9 @@ const legacyLinks = [
       <h2>Découvrez nos produits par catégories :</h2>
 
       <div class="links">
-        <template v-for="(item, index) in links" :key="item.label">
-          <RouterLink :to="item.url">{{ item.label }}</RouterLink>
-          <span v-if="index !== links.length - 1">-</span>
+        <template v-for="(item, index) in categories" :key="item.id">
+          <RouterLink :to="`/products?category=${item.name}`">{{ item.name }}</RouterLink>
+          <span v-if="index !== categories.length - 1">-</span>
         </template>
       </div>
     </section>
@@ -99,16 +69,17 @@ const legacyLinks = [
       </div>
       <div class="newsletter">
         <div>
-          <h2>Join our newsletter</h2>
+          <h2>Rejoignez notre newsletter</h2>
           <p style="font-size: 12px; font-weight: 500">
-            We do send emails only if you ask for it, we will not spam you, it's
-            promise !
+            Nous envoyons des emails seulement si vous le demandez, nous ne vous ferons
+            pas de spam, c&apos;est promis !
           </p>
         </div>
         <div class="newsletter-input">
           <VTextField
             variant="outlined"
-            label="Qu'est ce que vous cherchez"
+            label="Entrez votre adresse email"
+            class="mr-2"
             v-model="email"
             :error="false"
             type="input"
@@ -116,7 +87,7 @@ const legacyLinks = [
             density="compact"
             style="min-width: 150px"
           />
-          <Button content="Subscribe" />
+          <Button content="Souscrire" />
         </div>
       </div>
     </section>
@@ -135,7 +106,7 @@ const legacyLinks = [
       </div>
     </section>
 
-    <p class="copyright">© Copyright 2024, all rights reserved</p>
+    <p class="copyright">© Copyright 2024, Tous droits réservés.</p>
   </footer>
 </template>
 

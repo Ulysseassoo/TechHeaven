@@ -3,40 +3,44 @@ import CategoryCard from "@/components/Home/CategoryCard.vue";
 import { useDisplay } from "vuetify";
 
 import keyboardImage from "@/assets/Home/welcome-new-product-keyboard.avif";
+import type { Category } from "@/interfaces/Category";
+import { onMounted, ref } from "vue";
+import { getCategories } from "@/api/category";
 
+const categories = ref<Category[]>([]);
+
+const fetchCategories = async () => {
+  try {
+    const result = await getCategories({
+      limit: 100,
+    });
+    categories.value = result.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+onMounted(() => fetchCategories());
 const { xs } = useDisplay();
+
+const getSectionClass = (index: number) => {
+  let baseClass = `section-${index + 1}`;
+  if (!xs) {
+    baseClass += " mobile";
+  }
+  return baseClass;
+};
 </script>
 
 <template>
   <section class="section-container" :class="xs ? 'mobile' : null">
     <CategoryCard
-      class="section-1"
-      :class="xs ? 'mobile' : null"
-      name="test"
-      :img="keyboardImage"
-    />
-    <CategoryCard
-      class="section-2"
-      :class="xs ? 'mobile' : null"
-      name="test"
-      :img="keyboardImage"
-    />
-    <CategoryCard
-      class="section-3"
-      :class="xs ? 'mobile' : null"
-      name="test"
-      :img="keyboardImage"
-    />
-    <CategoryCard
-      class="section-4"
-      :class="xs ? 'mobile' : null"
-      name="test"
-      :img="keyboardImage"
-    />
-    <CategoryCard
-      class="section-5"
-      :class="xs ? 'mobile' : null"
-      name="test"
+      :link="`/products?category=${category.name}`"
+      v-for="(category, index) in categories.slice(0, 5)"
+      :key="category.id"
+      :class="getSectionClass(index)"
+      :name="category.name"
       :img="keyboardImage"
     />
   </section>

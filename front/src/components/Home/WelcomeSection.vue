@@ -9,8 +9,10 @@ import Button from "@/components/Button.vue";
       src="../../assets/Home/macbook-welcome-section.avif"
       alt="Welcome background image - macbook pro"
     />
-    <p class="welcome-message">Find what you need.</p>
-    <Button class="discover-button" content="Start to explore" />
+    <p class="welcome-message">Trouvez ce dont vous avez besoin.</p>
+    <RouterLink to="/products">
+      <Button class="discover-button" content="Commencer à explorer" />
+    </RouterLink>
   </section>
 </template>
 

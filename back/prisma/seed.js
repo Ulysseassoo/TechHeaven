@@ -14,7 +14,7 @@ dotenv.config();
 
 const getRandomDateBetween2023And2024 = () => {
   const start = moment("2023-01-01").startOf("year").valueOf();
-  const end = moment("2024-12-31").endOf("year").valueOf();
+  const end = moment().endOf("day").valueOf();
 
   const randomTimestamp = Math.floor(Math.random() * (end - start + 1)) + start;
 
