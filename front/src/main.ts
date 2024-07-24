@@ -50,6 +50,11 @@ const store = useUserStore();
 router.beforeEach(async (to, from, next) => {
   try {
     const token = localStorage.getItem("token");
+    if (token) {
+      const response = await getUserInformation();
+      store.setUser(response.data);
+    }
+
     if (to.meta.requiresAuth) {
       if (!token) {
         next({ name: "Login" });

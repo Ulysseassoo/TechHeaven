@@ -9,11 +9,12 @@ import Product from '../models/Product.mjs';
 import mongoose from 'mongoose';
 import Stripe from 'stripe';
 import dotenv from "dotenv";
+import { shouldBeAuthenticate } from '../middlewares/authentication.mjs';
 
 dotenv.config();
 
 if (!process.env.STRIPE_SECRET_KEY) {
-  // throw new Error('STRIPE_SECRET_KEY is not defined in the environment variables');
+  throw new Error('STRIPE_SECRET_KEY is not defined in the environment variables');
 }
 
 const router = express.Router();
@@ -21,38 +22,62 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 
-// Créer une nouvelle facture
-router.post('/invoices', async (req, res) => {
+router.post('/invoices/:orderId', shouldBeAuthenticate ,async (req, res) => {
   try {
-    const { userId, productId, quantity } = req.body;
-    
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    const productObjectId = new mongoose.Types.ObjectId(productId);
+    const user = req.user
+    const { orderId } = req.params
 
-    const user = await User.findById(userObjectId);
-    const product = await Product.findById(productObjectId);
+    const order = await db.order.findUnique({
+      where: {
+        id: orderId
+      }
+    })
 
-    if (!user) {
-      return res.status(404).json({ status: 404, message: "Utilisateur non trouvé" });
-    }
-
-    if (!product) {
-      return res.status(404).json({ status: 404, message: "Produit non trouvé" });
-    }
-
-    const amount = product.price * quantity;
-
-    // Utiliser Mongoose pour créer la facture
-    const invoice = new Invoice({
-      userId: userObjectId,
-      productId: productObjectId,
-      amount,
-      status: 'pending'
+    if (order.user_id !== user.id) {
+      return res.status(401).send({
+        status: 401,
+        message: "Vous n'avez pas les droits",
     });
+    }
 
-    await invoice.save();
+    const products = await db.orderDetail.findMany({
+      where: {
+        order_id: orderId
+      }
+    })
 
-    return res.status(201).json({ status: 201, data: invoice.toClient() });
+    if (!products) {
+      return res.status(400).send({
+        status: 400,
+        message: "Produits inexistants.",
+      });
+    }
+
+    const invoice = await db.invoice.create({
+      data: {
+        user_id: user.id,
+        order_id: orderId,
+        user_firstname: user.firstname,
+        user_lastname: user.lastname,
+        amount: order.total_amount
+      }
+    })
+
+    await Promise.all(products.map(async (product) => {
+      await db.invoiceDetail.create({
+          data: {
+              quantity: product.quantity,
+              product_name: product.product_name,
+              product_description: product.product_description,
+              unit_price: parseInt(product.unit_price),
+              invoice_id: invoice.id,
+              product_id: product.id,
+          }
+      });
+  }));
+
+  return res.status(201).json({ status: 201, data: invoice });
+
   } catch (error) {
     return res.status(500).json({ status: 500, message: "Erreur lors de la création de la facture", error: error.message });
   }
@@ -142,74 +167,6 @@ router.post("/invoices/:invoiceId/pay", async (req, res) => {
     return res.status(500).json({ message: "Erreur lors de l'initiation du paiement", error: error.message });
   }
 });
-
-// Endpoint pour générer un lien de paiement
-const generatePaymentLink = async (invoiceId, amount) => {
-const session = await stripe.checkout.sessions.create({
-  payment_method_types: ['card'],
-  line_items: [
-    {
-      price_data: {
-        currency: 'eur',
-        product_data: {
-          name: `Facture ${invoiceId}`
-        },
-        unit_amount: amount * 100 // Montant en centimes
-      },
-      quantity: 1
-    }
-  ],
-  mode: 'payment',
-  success_url: `http://localhost:8000/api/success/${invoiceId}`, // A changer au moment de la prod les gars ! 
-  cancel_url: `http://localhost:8000/cancel`// A changer au moment de la prod les gars ! 
-});
-
-return session.url;
-};
-
-router.post("/invoices/:invoiceId/paylink", async (req, res) => {
-  const { invoiceId } = req.params;
-
-  try {
-    const invoice = await Invoice.findById(invoiceId);
-
-    if (!invoice) {
-      return res.status(404).json({ message: "Facture non trouvée" });
-    }
-
-    const paymentLink = await generatePaymentLink(invoice._id.toString(), invoice.amount);
-
-    return res.status(200).json({ paymentLink });
-  } catch (error) {
-    return res.status(500).json({ message: "Erreur lors de la génération du lien de paiement", error: error.message });
-  }
-});
-
-router.get('/success/:invoiceId', async (req, res) => {
-  const { invoiceId } = req.params;
-  console.log(invoiceId);
-
-  try {
-    // Mettez à jour le statut de la facture à "paid" dans la base de données
-    const updatedInvoice = await Invoice.findByIdAndUpdate(invoiceId, { status: 'paid' }, { new: true });
-
-    if (!updatedInvoice) {
-      return res.status(404).send('Facture non trouvée');
-    }
-
-    res.send('Paiement réussi !');
-  } catch (error) {
-    console.error(`Erreur lors de la mise à jour de la facture: ${error.message}`);
-    res.status(500).send(`Erreur lors de la mise à jour de la facture: ${error.message}`);
-  }
-});
-
-
-router.get('/cancel', (req, res) => {
-  res.send('Paiement annulé.');
-});
-
-
 
 /////// Générer l'ID de la colonne paymentIntentID pour accéder au Refund /////////
 

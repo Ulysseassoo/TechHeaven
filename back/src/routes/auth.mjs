@@ -91,7 +91,6 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
 router.post("/auth", async (req, res) => {
     const { email, password } = req.body;
     const user = await db.user.findUnique({ where: { email } });
-
     if (!user) {
         return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
     }

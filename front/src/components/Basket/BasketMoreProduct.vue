@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import airpods from "@/assets/airpods.png";
+import type { Product } from "@/interfaces/Product";
+import { useBasketStore } from "@/store/basketStore";
+
+defineProps<{
+  product: Product;
+}>();
+
+const basketStore = useBasketStore();
+const addProduct = (product: Product) => {
+  basketStore.addItemToBasket(product);
+};
 </script>
 <template>
   <div class="more-product-container">
     <img class="more-product-image" :src="airpods" alt="" />
-    <h2>Airpods Pro Max 2</h2>
-    <p>Le prix</p>
-    <v-btn variant="outlined">Ajouter au panier</v-btn>
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.price }} EUR</p>
+    <v-btn @click="addProduct(product)" variant="outlined"
+      >Ajouter au panier</v-btn
+    >
   </div>
 </template>
 <style scoped>

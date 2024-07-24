@@ -2,20 +2,17 @@ import express from "express";
 import { validationResult } from "express-validator";
 import { db } from "../utils/db.server.mjs";
 import { shouldBeAuthenticate } from "../middlewares/authentication.mjs";
-import Basket from "../models/Cart.mjs";
-import CartHasProducts from '../models/CartHasProduct.mjs'
 import { basketValidator } from '../validator/basketValidator.mjs'
 
 const router = express.Router();
 
-router.get("/basket/:id", shouldBeAuthenticate, async (req, res) => {
-    const id = req.params.id
-
+router.get("/basket", shouldBeAuthenticate, async (req, res) => {
     try {
+        const user = req.user
 
-        const basket = await db.cart.findUnique({
+        const basket = await db.cart.findFirst({
             where: {
-                id
+                user_id: user.id
             }
         })
 
@@ -40,11 +37,47 @@ router.get("/basket/:id", shouldBeAuthenticate, async (req, res) => {
     }
 })
 
-router.put("/basket/:id", basketValidator, shouldBeAuthenticate, async (req, res) => {
-    const id = req.params.id
-    const errors = validationResult(req);
+router.get('/basket/:id/products', shouldBeAuthenticate, async (req, res) => {
+    try {
+        const user = req.user
+        const basket = await db.cart.findFirst({
+            where: {
+                user_id: user.id
+            }
+        })
 
-    const unvalaibleProducts = []
+        if (!basket) {
+            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
+        }
+
+        if (!(req.user.id === basket.user_id)) {
+            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
+        }
+
+        const basketProducts = await db.cartHasProducts.findMany({
+            where: {
+                cart_id: basket.id
+            },
+            include: {
+                product: true
+            }
+        })
+
+        return res.status(200).json({
+            status: 200,
+            data: basketProducts
+        })
+    } catch (error) {
+        console.log("🚀 ~ router.get ~ error:", error)
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
+
+router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) => {
+    const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
         return res.status(401).send({
@@ -57,96 +90,121 @@ router.put("/basket/:id", basketValidator, shouldBeAuthenticate, async (req, res
             }).array()
         });
     } 
-
-    const { products } = req.body;
-
-    try {
-
-        const productsVerified = await Promise.all(products.map(async (product) => {
-            const productVerified = await db.product.findUnique({
-                where: { id: product.product.id }
-            });
-            if (!productVerified) {
-                throw new Error(`Product with id ${product.product.id} does not exist`);
-            }
-            return {
-                product: productVerified,
-                orderQuantity: product.orderQuantity
-            };
-        }));
     
-        const basketTotal = productsVerified.reduce(
-            (total, item) => total + item.product.price * item.orderQuantity,
-            0
-          );
+    try {
+        const user = req.user
+        const { product_id, action } = req.body
 
-        const basket = await db.cart.findUnique({
+        const basket = await db.cart.findFirst({
             where: {
-                id
+                user_id: user.id
             }
         })
 
         if (!basket) {
-            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
+            return res.status(400).json({ status: 400, message: "Panier non trouvé" });
         }
 
-        if (!(req.user.id === basket.user_id)) {
-            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
-        }
-
-        const basketUpdated = await  db.cart.update({
+        const productInCart = await db.cartHasProducts.findFirst({
             where: {
-                id
+                product_id
             },
-            data: {
-                ...basket,
-                total: basketTotal
+            include: {
+                product: true
             }
         })
 
-        await db.cartHasProducts.deleteMany({
-            where: {
-                cart_id: basket.id
-            }
-        })
+        if (productInCart) {
 
-        productsVerified.map((product) => {
-            if ((product.product.quantity - product.orderQuantity) < 0) {
-                unvalaibleProducts.push(product)
+            if (action === "delete") {
+                await db.cartHasProducts.delete({
+                    where: {
+                        id: productInCart.id
+                    }
+                })
+                return res.status(200).json({ status: 200, message: 'Produit supprimé du panier'});
             }
-        })
 
-        if (unvalaibleProducts.length) {
-            return res.status(409).json({
-                status: 409,
-                message: "Ces produits ne sont plus disponibles",
-                data: unvalaibleProducts
+            if (action === 'remove'){
+                if (productInCart.quantity === 1) {
+                    await db.cartHasProducts.delete({
+                        where: {
+                            id: productInCart.id
+                        }
+                    })
+                    return res.status(200).json({ status: 200, message: 'Produit supprimé du panier'});
+                }
+                const basketProductUpdated = await db.cartHasProducts.update({
+                    where: {
+                        id: productInCart.id
+                    },
+                    data: {
+                        quantity: productInCart.quantity - 1
+                    }
+                })
+
+                return res.status(200).json({
+                    status: 200,
+                    data: basketProductUpdated
+                })
+            }
+
+            if (action === 'add') {
+                if (productInCart.product.quantity) {
+                    const basketProductUpdated = await db.cartHasProducts.update({
+                        where: {
+                            id: productInCart.id,
+                        },
+                        data: {
+                            quantity: productInCart.quantity + 1
+                        }
+                    })
+                    return res.status(200).json({ status: 200, data:  basketProductUpdated});
+                } else {
+                    return res.status(409).json({ status: 409, message: "Le produit n'est plus en stock." });
+                }
+            }
+        }
+
+        if (action === 'add') {
+            const productToAdd = await db.product.findUnique({
+                where: {
+                    id: product_id
+                }
+            })
+
+            if (productToAdd) {
+                const productAdded = await db.cartHasProducts.create({
+                    data: {
+                        cart_id: basket.id,
+                        product_id: productToAdd.id,
+                        quantity: 1,
+                        unit_price: productToAdd.price.toString()
+                    }
+                })
+
+                return res.status(200).json({
+                    status: 200,
+                    data: productAdded
+                })
+            }
+
+            return res.status(400).json({
+                status: 400,
+                message: 'Produit inconnu.'
             })
         }
 
-        await Promise.all(productsVerified.map(async (product) => {
-            await db.product.update({
-                where: {
-                    id: product.product.id
-                },
-                data: {
-                    quantity: product.product.quantity - product.orderQuantity
-                }
+        if (action === 'remove' || action === "delete") {
+            return res.status(400).json({
+                status: 400,
+                message: 'Action non effectuable.'
             })
-
-            await db.cartHasProducts.create({
-                data: {
-                    cart_id: basket.id,
-                    product_id: product.product.id,
-                    quantity: product.orderQuantity,
-                    unit_price: product.product.price.toString()
-                }
-            });
-        }));
+        }
 
         return res.status(200).json({
             status: 200,
-            data: basketUpdated
+            data: basket
         })
     } catch (error) {
         return res.status(401).send({
@@ -156,82 +214,17 @@ router.put("/basket/:id", basketValidator, shouldBeAuthenticate, async (req, res
     }
 })
 
-router.post('/basket/:id/order', shouldBeAuthenticate, async (req, res) => {
-    const id = req.params.id
+router.delete("/basket", shouldBeAuthenticate, async (req, res) => {
     const user = req.user
     try {
-        const basket = await db.cart.findUnique({
+        const basket = await db.cart.findFirst({
             where: {
-                id
+                user_id: user.id
             }
         })
 
         if (!basket) {
             return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
-        }
-
-        if (!(req.user.id === basket.user_id)) {
-            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
-        }
-
-        const productsOrdered = await db.cartHasProducts.findMany({
-            where: {
-                cart_id: basket.id
-            },
-            include: {
-                product: true
-            }
-        })
-
-        const order = await db.order.create({
-            data: {
-                user_id: user.id,
-                total_amount: basket.total
-            }
-        })
-
-        await Promise.all(productsOrdered.map(async (cartProduct) => {
-            await db.orderDetail.create({
-                data: {
-                    quantity: cartProduct.quantity,
-                    product_name: cartProduct.product.name,
-                    product_description: cartProduct.product.description,
-                    unit_price: parseInt(cartProduct.unit_price),
-                    order_id: order.id
-                }
-            });
-        }));
-
-
-        return res.status(200).json({
-            status: 200,
-            message: "Commande crée avec succès"
-        })
-
-    } catch (error) {
-        return res.status(401).send({
-            status: 401,
-            message: error.message,
-        });
-    }
-})
-
-router.delete("/basket/:id/empty", shouldBeAuthenticate, async (req, res) => {
-    const id = req.params.id
-
-    try {
-        const basket = await db.cart.findUnique({
-            where: {
-                id,
-            }
-        })
-
-        if (!basket) {
-            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
-        }
-
-        if (!(req.user.id === basket.user_id)) {
-            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
         }
 
         await db.cartHasProducts.deleteMany({
