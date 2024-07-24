@@ -7,18 +7,23 @@ import { Chart, CategoryScale, BarElement, LinearScale, Title } from "chart.js";
 
 Chart.register(CategoryScale, BarElement, LinearScale, Title);
 
-const groupUsersByMonth = (users: UserCountDate[]): { count: number; date: string }[] => {
-  const grouped = users.reduce((acc, user) => {
-    const monthYear = new Date(user.date).toLocaleString("fr-FR", {
-      year: "numeric",
-      month: "long",
-    });
-    if (!acc[monthYear]) {
-      acc[monthYear] = { count: 0, date: monthYear };
-    }
-    acc[monthYear].count += user.count;
-    return acc;
-  }, {} as Record<string, { count: number; date: string }>);
+const groupUsersByMonth = (
+  users: UserCountDate[],
+): { count: number; date: string }[] => {
+  const grouped = users.reduce(
+    (acc, user) => {
+      const monthYear = new Date(user.date).toLocaleString("fr-FR", {
+        year: "numeric",
+        month: "long",
+      });
+      if (!acc[monthYear]) {
+        acc[monthYear] = { count: 0, date: monthYear };
+      }
+      acc[monthYear].count += user.count;
+      return acc;
+    },
+    {} as Record<string, { count: number; date: string }>,
+  );
 
   return Object.values(grouped);
 };
@@ -58,7 +63,9 @@ onMounted(() => getStats());
           <span class="headline">Nombre d'utilisateurs</span>
         </v-card-title>
         <v-card-text>
-          <span class="display-1 text-h3 font-weight-bold">{{ stats.totalUsers }}</span>
+          <span class="display-1 text-h3 font-weight-bold">{{
+            stats.totalUsers
+          }}</span>
         </v-card-text>
       </v-card>
     </v-col>
@@ -114,7 +121,9 @@ onMounted(() => getStats());
             v-if="!loading"
             id="users-chart"
             :data="{
-              labels: groupUsersByMonth(stats.newUsers).map((stat) => stat.date),
+              labels: groupUsersByMonth(stats.newUsers).map(
+                (stat) => stat.date,
+              ),
               datasets: datasets,
             }"
             :chartOptions="{

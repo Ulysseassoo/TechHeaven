@@ -32,5 +32,5 @@ export interface Stats {
   totalUsersByNotificationType: {
     count: number;
     type: string;
-  }[]
+  }[];
 }

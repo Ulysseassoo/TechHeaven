@@ -21,7 +21,7 @@ const props = defineProps<Props>();
 const store = useUserStore();
 const categories = ref<Category[]>([]);
 
-const fetchCategories  = async () => {
+const fetchCategories = async () => {
   try {
     const result = await getCategories({
       limit: 100,
@@ -31,7 +31,7 @@ const fetchCategories  = async () => {
     console.log(error);
     throw error;
   }
-}
+};
 
 const validationSchema = z.object({
   id: z.string(),
@@ -79,7 +79,7 @@ const { data, errors, validateField, handleSubmit } = useForm({
     brand: props.product?.brand ?? "",
     quantity: props.product?.quantity ?? 0,
     price: props.product?.price ?? 0,
-    categoryId: props.product?.categoryId?? "",
+    categoryId: props.product?.categoryId ?? "",
   },
   validationSchema,
   onSubmit,
@@ -100,13 +100,19 @@ const fieldsConfig: any[] = [
 
 const { fields } = useFields<FormValues>({ errors, fieldsConfig });
 
-onMounted(() => fetchCategories())
+onMounted(() => fetchCategories());
 </script>
 
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
+      <v-col
+        v-for="field in fields"
+        :key="field.field"
+        cols="12"
+        md="12"
+        sm="12"
+      >
         <VNumberInput
           v-if="field.type === 'number'"
           variant="outlined"

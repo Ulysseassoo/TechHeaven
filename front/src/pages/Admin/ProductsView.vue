@@ -15,7 +15,11 @@ const columns: TableColumn<Product>[] = [
   { value: "name", label: "Nom" },
   { value: "description", label: "Description" },
   { value: "brand", label: "Marque" },
-  { value: "category", label: "Catégorie", renderCell: (row) => row?.category?.name },
+  {
+    value: "category",
+    label: "Catégorie",
+    renderCell: (row) => row?.category?.name,
+  },
   { value: "quantity", label: "Quantité" },
   {
     value: "price",
