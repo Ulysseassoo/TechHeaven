@@ -26,9 +26,31 @@ productSchema.pre('save', async function (next) {
     if (!category) {
       throw new Error('Category not found');
     }
-
+    
     this.category = category._id;
 
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+productSchema.pre('findOneAndUpdate', async function (next) {
+  const update = this.getUpdate();
+
+  if (!update.categoryId) {
+    next();
+    return;
+  }
+
+  try {
+    const category = await Category.findOne({ id: update.categoryId });
+    if (!category) {
+      throw new Error('Category not found');
+    }
+
+    update.category = category._id;
+    this.setUpdate(update);
     next();
   } catch (error) {
     next(error);

@@ -8,11 +8,18 @@ import { toast, type ToastOptions } from "vue3-toastify";
 import DataTable from "@/components/DataTable.vue";
 import ModalButton from "@/components/ModalButton.vue";
 import ProductModal from "@/components/Admin/ProductModal.vue";
+import { useUserStore } from "@/store/UserStore";
 
+const store = useUserStore();
 const columns: TableColumn<Product>[] = [
   { value: "name", label: "Nom" },
   { value: "description", label: "Description" },
   { value: "brand", label: "Marque" },
+  {
+    value: "category",
+    label: "Catégorie",
+    renderCell: (row) => row?.category?.name,
+  },
   { value: "quantity", label: "Quantité" },
   {
     value: "price",
@@ -36,6 +43,8 @@ const {
 } = useGetPagination<Product>({
   getData: getProducts,
 });
+
+const isAdmin = store?.user?.role === "ROLE_ADMIN";
 
 const actions = [
   {
@@ -66,28 +75,30 @@ const actions = [
     label: "Supprimer",
     id: "delete",
     renderCell: (row: Product) =>
-      h("div", [
-        h(ModalButton, {
-          icon: "fa-solid fa-trash",
-          tooltipLabel: "Supprimer",
-          action: async () => {
-            try {
-              const response = await deleteProduct(row.id);
-              if (response.message !== undefined) {
-                toast.success(response.message, {
-                  autoClose: 2000,
-                  position: toast.POSITION.BOTTOM_RIGHT,
-                } as ToastOptions);
-              }
-              fetchData();
-            } catch (error: any) {
-              throw error || "Une erreur est survenue, veuillez réessayer";
-            }
-          },
-          title: "Attention",
-          description: "Voulez-vous vraiment confirmer votre action ?",
-        }),
-      ]),
+      isAdmin
+        ? h("div", [
+            h(ModalButton, {
+              icon: "fa-solid fa-trash",
+              tooltipLabel: "Supprimer",
+              action: async () => {
+                try {
+                  const response = await deleteProduct(row.id);
+                  if (response.message !== undefined) {
+                    toast.success(response.message, {
+                      autoClose: 2000,
+                      position: toast.POSITION.BOTTOM_RIGHT,
+                    } as ToastOptions);
+                  }
+                  fetchData();
+                } catch (error: any) {
+                  throw error || "Une erreur est survenue, veuillez réessayer";
+                }
+              },
+              title: "Attention",
+              description: "Voulez-vous vraiment confirmer votre action ?",
+            }),
+          ])
+        : null,
   },
 ];
 
@@ -126,7 +137,7 @@ onMounted(() => {
       :itemsPerPage="itemsPerPage"
       @update:itemsPerPage="changeItemsPerPage"
       @update:currentPage="changeCurrentPage"
-      :deleteAll="deleteAllProductsSelected"
+      :deleteAll="isAdmin ? deleteAllProductsSelected : undefined"
       :totalCount="totalCount"
       :currentPage="page"
       :totalPages="totalPages"
@@ -145,6 +156,7 @@ onMounted(() => {
           @input="debouncedSearch"
         ></v-text-field>
         <ProductModal
+          v-if="store?.user?.role === 'ROLE_ADMIN'"
           btnContent="Nouveau produit"
           color="tertiary"
           type="create"

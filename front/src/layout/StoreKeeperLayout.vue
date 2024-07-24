@@ -7,33 +7,15 @@ import { VListItem } from "vuetify/components";
 
 const drawer = ref(null);
 const items = ref([
-  { icon: "fa-solid fa-table", title: "Dashboard", route: "/admin" },
-  { icon: "fa-solid fa-user", title: "Utilisateurs", route: "/admin/users" },
   {
-    icon: "fa-solid fa-address-book",
-    title: "Adresses",
-    route: "/admin/addresses",
-  },
-  { icon: "fa-solid fa-box", title: "Commandes", route: "/admin/orders" },
-  {
-    icon: "fa-solid fa-file-invoice",
-    title: "Factures",
-    route: "/admin/invoices",
-  },
-  {
-    icon: "fa-solid fa-bell",
-    title: "Alertes",
-    route: "/admin/alerts",
-  },
-  {
-    icon: "fa-solid fa-list",
-    title: "Catégories",
-    route: "/admin/categories",
+    icon: "fa-solid fa-table",
+    title: "Stock",
+    route: "/keeper",
   },
   {
     icon: "fa-brands fa-product-hunt",
-    title: "Produits",
-    route: "/admin/products",
+    title: "Stock",
+    route: "/keeper/stock",
   },
 ]);
 

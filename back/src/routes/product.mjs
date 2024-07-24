@@ -1,6 +1,6 @@
 import express from "express";
 import { validationResult } from "express-validator";
-import { shouldBeAdmin } from "../middlewares/authentication.mjs";
+import { shouldBeAdmin, shouldBeAdminOrKeeper } from "../middlewares/authentication.mjs";
 import { productValidator } from "../validator/productValidator.mjs";
 import { db } from "../utils/db.server.mjs";
 import Product from "../models/Product.mjs";
@@ -10,7 +10,7 @@ import { sendProductReleaseEmail } from "../utils/mailer.mjs";
 
 const router = express.Router();
 
-router.post("/products", productValidator, async (req, res) => {
+router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
   try {
     const errors = validationResult(req);
 
@@ -132,7 +132,7 @@ router.get("/products/:id", async (req, res) => {
   }
 });
 
-router.put("/products/:id", productValidator, async (req, res) => {
+router.put("/products/:id", shouldBeAdminOrKeeper, productValidator, async (req, res) => {
   const { id } = req.params;
 
   const {
@@ -143,6 +143,7 @@ router.put("/products/:id", productValidator, async (req, res) => {
     quantity,
     promotion,
     promotion_type,
+    categoryId,
   } = req.body;
 
   try {
@@ -163,13 +164,15 @@ router.put("/products/:id", productValidator, async (req, res) => {
         id,
       },
       data: {
+        ...product,
         name,
         description,
         price,
         brand,
-        quantity,
         promotion,
         promotion_type,
+        categoryId,
+        ...(req.user.role === 'ROLE_STORE_KEEPER' && { quantity }),
       },
     });
 

@@ -15,10 +15,13 @@ import AlertsView from "@/pages/Admin/AlertsView.vue";
 import ProductView from "@/pages/ProductView.vue";
 import BasketView from "@/pages/BasketView.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
+import StoreKeeperLayout from "@/layout/StoreKeeperLayout.vue";
 import AccountLayout from "@/layout/AccountLayout.vue";
 import DashboardView from "@/pages/DashboardView.vue";
+import KeeperDashboardView from "@/pages/KeeperDashboardView.vue";
 import ProfileView from "@/pages/Account/ProfileView.vue";
 import UserAddressesView from "@/pages/Account/UserAddressesView.vue";
+import UserOrdersView from "@/pages/Account/UserOrdersView.vue";
 import ProductsView from "@/pages/Admin/ProductsView.vue";
 import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
 import PrivacyPolicyView from "@/pages/PrivacyPolicyView.vue";
@@ -91,6 +94,24 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: "/keeper",
+    name: "Keeper",
+    component: StoreKeeperLayout,
+    meta: { requiresAuth: true, role: "ROLE_STORE_KEEPER" },
+    children: [
+      {
+        path: "",
+        name: "OverviewStock",
+        component: KeeperDashboardView,
+      },
+      {
+        path: "stock",
+        name: "stock",
+        component: ProductsView,
+      },
+    ],
+  },
+  {
     path: "/account",
     name: "Account",
     component: AccountLayout,
@@ -100,6 +121,11 @@ const routes: RouteRecordRaw[] = [
         path: "profile",
         name: "Profile",
         component: ProfileView,
+      },
+      {
+        path: "orders",
+        name: "Orders",
+        component: UserOrdersView,
       },
       {
         path: "addresses",

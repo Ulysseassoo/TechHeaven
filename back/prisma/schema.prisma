@@ -106,6 +106,7 @@ model Product {
   category           Category?            @relation(fields: [categoryId], references: [id])
   CartHasProducts    CartHasProducts[]
   ProductHasCategory ProductHasCategory[]
+  stockHistory       StockHistory[]
 }
 
 model Cart {
@@ -218,4 +219,12 @@ model InvoiceDetail {
   unit_price          Int
   invoice_id          String
   invoice             Invoice? @relation(fields: [invoice_id], references: [id])
+}
+
+model StockHistory {
+  id         String   @id @unique @default(uuid())
+  product_id String
+  product    Product  @relation(fields: [product_id], references: [id])
+  date       DateTime @default(now())
+  quantity   Int
 }

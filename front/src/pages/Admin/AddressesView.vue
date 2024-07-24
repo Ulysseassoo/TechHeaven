@@ -165,7 +165,6 @@ onMounted(() => {
           v-model="search"
           @input="debouncedSearchedAddresses"
         ></v-text-field>
-        <v-btn color="tertiary">Nouvelle Adresse</v-btn>
       </template>
     </DataTable>
   </div>

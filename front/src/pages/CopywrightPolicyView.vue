@@ -6,42 +6,44 @@ import Footer from "@/components/Footer.vue";
 <template>
   <Header />
   <v-container>
-    <h1 class="text-h3">Copywright policy</h1>
+    <h1 class="text-h3">Politique de droit d'auteur</h1>
     <h2 class="text-h5">Tech Heaven</h2>
 
     <div class="mt-4 mb-12">
       <p class="text-h6">Copywright</p>
-
-      All content on the Tech Heaven website, including texts, graphics, logos,
-      images, videos and software, are protected by copyright and are the
-      exclusive property of Tech Heaven or its partners.
-
-      <br />
-      <br />
-
-      <p class="text-h6">Use of content</p>
-
-      You are not permitted to reproduce, distribute, modify, display or use the
-      contents of this site without the prior written permission of Tech Heaven.
-      Any unauthorized use may result in legal action.
+      Tout le contenu du site Web de Tech Heaven, y compris les textes,
+      graphiques, logos, images, vidéos et logiciels, sont protégés par le droit
+      d&apos;auteur et sont la propriété exclusive de Tech Heaven ou ses
+      partenaires.
 
       <br />
       <br />
 
-      <p class="text-h6">Report a violation</p>
-      If you believe your work has been copied in a manner that infringes
-      copyright, please provide the following information: • A description of
-      the copyrighted work that you claim has been violated • A description of
-      the location on our site of the material you claim to be violating • Your
-      contact information, including address, telephone number and e-mail Send
-      this information to support@tech-heaven.fr.
+      <p class="text-h6">Utilisation du contenu</p>
+
+      Vous n&apos;êtes pas autorisé à reproduire, distribuer, modifier, afficher
+      ou utiliser le contenu de ce site sans l&apos;autorisation écrite
+      préalable de Tech Heaven. Toute utilisation non autorisée peut entraîner
+      des poursuites judiciaires.
 
       <br />
       <br />
-      <p class="text-h6">Policy changes</p>
 
-      We reserve the right to change this policy at any time. Changes will be
-      posted on this page.
+      <p class="text-h6">Signaler une violation</p>
+      Si vous croyez que votre œuvre a été copiée d&apos;une manière qui
+      enfreint les droits d&apos;auteur, veuillez fournir les renseignements
+      suivants: • Une description de l&apos;œuvre protégée par le droit
+      d&apos;auteur que vous prétendez avoir violée • Une description de
+      l&apos;emplacement sur notre site du matériel que vous prétendez
+      enfreindre • Vos coordonnées, Adresse, numéro de téléphone et adresse
+      e-mail Envoyer ces informations à support@tech-heaven.fr.
+
+      <br />
+      <br />
+      <p class="text-h6">Changements de politique</p>
+
+      Nous nous réservons le droit de modifier cette politique à tout moment.
+      Les modifications seront publiées sur cette page.
     </div>
   </v-container>
   <Footer />

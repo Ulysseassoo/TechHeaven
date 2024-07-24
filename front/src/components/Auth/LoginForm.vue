@@ -38,6 +38,8 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
       store.setUser(response.data);
       if (response.data.role === "ROLE_ADMIN") {
         router.push("/admin");
+      } else if (response.data.role === "ROLE_STORE_KEEPER") {
+        router.push("/keeper");
       } else {
         router.push("/");
       }
@@ -91,7 +93,7 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
 
       <VTextField
         variant="outlined"
-        label="Password"
+        label="Mot de passe"
         v-model="data.password"
         :error="!!errors.password"
         :error-messages="errors.password"
@@ -106,14 +108,16 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
         "
       >
         <RouterLink to="/forgot-password" style="color: black"
-          >Forgot password ?</RouterLink
+          >Mot de passe oublié ?</RouterLink
         >
       </div>
       <VCard class="mb-12" color="surface-variant" variant="tonal">
         <VCardText class="text-medium-emphasis text-caption">
-          Warning: After 3 consecutive failed login attempts, you account will
-          be temporarily locked for three hours. If you must login now, you can
-          also click "Forgot password?" below to reset the login password.
+          Avertissement: Après 3 tentatives de connexion échouées consécutives,
+          votre compte sera temporairement verrouillé pendant trois heures. Si
+          vous devez vous connecter maintenant, vous pouvez Cliquez également
+          sur "Mot de passe oublié?" ci-dessus pour réinitialiser le mot de
+          passe.
         </VCardText>
       </VCard>
       <Stack
@@ -130,11 +134,11 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
           flat
           type="submit"
           :loading="isSubmitting"
-          >Log In</VBtn
+          >Se connecter</VBtn
         >
         <span
-          >Don't have account ?
-          <RouterLink to="/register">Register here</RouterLink></span
+          >Pas de compte ?
+          <RouterLink to="/register">Enregistrez vous ici</RouterLink></span
         >
       </Stack>
     </VForm>

@@ -51,13 +51,13 @@ const togglePreference = async (preference: Preference) => {
             v-slot:label
             v-if="preference.alert.type === AlertTypes.NEWSLETTER"
           >
-            Subscribe to our newsletter
+            S&apos;abonner à notre Newsletter
           </template>
           <template
             v-slot:label
             v-else-if="preference.alert.type === AlertTypes.CATEGORY"
           >
-            Subscribe to the products updates of the category
+            S'abonner aux mises à jour de produits de la catégorie
             {{ preference.alert.param }}
           </template>
         </v-switch>

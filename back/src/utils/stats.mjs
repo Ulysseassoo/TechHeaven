@@ -1,5 +1,7 @@
 import Order from "../models/Order.mjs";
 import User from "../models/User.mjs";
+import StockHistory from "../models/StockHistory.mjs";
+
 
 export const getTotalUsers = async () => {
   const totalUsers = await User.countDocuments({});
@@ -81,4 +83,138 @@ export const getCountUsersByNotificationType = async () => {
   ]);
 
   return usersByNotificationType;
+};
+
+export const getStockEvolutionFromStartToEnd = async () => {
+  const stockHistory = await StockHistory.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "productDetails"
+      }
+    },
+    { $unwind: "$productDetails" },
+    {
+      $group: {
+        _id: "$product_id",
+        startDate: { $min: "$date" },
+        endDate: { $max: "$date" },
+        startQuantity: { $first: "$quantity" },
+        endQuantity: { $last: "$quantity" },
+        product: { $first: "$productDetails" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        startDate: 1,
+        endDate: 1,
+        startQuantity: 1,
+        endQuantity: 1,
+        product: 1
+      },
+    },
+  ]);
+
+  return stockHistory;
+};
+
+export const getTopSixSoldProducts = async () => {
+  const stockHistory = await StockHistory.aggregate([
+    {
+      $lookup: {
+        from: "products",
+        localField: "product",
+        foreignField: "_id",
+        as: "productDetails"
+      }
+    },
+    { $unwind: "$productDetails" },
+    {
+      $group: {
+        _id: "$product_id",
+        startDate: { $min: "$date" },
+        endDate: { $max: "$date" },
+        startQuantity: { $first: "$quantity" },
+        endQuantity: { $last: "$quantity" },
+        product: { $first: "$productDetails" },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        startDate: 1,
+        endDate: 1,
+        startQuantity: 1,
+        endQuantity: 1,
+        quantityDifference: { $subtract: ["$startQuantity", "$endQuantity"] },
+        product: 1
+      },
+    },
+    { $sort: { quantityDifference: -1 } },
+    { $limit: 6 }
+  ]);
+
+  return stockHistory;
+};
+
+export const getUserConversionRate = async () => {
+  const result = await User.aggregate([
+    {
+      $facet: {
+        userCount: [{ $count: "count" }],
+        orderCount: [
+          {
+            $lookup: {
+              from: "orders",
+              pipeline: [{ $count: "count" }],
+              as: "orders"
+            }
+          },
+          { $unwind: "$orders" },
+          { $replaceRoot: { newRoot: "$orders" } }
+        ]
+      }
+    },
+    {
+      $project: {
+        userCount: { $arrayElemAt: ["$userCount.count", 0] },
+        orderCount: { $arrayElemAt: ["$orderCount.count", 0] }
+      }
+    },
+    {
+      $project: {
+        conversionRate: {
+          $multiply: [
+            { $divide: ["$orderCount", "$userCount"] },
+            100
+          ]
+        }
+      }
+    }
+  ])
+
+  return result.length > 0 ? result[0].conversionRate : 0;
+};
+
+export const getAverageOrderValue = async () => {
+  const result = await Order.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalOrderValue: { $sum: "$total_amount" },
+        orderCount: { $sum: 1 }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        averageOrderValue: { $divide: ["$totalOrderValue", "$orderCount"] }
+      }
+    }
+  ])
+
+  return result.length > 0 ? result[0].averageOrderValue : 0;
 };

@@ -10,41 +10,42 @@ import Footer from "@/components/Footer.vue";
     <h2 class="text-h5">Tech Heaven</h2>
 
     <div class="mt-4 mb-12">
-      <p class="text-h6">Society's identity</p>
+      <p class="text-h6">Identité de la société</p>
 
       <span>
         <ul>
-          <li>Society's name : Tech Heaven</li>
-          <li>Company's type : SARL</li>
-          <li>Address of the head office : 19 Avenue des Champs, 75018</li>
-          <li>Society's number : +336292929</li>
-          <li>Society's Name : support@tech-heaven.fr</li>
+          <li>Nom de la société : Tech Heaven</li>
+          <li>Type d'entreprise : SARL</li>
+          <li>Siège social : 19 Avenue des Champs, 75018</li>
+          <li>Numéro de téléphone : 0922108807</li>
+          <li>Email de la société : support@tech-heaven.fr</li>
         </ul>
 
         <br />
         <br />
-        <p class="text-h6">Site Hosting</p>
+        <p class="text-h6">Hébergeur</p>
         <ul>
-          <li>Name of host: OVH</li>
-          <li>Address: 2 Rue Kellermann</li>
-          <li>Phone number: 0972101007</li>
+          <li>Nom: OVH</li>
+          <li>Adresse: 2 Rue Kellermann</li>
+          <li>Numéro de téléphone: 0972101007</li>
         </ul>
 
         <br />
         <br />
-        <p class="text-h6">Intellectual property</p>
-        All content on the Tech Heaven site is the exclusive property of Tech
-        Heaven or its partners. Any reproduction, distribution, modification or
-        use of these contents without prior written permission is strictly
-        prohibited.
+        <p class="text-h6">Propriété intellectuelle</p>
+        Tout le contenu du site de Tech Heaven est la propriété exclusive de
+        TechHeaven ou de ses partenaires. Toute reproduction, distribution,
+        modification ou utilisation de ces contenus sans autorisation écrite
+        préalable est strictement interdite.
         <br />
         <br />
 
-        <p class="text-h6">Personal data protection</p>
-        In accordance with the GDPR, Tech Heaven collects and processes personal
-        data for the management of its customers. You have the right to access,
-        correct and delete your data. To exercise these rights, please contact
-        us at support@tech-heaven.fr.
+        <p class="text-h6">Protection des données personnelles</p>
+        Conformément au RGPD, Tech Heaven collecte et traite les données
+        personnelles pour la gestion de ses clients. Vous avez le droit
+        d&apos;accéder à vos données, de les corriger et de les supprimer. Pour
+        exercer ces droits, veuillez nous contacter à l&apos;adresse
+        support@tech-heaven.fr.
       </span>
     </div>
   </v-container>

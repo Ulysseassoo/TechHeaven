@@ -8,6 +8,9 @@ import { useFields } from "@/hooks/useGetFields";
 import { toast } from "vue3-toastify";
 import { VNumberInput } from "vuetify/labs/components";
 import { useUserStore } from "@/store/UserStore";
+import { ref, onMounted } from "vue";
+import { getCategories } from "@/api/category";
+import type { Category } from "@/interfaces/Category";
 
 interface Props {
   product?: Product;
@@ -16,6 +19,19 @@ interface Props {
 
 const props = defineProps<Props>();
 const store = useUserStore();
+const categories = ref<Category[]>([]);
+
+const fetchCategories = async () => {
+  try {
+    const result = await getCategories({
+      limit: 100,
+    });
+    categories.value = result.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
 
 const validationSchema = z.object({
   id: z.string(),
@@ -24,6 +40,7 @@ const validationSchema = z.object({
   brand: z.string().min(1),
   quantity: z.number().min(1),
   price: z.number().min(1),
+  categoryId: z.string().min(1).nullable(),
 });
 
 type FormValues = z.infer<typeof validationSchema>;
@@ -62,6 +79,7 @@ const { data, errors, validateField, handleSubmit } = useForm({
     brand: props.product?.brand ?? "",
     quantity: props.product?.quantity ?? 0,
     price: props.product?.price ?? 0,
+    categoryId: props.product?.categoryId ?? "",
   },
   validationSchema,
   onSubmit,
@@ -77,9 +95,12 @@ const fieldsConfig: any[] = [
   { label: "Marque", field: "brand", type: "string" },
   { label: "Quantité", field: "quantity", type: "number" },
   { label: "Prix", field: "price", type: "number" },
+  { label: "Catégorie", field: "categoryId", type: "select" },
 ];
 
 const { fields } = useFields<FormValues>({ errors, fieldsConfig });
+
+onMounted(() => fetchCategories());
 </script>
 
 <template>
@@ -111,6 +132,22 @@ const { fields } = useFields<FormValues>({ errors, fieldsConfig });
             product !== undefined
           "
         ></VNumberInput>
+        <VSelect
+          v-else-if="field.type === 'select'"
+          :items="categories"
+          :item-props="true"
+          item-title="name"
+          item-value="id"
+          variant="outlined"
+          :label="field.label"
+          v-model="data[field.field]"
+          :error="field.hasError"
+          :error-messages="field.error"
+          @update:modelValue="validateField(field.field)"
+          :readonly="disabled"
+          placeholder="-"
+          persistent-placeholder
+        ></VSelect>
         <v-text-field
           v-else
           variant="outlined"

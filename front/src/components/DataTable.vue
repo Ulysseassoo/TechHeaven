@@ -14,7 +14,7 @@ interface Action {
     {
       [key: string]: any;
     }
-  >;
+  > | null;
 }
 
 interface DataTableProps {

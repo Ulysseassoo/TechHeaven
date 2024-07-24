@@ -82,6 +82,94 @@ export const shouldBeAdmin = (req, res, next) => {
   });
 };
 
+export const shouldBeStoreKeeper = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send({
+      status: 401,
+      message: "Veuillez vous connecter pour avoir accès.",
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(403).send({
+        status: 403,
+        message: "Le token est invalide.",
+      });
+    }
+    const sessionUser = await db.user.findUnique({
+      where: {
+        id: user.userId,
+      },
+    });
+
+    if(!sessionUser) {
+      return res.status(403).send({
+        status: 403,
+        message: "Le token est invalide"
+      });
+    }
+
+    if (sessionUser.role !== "ROLE_STORE_KEEPER") {
+      return res.status(401).send({
+        status: 401,
+        message: "Vous n'avez pas accès à cette ressource",
+      });
+    }
+
+    req.user = sessionUser;
+
+    next();
+  });
+};
+
+export const shouldBeAdminOrKeeper = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send({
+      status: 401,
+      message: "Veuillez vous connecter pour avoir accès.",
+    });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
+    if (err) {
+      return res.status(403).send({
+        status: 403,
+        message: "Le token est invalide.",
+      });
+    }
+    const sessionUser = await db.user.findUnique({
+      where: {
+        id: user.userId,
+      },
+    });
+
+    if(!sessionUser) {
+      return res.status(403).send({
+        status: 403,
+        message: "Le token est invalide"
+      });
+    }
+
+    if (!["ROLE_STORE_KEEPER", "ROLE_ADMIN"].includes(sessionUser.role)) {
+      return res.status(401).send({
+        status: 401,
+        message: "Vous n'avez pas accès à cette ressource",
+      });
+    }
+
+    req.user = sessionUser;
+
+    next();
+  });
+}
+
 export const hasAuthenticate = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];

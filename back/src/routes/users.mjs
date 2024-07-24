@@ -16,10 +16,58 @@ import {
   getTotalRevenuePerDate,
   getTotalUsers,
   getCountUsersByNotificationType,
+  getAverageOrderValue,
+  getUserConversionRate
 } from "../utils/stats.mjs";
+import Order from "../models/Order.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
+
+router.get("/users/:id/orders", shouldBeAuthenticate, async (req, res) => {
+  try {
+    
+    const user = await User.findOne({
+      id: req.user.id,
+    });
+
+    if(req.params.id !== req.user.id) {
+      return res
+       .status(403)
+       .json({ status: 403, message: "Vous n'avez pas accès à cette ressource" });
+    }
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "Utilisateur inexistant." });
+    }
+
+
+    const { search } = req.query;
+    const query = {};
+
+    if (search !== undefined && search !== "") {
+      const searchQuery = new RegExp(search, "i");
+      query.$or = [
+        { id: { $regex: searchQuery } },
+        { "order_details.product_name": { $regex: searchQuery } },
+      ];
+    }
+
+    const orders = await Order.find({ user_id: user.id, ...query }).populate('order_details');
+
+    return res.status(200).json({
+      status: 200,
+      data: orders,
+    });
+  } catch (error) {
+    return res.status(401).send({
+      status: 401,
+      message: error.message || error,
+    });
+  }
+})
 
 router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
   try {
@@ -194,6 +242,8 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     const totalRevenue = await getTotalRevenue();
     const totalRevenuePerDate = await getTotalRevenuePerDate();
     const totalUsersByNotificationType = await getCountUsersByNotificationType();
+    const averageOrder = await getAverageOrderValue();
+    const userConversionRate = await getUserConversionRate();
 
     return res.status(200).json({
       status: 200,
@@ -203,6 +253,8 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
         totalRevenue,
         totalRevenuePerDate,
         totalUsersByNotificationType,
+        averageOrder,
+        userConversionRate
       },
     });
   } catch (error) {

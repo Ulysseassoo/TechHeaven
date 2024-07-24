@@ -3,6 +3,9 @@ import { COMPANY_MAIL } from "../constants/index.mjs";
 import { generateInvoicePDF } from './pdfGenerator.mjs';
 import fs from 'fs';
 
+const storeKeeperEmail = 'storekeeper@prisma.io';
+const adminEmail = 'gouenji@prisma.io';
+
 const user = process.env.SMTP_USER;
 const pass = process.env.SMTP_PASS;
 
@@ -196,6 +199,21 @@ export const sendInvoiceEmail = async (userEmail, invoice) => {
         // Supprimer le fichier PDF après envoi pour éviter d'encombrer le disque
         fs.unlinkSync(pdfPath);
     }
+}
+
+export const sendEmailAlert = async ({ product }) => {
+    const mailOptions = {
+        from: COMPANY_MAIL,
+        to: `${storeKeeperEmail}, ${adminEmail}`,
+        subject: 'Alerte de Stock Bas',
+        text: `Attention, le stock du produit ${product.name} est inférieur à 10. Veuillez prendre les mesures nécessaires.`,
+      };
+
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi de l\'email:', error);
+      }
 }
 
 
