@@ -15,6 +15,7 @@ import PromotionRoutes from "./routes/promotion.mjs";
 import StockHistoryRoutes from "./routes/stockHistory.mjs";
 import AlertRoutes from "./routes/alert.mjs";
 import deliveryRouter from "./routes/delivery.mjs";
+import PaymentRoutes  from "./routes/payment.mjs"
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification, sendNewsletterEmail } from "./utils/mailer.mjs";
@@ -55,6 +56,7 @@ app.use("/api", StockHistoryRoutes);
 app.use("/api", AlertRoutes);
 app.use('/api', deliveryRouter);
 app.use("/api", BasketRoutes);
+app.use("/api", PaymentRoutes)
 
 const checkPasswordRenewal = async () => {
   const accountsToRenew = await db.user.findMany();

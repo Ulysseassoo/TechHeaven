@@ -1,4 +1,5 @@
 import type { Order } from "@/interfaces/Order";
+import { postApi } from ".";
 import { getApi } from ".";
 import { HOST } from "@/constants";
 
@@ -20,6 +21,22 @@ export const getUserOrders = async ({
       Authorization: `Bearer ${token}`,
     },
   });
+
+  return response;
+}
+
+export const createOrder = async () => {
+  const url = `${HOST}/orders`;
+  const token = localStorage.getItem("token");
+  const response = await postApi<any>(
+    url,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
 
   return response;
 };

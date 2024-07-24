@@ -140,13 +140,15 @@ model Order {
   user_id       String
   user          User          @relation(fields: [user_id], references: [id])
   order_details OrderDetail[]
-  deliveries    Delivery[]
-  payments      Payment[]
+  delivery      Delivery?
+  payment       Payment?
+  Invoice       Invoice?
 }
 
 model OrderDetail {
   id                  String @id @unique @default(uuid())
   quantity            Int
+  product_id          String
   product_name        String
   product_description String
   unit_price          Int
@@ -155,11 +157,12 @@ model OrderDetail {
 }
 
 model Delivery {
-  id               Int    @id @default(autoincrement())
+  id               String @id @unique @default(uuid())
   address          String
-  status           String
+  status           String @default("En cours")
   following_number String
-  order_id         String
+  client_name      String
+  order_id         String @unique
   order            Order  @relation(fields: [order_id], references: [id])
 }
 
@@ -168,7 +171,7 @@ model Payment {
   paid_amount    Int
   payment_method String
   status         String
-  order_id       String
+  order_id       String @unique
   order          Order  @relation(fields: [order_id], references: [id])
 }
 
@@ -192,15 +195,30 @@ model Promotion {
 }
 
 model Invoice {
-  id              Int      @id @default(autoincrement())
-  userId          String
-  productId       String
+  id              String          @id @unique @default(uuid())
+  user_id         String
+  user_firstname  String
+  user_lastname   String
+  order_id        String          @unique
   amount          Float
-  status          String   @default("pending") // "pending", "paid", "cancelled"
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  status          String          @default("pending") // "pending", "paid", "cancelled"
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
   paymentIntentId String?
-  user            User     @relation(fields: [userId], references: [id])
+  user            User            @relation(fields: [user_id], references: [id])
+  order           Order?          @relation(fields: [order_id], references: [id])
+  invoice_details InvoiceDetail[]
+}
+
+model InvoiceDetail {
+  id                  String   @id @unique @default(uuid())
+  quantity            Int
+  product_id          String
+  product_name        String
+  product_description String
+  unit_price          Int
+  invoice_id          String
+  invoice             Invoice? @relation(fields: [invoice_id], references: [id])
 }
 
 model StockHistory {

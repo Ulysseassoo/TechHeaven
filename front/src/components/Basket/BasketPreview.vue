@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import BasketPreviewProduct from "./BasketPreviewProduct.vue";
 import { useBasketStore } from "@/store/basketStore";
 
 const basketStore = useBasketStore();
-const { basket, getTotalPriceOfOneProduct, getTotalPrice } = basketStore;
+const { getTotalPriceOfOneProduct, getTotalPrice } = basketStore;
+const basket = computed(() => basketStore.basket);
 </script>
 
 <template>

@@ -10,8 +10,6 @@ const orderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   user_id: { type: String, required: true },
   order_details: { type: [orderDetailSchema], default: [] },
-  deliveries: [{ type: mongoose.Schema.Types.ObjectId, ref: "Delivery" }],
-  payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Payment" }],
 });
 
 orderSchema.pre('save', async function (next) {

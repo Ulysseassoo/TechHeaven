@@ -7,6 +7,7 @@ import Payment from '../models/Payment.mjs';
 import Cart from '../models/Cart.mjs';
 import Category from '../models/Category.mjs';
 import StockHistory from '../models/StockHistory.mjs';
+import Invoice from '../models/Invoice.mjs'
 
 const Models = {
   User,
@@ -17,7 +18,8 @@ const Models = {
   Promotion,
   Cart,
   Category,
-  StockHistory
+  StockHistory,
+  Invoice
 };
 
 const SubModels = {
@@ -70,6 +72,11 @@ const SubModels = {
     main: User,
     sub: "preferences",
     sub_key: "user_id"
+  },
+  InvoiceDetail: {
+    main: Invoice,
+    sub: "invoice_details",
+    sub_key: "invoice_id"
   }
 }
 

@@ -6,6 +6,7 @@ export const cartHasProductsSchema = new mongoose.Schema({
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     product_id: {type: String, required: true},
     cart_id: {type: String, required: true},
+    id: {type: String, required: true, sparse: true},
     quantity: Number,
     unit_price: String,
 });

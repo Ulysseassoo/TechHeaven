@@ -1,12 +1,42 @@
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 import { defineStore } from "pinia";
 
 import type { Basket } from "@/interfaces/Basket";
 import type { Product } from "@/interfaces/Product";
+import {
+  getBasket,
+  getBasketProducts,
+  updateProductInBasket,
+} from "@/api/basket";
 
 export const useBasketStore = defineStore("basket", () => {
   const basket = ref<Basket>([]);
+
+  const basketId = ref(null);
+
+  const fetchBasket = async () => {
+    try {
+      const res = await getBasket();
+      basketId.value = res.data.id;
+    } catch (err) {
+      console.log(err, "Error occured in basket store: fetch basket");
+    }
+  };
+
+  const fetchBasketProducts = async () => {
+    try {
+      const res = await getBasketProducts(basketId.value);
+      basket.value = res.data.map((product) => {
+        return {
+          product: product.product,
+          orderQuantity: product.quantity,
+        };
+      });
+    } catch (err) {
+      console.log(err, "Error occured in basket store: fetch basket products");
+    }
+  };
 
   const findItemIndexInBasket = (product: Product) => {
     const productKey = basket.value.findIndex(
@@ -16,32 +46,54 @@ export const useBasketStore = defineStore("basket", () => {
     return productKey;
   };
 
-  const addItemToBasket = (product: Product) => {
+  const addItemToBasket = async (product: Product) => {
     const productKey = findItemIndexInBasket(product);
 
-    if (productKey !== -1) {
-      basket.value[productKey].orderQuantity += 1;
-    } else {
-      basket.value.push({ product, orderQuantity: 1 });
-    }
-  };
-
-  const decrementItemFromBasket = (product: Product) => {
-    const productKey = findItemIndexInBasket(product);
-
-    if (productKey !== -1) {
-      if (basket.value[productKey].orderQuantity > 1) {
-        basket.value[productKey].orderQuantity -= 1;
-      } else {
-        basket.value.splice(productKey, 1);
+    try {
+      const res = await updateProductInBasket(product.id, "add");
+      if (res.status === 200) {
+        if (productKey !== -1) {
+          basket.value[productKey].orderQuantity += 1;
+        } else {
+          basket.value.push({ product, orderQuantity: 1 });
+        }
       }
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const removeItemFromBasket = (product: Product) => {
+  const decrementItemFromBasket = async (product: Product) => {
     const productKey = findItemIndexInBasket(product);
-    if (productKey !== -1) {
-      basket.value.splice(productKey, 1);
+
+    try {
+      const res = await updateProductInBasket(product.id, "remove");
+      if (res.status === 200) {
+        if (productKey !== -1) {
+          if (basket.value[productKey].orderQuantity > 1) {
+            basket.value[productKey].orderQuantity -= 1;
+          } else {
+            basket.value.splice(productKey, 1);
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const removeItemFromBasket = async (product: Product) => {
+    const productKey = findItemIndexInBasket(product);
+
+    try {
+      const res = await updateProductInBasket(product.id, "delete");
+      if (res.status) {
+        if (productKey !== -1) {
+          basket.value.splice(productKey, 1);
+        }
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -56,7 +108,7 @@ export const useBasketStore = defineStore("basket", () => {
     );
   };
 
-  const validateBasket = () => {
+  const emptyBasket = () => {
     basket.value = [];
   };
 
@@ -77,10 +129,13 @@ export const useBasketStore = defineStore("basket", () => {
   );
 
   return {
+    fetchBasket,
+    fetchBasketProducts,
     basket,
+    basketId,
     addItemToBasket,
     decrementItemFromBasket,
-    validateBasket,
+    emptyBasket,
     removeItemFromBasket,
     getTotalItems,
     getTotalPrice,

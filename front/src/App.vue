@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
 import { useProductStore } from "@/store/productStore";
+import { useBasketStore } from "@/store/basketStore";
 
 const productStore = useProductStore();
+const basketStore = useBasketStore();
 
-onMounted(() => {
-  productStore.fetchProducts();
-});
+productStore.fetchProducts();
+basketStore.fetchBasket();
+basketStore.fetchBasketProducts();
 </script>
 
 <template>

@@ -27,12 +27,24 @@ import DeleteAccountView from "@/pages/Account/DeleteAccountView.vue";
 import PrivacyPolicyView from "@/pages/PrivacyPolicyView.vue";
 import ConfidentialityView from "@/pages/ConfidentialityView.vue";
 import CopywrightPolicyView from "@/pages/CopywrightPolicyView.vue";
+import OrderView from "@/pages/OrderView.vue";
+import PaymentSuccessView from "@/pages/PaymentSuccessView.vue";
 import CgvView from "@/pages/CgvView.vue";
 
 const routes: RouteRecordRaw[] = [
-  { path: "/", name: "Home", component: HomeView },
+  {
+    path: "/",
+    name: "Home",
+    component: HomeView,
+  },
   { path: "/products", name: "ProductsGuest", component: ProductView },
   { path: "/basket", name: "Basket", component: BasketView },
+  { path: "/order", name: "Order", component: OrderView },
+  {
+    path: "/payment/success",
+    name: "PaymentSuccess",
+    component: PaymentSuccessView,
+  },
   {
     path: "/admin",
     name: "Admin",

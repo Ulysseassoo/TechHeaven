@@ -3,10 +3,14 @@ import BasketMoreProduct from "./BasketMoreProduct.vue";
 import DetailProductCard from "./DetailProductCard.vue";
 import BasketAdvantage from "./BasketAdvantage.vue";
 import type { Basket } from "@/interfaces/Basket";
+import { useProductStore } from "@/store/productStore";
 
 defineProps<{
   basket: Basket;
 }>();
+
+const productStore = useProductStore();
+const moreProducts = productStore.products.slice(0, 4);
 </script>
 <template>
   <section class="basket-detail-container">
@@ -28,9 +32,11 @@ defineProps<{
     <div class="basket-detail-more">
       <h1>Compléter votre panier</h1>
       <div class="basket-more-products">
-        <BasketMoreProduct />
-        <BasketMoreProduct />
-        <BasketMoreProduct />
+        <BasketMoreProduct
+          v-for="product in moreProducts"
+          :key="product.id"
+          :product="product"
+        />
       </div>
     </div>
     <div class="basket-detail-advantages">
@@ -47,6 +53,7 @@ defineProps<{
 }
 
 .basket-detail-products {
+  padding-bottom: 50px;
   border-bottom: solid 1px rgba(0, 0, 0, 0.5);
 }
 

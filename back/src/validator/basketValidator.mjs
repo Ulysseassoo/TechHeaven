@@ -1,5 +1,6 @@
 import { body } from "express-validator";
 
 export const basketValidator = [
-    body('products').isArray(),
+    body('product_id').isString(),
+    body('action').isString()
 ];
