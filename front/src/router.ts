@@ -28,6 +28,7 @@ import PrivacyPolicyView from "@/pages/PrivacyPolicyView.vue";
 import ConfidentialityView from "@/pages/ConfidentialityView.vue";
 import CopywrightPolicyView from "@/pages/CopywrightPolicyView.vue";
 import OrderView from "@/pages/OrderView.vue";
+import ProductDetailView from "@/pages/ProductDetailView.vue";
 import PaymentSuccessView from "@/pages/PaymentSuccessView.vue";
 import CgvView from "@/pages/CgvView.vue";
 
@@ -40,6 +41,11 @@ const routes: RouteRecordRaw[] = [
   { path: "/products", name: "ProductsGuest", component: ProductView },
   { path: "/basket", name: "Basket", component: BasketView },
   { path: "/order", name: "Order", component: OrderView },
+  {
+    path: "/product-detail",
+    name: "ProductDetail",
+    component: ProductDetailView,
+  },
   {
     path: "/payment/success",
     name: "PaymentSuccess",

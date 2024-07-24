@@ -3,31 +3,44 @@ import airpods from "@/assets/airpods.png";
 import type { Product } from "@/interfaces/Product";
 import { useBasketStore } from "@/store/basketStore";
 import { useUserStore } from "@/store/UserStore";
+import { useProductStore } from "@/store/productStore";
+import { useRouter } from "vue-router";
 
 const basketStore = useBasketStore();
 const userStore = useUserStore();
+const productStore = useProductStore();
+const router = useRouter();
 const { user } = userStore;
 const { addItemToBasket } = basketStore;
 defineProps<{
   product: Product;
 }>();
+
+const goDetailPage = (product: Product) => {
+  productStore.setSelectedProduct(product);
+  router.push("/product-detail");
+};
 </script>
 <template>
   <div class="product-card">
-    <div class="product-image">
-      <img :src="airpods" alt="" />
-    </div>
-    <div class="product-name">
-      {{ product.name }}
-    </div>
-    <div class="product-description">{{ product.description }}</div>
-    <div class="product-price">
-      <div class="product-price-label">À partir de :</div>
-      <div class="product-price-amount">{{ product.price }} EUR</div>
+    <div class="product-card-informations">
+      <div class="product-image">
+        <img :src="airpods" alt="" />
+      </div>
+      <div class="product-name">
+        {{ product.name }}
+      </div>
+      <div class="product-description">{{ product.description }}</div>
+      <div class="product-price">
+        <div class="product-price-label">À partir de :</div>
+        <div class="product-price-amount">{{ product.price }} EUR</div>
+      </div>
     </div>
 
     <div class="product-buttons">
-      <v-btn color="#F1F2F5"> Voir l'article </v-btn>
+      <v-btn @click="goDetailPage(product)" color="#F1F2F5">
+        Voir l'article
+      </v-btn>
       <v-btn v-if="user" color="#3281ED" @click="addItemToBasket(product)">
         Ajouter au panier
       </v-btn>
@@ -42,6 +55,7 @@ defineProps<{
   max-width: 300px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   background: white;
   padding: 15px 15px;
   border-radius: 5px;
