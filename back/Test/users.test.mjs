@@ -5,13 +5,9 @@ import User from '../src/models/User.mjs';
 import { db } from '../src/utils/db.server.mjs';
 import { generateTestToken } from '../src/utils/jwt.mjs';
 import * as dotenv from "dotenv";
-import mongoose from 'mongoose';
 import { sendConfirmationEmail } from '../src/utils/mailer.mjs';
 import { generateConfirmationToken } from '../src/utils/jwt.mjs';
-import { shouldBeAuthenticate } from '../src/middlewares/authentication.mjs';
-import { shouldBeAdmin } from '../src/middlewares/authentication.mjs';
 
-jest.mock('../src/models/User.mjs');
 jest.mock('../src/middlewares/authentication.mjs', () => ({
   shouldBeAuthenticate: (req, res, next) => {
     req.user = { id: '1', role: 'ROLE_USER' }; 
@@ -28,9 +24,12 @@ jest.mock('../src/utils/db.server.mjs', () => ({
     user: {
       findUnique: jest.fn(),
       create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn()
     },
   },
 }));
+jest.mock('../src/models/User.mjs');
 jest.mock('../src/utils/mailer.mjs');
 jest.mock('../src/utils/jwt.mjs');
 
