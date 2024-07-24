@@ -30,7 +30,7 @@ export const getBasketProducts = async (basketId: string | null) => {
 
 export const updateProductInBasket = async (
   productId: string,
-  action: "remove" | "add" | "delete"
+  action: "remove" | "add" | "delete",
 ) => {
   const token = localStorage.getItem("token");
 
@@ -42,7 +42,7 @@ export const updateProductInBasket = async (
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   return response;
