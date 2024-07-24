@@ -51,7 +51,6 @@ export const mongoUpdate = async ({ model, data, where }) => {
     await mainDocument.save();
     return;
   }
-  console.log(model, data, where)
   await Model.findOneAndUpdate(where, data);
 };
 
