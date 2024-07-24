@@ -32,7 +32,10 @@ const navigateBack = () => {
           <span @click="navigateBack">De retour sur le site</span>
         </Stack>
         <h1>Bienvenue !</h1>
-        <DividerWithText container-class="mt-8 mb-12 relative" content="Connectez vous" />
+        <DividerWithText
+          container-class="mt-8 mb-12 relative"
+          content="Connectez vous"
+        />
         <LoginForm />
       </div>
     </div>

@@ -23,7 +23,7 @@ export const getUserOrders = async ({
   });
 
   return response;
-}
+};
 
 export const createOrder = async () => {
   const url = `${HOST}/orders`;
