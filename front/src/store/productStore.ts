@@ -15,7 +15,7 @@ export const useProductStore = defineStore("products", () => {
       const res = await getProducts({
         search: "",
         page: 1,
-        limit: 10,
+        limit: 40,
       });
       products.value = res.data;
     } catch (err) {

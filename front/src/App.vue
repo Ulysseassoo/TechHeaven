@@ -2,19 +2,23 @@
 import { useProductStore } from "@/store/productStore";
 import { useBasketStore } from "@/store/basketStore";
 import { useUserStore } from "@/store/UserStore";
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 
 const productStore = useProductStore();
 const basketStore = useBasketStore();
 const userStore = useUserStore();
 
-onMounted(async () => {
+const fetchData = async () => {
+  await productStore.fetchProducts();
   if (userStore.user) {
-    productStore.fetchProducts();
-    basketStore.fetchBasket();
-    basketStore.fetchBasketProducts();
+    await basketStore.fetchBasket();
+    await basketStore.fetchBasketProducts();
   }
-});
+};
+
+onMounted(fetchData);
+
+watch(() => userStore.user, fetchData);
 </script>
 
 <template>

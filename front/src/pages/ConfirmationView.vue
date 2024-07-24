@@ -13,7 +13,7 @@ const verifyUserToken = async () => {
     const result = await verifyUser(token as string);
     if (result.status === 200) {
       await router.push("/login");
-      toast.success("Your account has been verified. Please log in now.");
+      toast.success("Votre compte a été vérifié. Veuillez vous connecter maintenant.");
     }
   } catch (error) {
     router.push("/");

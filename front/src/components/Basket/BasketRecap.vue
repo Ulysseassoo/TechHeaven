@@ -2,13 +2,22 @@
 import { computed } from "vue";
 import BasketRecapProduct from "./BasketRecapProduct.vue";
 import { useBasketStore } from "@/store/basketStore";
+import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
 
 const router = useRouter();
 const basketStore = useBasketStore();
+const userStore = useUserStore();
 const basketProducts = computed(() => basketStore.basket);
 
 const goOrderPage = () => {
+  if (userStore.user?.addresses.length === 0) {
+    toast.error(
+      "Veuillez renseigner une adresse de livraison avant de passer à la commande."
+    );
+    return;
+  }
   router.push("/order");
 };
 </script>

@@ -4,18 +4,28 @@ import Footer from "@/components/Footer.vue";
 import OrderContainer from "@/components/Basket/Order/OrderContainer.vue";
 
 import { useUserStore } from "@/store/UserStore";
-import router from "@/router";
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 const useStore = useUserStore();
+const router = useRouter();
 const { user } = useStore;
 
-if (!user) {
-  router.push("/products");
-}
+onMounted(() => {
+  if (!user) {
+    router.push("/products");
+  }
+
+  if (user?.addresses.length === 0) {
+    router.push("/");
+  }
+});
 </script>
 <template>
-  <Header />
-  <OrderContainer />
-  <Footer />
+  <div v-if="user?.addresses.length !== 0">
+    <Header />
+    <OrderContainer />
+    <Footer />
+  </div>
 </template>
 <style></style>

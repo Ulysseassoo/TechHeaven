@@ -29,9 +29,6 @@ defineProps<Props>();
 
         <div>
           <p class="text-subtitle-2">Commande # {{ order.id }}</p>
-          <RouterLink :to="`/orders/${order.id}`" class="text-subtitle-1"
-            >Afficher les détails de commande</RouterLink
-          >
         </div>
       </div>
     </v-card-title>
