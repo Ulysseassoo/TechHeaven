@@ -57,7 +57,9 @@ const legacyLinks = [
 
       <div class="links">
         <template v-for="(item, index) in categories" :key="item.id">
-          <RouterLink :to="`/products?category=${item.name}`">{{ item.name }}</RouterLink>
+          <RouterLink :to="`/products?category=${item.name}`">{{
+            item.name
+          }}</RouterLink>
           <span v-if="index !== categories.length - 1">-</span>
         </template>
       </div>
@@ -71,8 +73,8 @@ const legacyLinks = [
         <div>
           <h2>Rejoignez notre newsletter</h2>
           <p style="font-size: 12px; font-weight: 500">
-            Nous envoyons des emails seulement si vous le demandez, nous ne vous ferons
-            pas de spam, c&apos;est promis !
+            Nous envoyons des emails seulement si vous le demandez, nous ne vous
+            ferons pas de spam, c&apos;est promis !
           </p>
         </div>
         <div class="newsletter-input">

@@ -33,17 +33,19 @@ import Footer from "@/components/Footer.vue";
         <br />
         <br />
         <p class="text-h6">Propriété intellectuelle</p>
-        Tout le contenu du site de Tech Heaven est la propriété exclusive de TechHeaven ou
-        de ses partenaires. Toute reproduction, distribution, modification ou utilisation
-        de ces contenus sans autorisation écrite préalable est strictement interdite.
+        Tout le contenu du site de Tech Heaven est la propriété exclusive de
+        TechHeaven ou de ses partenaires. Toute reproduction, distribution,
+        modification ou utilisation de ces contenus sans autorisation écrite
+        préalable est strictement interdite.
         <br />
         <br />
 
         <p class="text-h6">Protection des données personnelles</p>
-        Conformément au RGPD, Tech Heaven collecte et traite les données personnelles pour
-        la gestion de ses clients. Vous avez le droit d&apos;accéder à vos données, de les
-        corriger et de les supprimer. Pour exercer ces droits, veuillez nous contacter à
-        l&apos;adresse support@tech-heaven.fr.
+        Conformément au RGPD, Tech Heaven collecte et traite les données
+        personnelles pour la gestion de ses clients. Vous avez le droit
+        d&apos;accéder à vos données, de les corriger et de les supprimer. Pour
+        exercer ces droits, veuillez nous contacter à l&apos;adresse
+        support@tech-heaven.fr.
       </span>
     </div>
   </v-container>

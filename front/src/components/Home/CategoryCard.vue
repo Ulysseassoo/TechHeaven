@@ -9,7 +9,14 @@ defineProps<{
 <template>
   <RouterLink :to="link" class="category-container">
     <img style="width: 100%; height: 100%; object-fit: cover" :src="img" />
-    <div style="background: white; text-align: center; padding: 5px 0; font-weight: 500">
+    <div
+      style="
+        background: white;
+        text-align: center;
+        padding: 5px 0;
+        font-weight: 500;
+      "
+    >
       {{ name }}
     </div>
   </RouterLink>
