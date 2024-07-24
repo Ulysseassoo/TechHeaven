@@ -1,18 +1,18 @@
 import type { User } from "./User";
 
 export interface Order {
-    id: string;
-    created_at: string;
-    status: OrderStatus;
-    user: User;
-    order_details: OrderDetail[];
-    total_amount: number;
+  id: string;
+  created_at: string;
+  status: OrderStatus;
+  user: User;
+  order_details: OrderDetail[];
+  total_amount: number;
 }
 
 export enum OrderStatus {
-    PENDING = "En cours",
-    COMPLETED = "completed",
-    CANCELED = "canceled"
+  PENDING = "En cours",
+  COMPLETED = "completed",
+  CANCELED = "canceled",
 }
 
 export interface OrderDetail {
