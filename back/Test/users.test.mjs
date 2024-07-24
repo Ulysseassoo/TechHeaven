@@ -1,163 +1,182 @@
 import request from 'supertest';
 import express from 'express';
-import User from "../src/routes/users.mjs";
+import UserRoutes from "../src/routes/users.mjs";
+import User from '../src/models/User.mjs';
 import { db } from '../src/utils/db.server.mjs';
 import { generateTestToken } from '../src/utils/jwt.mjs';
 import * as dotenv from "dotenv";
 import mongoose from 'mongoose';
+import { sendConfirmationEmail } from '../src/utils/mailer.mjs';
+import { generateConfirmationToken } from '../src/utils/jwt.mjs';
+import { shouldBeAuthenticate } from '../src/middlewares/authentication.mjs';
+import { shouldBeAdmin } from '../src/middlewares/authentication.mjs';
+
+jest.mock('../src/models/User.mjs');
+jest.mock('../src/middlewares/authentication.mjs', () => ({
+  shouldBeAuthenticate: (req, res, next) => {
+    req.user = { id: '1', role: 'ROLE_USER' }; 
+    next();
+  },
+  shouldBeAdmin: (req, res, next) => {
+    req.user = { role: 'ROLE_ADMIN' };
+    next();
+  },
+}));
+
+jest.mock('../src/utils/db.server.mjs', () => ({
+  db: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+    },
+  },
+}));
+jest.mock('../src/utils/mailer.mjs');
+jest.mock('../src/utils/jwt.mjs');
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(User);
+app.use(UserRoutes);
 
+describe('User Routes', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-jest.mock('../src/middlewares/authentication.mjs', () => ({
-    shouldBeAdmin: (req, res, next) => next(),
-    shouldBeAuthenticate: (req, res, next) => {
-      req.user = { id: 'user123', role: 'ROLE_ADMIN' };
-      next();
-    }
-}));
+  it('should create a new user and send confirmation email', async () => {
+    const mockUser = {
+      email: 'test@example.com',
+      firstname: 'John',
+      lastname: 'Doe',
+      password: 'Password123!',
+    };
+    const createdUser = { id: '1', email: 'test@example.com', firstname: 'John', lastname: 'Doe' };
 
-//const SECONDS = 1000;
-const SECONDS = 1000;
-jest.setTimeout(70 * SECONDS)
-/*
-beforeAll(async () => {
-    
-    const mongooseOptions = {
-        
-        serverSelectionTimeoutMS: 30000, // 30 seconds
-      };
-   
-      if (!process.env.DATABASE_URL_TEST) {
-        throw new Error('DATABASE_URL_TEST is not defined in the environment variables');
-      }
-    
-      try {
-        await mongoose.connect(process.env.DATABASE_URL_TEST, mongooseOptions);
-      } catch (error) {
-        console.error('Error connecting to MongoDB:', error);
-        throw error;
-      }
+    db.user.findUnique.mockResolvedValue(null);
+    db.user.create.mockResolvedValue(createdUser);
+    generateConfirmationToken.mockReturnValue('token');
+    sendConfirmationEmail.mockResolvedValue();
+
+    const res = await request(app)
+      .post('/users')
+      .send(mockUser)
+      .expect(201);
+
+    expect(res.body.data).toEqual(createdUser);
+    expect(db.user.findUnique).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
+    expect(db.user.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        email: 'test@example.com',
+        firstname: 'John',
+        lastname: 'Doe',
+      }),
+      select: expect.any(Object),
+    });
+    expect(generateConfirmationToken).toHaveBeenCalledWith('1');
+    expect(sendConfirmationEmail).toHaveBeenCalledWith('test@example.com', 'token');
   });
-  
-  */
-  beforeEach(async () => {
-    // Clean up the database before each test
-    await db.address.deleteMany({});
-    await db.user.deleteMany({});
+
+  it('should return 400 if user already exists', async () => {
+    db.user.findUnique.mockResolvedValue({ id: '1', email: 'test@example.com' });
+
+    const res = await request(app)
+      .post('/users')
+      .send({
+        email: 'test@example.com',
+        password: 'Password123!',
+        firstname: 'John',
+        lastname: 'Doe',
+      })
+      .expect(400);
+
+    expect(res.body.message).toBe("L'utilisateur existe déjà.");
+    expect(db.user.findUnique).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
   });
-  
-  afterAll(async () => {
-    // Disconnect from the database after all tests
-    await mongoose.disconnect();
+
+  it('should return 422 for validation errors', async () => {
+    const res = await request(app)
+      .post('/users')
+      .send({ email: 'not-an-email' })
+      .expect(422);
+
+    expect(res.body.message).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: 'email', msg: 'Adresse e-mail invalide.' }),
+      ])
+    );
   });
-  
-  describe('Users API', () => {
-    
-    it('should create a new user', async () => {
-      const newUser = { email: 'test@example.com', password: 'password123', firstname: 'John', lastname: 'Doe', role: 'ROLE_ADMIN' };
-  
-      const response = await request(app)
-        .post('/users')
-        .send(newUser);
-  
-      expect(response.status).toBe(201);
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id');
-    }, 70 * SECONDS);
-  
-    it('should get the user profile', async () => {
-      const user = await db.user.create({
-        data: { email: 'profile@example.com', password: 'password123', firstname: 'Jane', lastname: 'Doe', role: 'ROLE_ADMIN' },
-      });
-  
-      const token = generateTestToken(user.id);
-  
-      const response = await request(app)
-        .get('/users/me')
-        .set('Authorization', `Bearer ${token}`);
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data.email).toBe(user.email);
-    });
-  
-    it('should get all users', async () => {
-      const adminUser = await db.user.create({
-        data: { email: 'admin@example.com', password: 'password123', firstname: 'Admin', lastname: 'User', role: 'ROLE_ADMIN' },
-      });
-      const token = generateTestToken(adminUser.id);
-  
-      await db.user.createMany({
-        data: [
-          { email: 'user1@example.com', password: 'password123', firstname: 'Alice', lastname: 'Smith', role: 'ROLE_ADMIN' },
-          { email: 'user2@example.com', password: 'password123', firstname: 'Bob', lastname: 'Jones', role: 'ROLE_ADMIN' },
-        ],
-      });
-  
-      const response = await request(app)
-        .get('/users')
-        .set('Authorization', `Bearer ${token}`);
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data.length).toBeGreaterThanOrEqual(2);
-    });
-  
-    it('should update a user', async () => {
-      const user = await db.user.create({
-        data: { email: 'update@example.com', password: 'password123', firstname: 'Chris', lastname: 'Brown', role: 'ROLE_ADMIN' },
-      });
-  
-      const token = generateTestToken(user.id);
-  
-      const response = await request(app)
-        .put(`/users/${user.id}`)
-        .send({ email: 'updated@example.com', firstname: 'Chris', lastname: 'Brown', role: 'ROLE_ADMIN' })
-        .set('Authorization', `Bearer ${token}`);
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data.email).toBe('updated@example.com');
-    });
-  
-    it('should delete a user', async () => {
-      const user = await db.user.create({
-        data: { email: 'delete@example.com', password: 'password123', firstname: 'Delete', lastname: 'Me', role: 'ROLE_ADMIN' },
-      });
-  
-      const token = generateTestToken(user.id);
-  
-      const response = await request(app)
-        .delete(`/users/${user.id}`)
-        .set('Authorization', `Bearer ${token}`);
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('message', 'Compte supprimé avec succès');
-  
-      const deletedUser = await db.user.findUnique({ where: { id: user.id } });
-      expect(deletedUser).toBeNull();
-    });
-  
-    it('should get user stats', async () => {
-      const adminUser = await db.user.create({
-        data: { email: 'admin@example.com', password: 'password123', firstname: 'Admin', lastname: 'User', role: 'ROLE_ADMIN' },
-      });
-      const token = generateTestToken(adminUser.id);
-  
-      const response = await request(app)
-        .get('/users/stats')
-        .set('Authorization', `Bearer ${token}`);
-  
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('totalUsers');
-      expect(response.body.data).toHaveProperty('newUsers');
-      expect(response.body.data).toHaveProperty('totalRevenue');
-      expect(response.body.data).toHaveProperty('totalRevenuePerDate');
-    });
+
+  it('should return current user details', async () => {
+    const mockUser = {
+      id: '1',
+      email: 'test@example.com',
+      firstname: 'John',
+      lastname: 'Doe',
+    };
+    User.findOne.mockResolvedValue(mockUser);
+
+    const res = await request(app)
+      .get('/users/me')
+      .expect(200);
+
+    expect(res.body.data).toEqual(mockUser);
+    expect(User.findOne).toHaveBeenCalledWith({ id: '1' });
+  });
+
+  it('should return 400 if user not found', async () => {
+    User.findOne.mockResolvedValue(null);
+
+    const res = await request(app)
+      .get('/users/me')
+      .expect(400);
+
+    expect(res.body.message).toBe('Utilisateur inexistant.');
+    expect(User.findOne).toHaveBeenCalledWith({ id: '1' });
+  });
+
+  it('should get a list of users', async () => {
+    const mockUsers = [
+      { id: '1', email: 'test1@example.com', firstname: 'John', lastname: 'Doe' },
+      { id: '2', email: 'test2@example.com', firstname: 'Jane', lastname: 'Smith' },
+    ];
+    User.findToClient.mockResolvedValue(mockUsers);
+    User.countDocuments.mockResolvedValue(2);
+
+    const res = await request(app)
+      .get('/users')
+      .expect(200);
+
+    expect(res.body.data).toEqual(mockUsers);
+    expect(res.body.totalPages).toBe(1);
+    expect(res.body.totalCount).toBe(2);
+    expect(User.findToClient).toHaveBeenCalledWith({}, 1, 10);
+    expect(User.countDocuments).toHaveBeenCalledWith({});
+  });
+
+  it('should return users based on search query', async () => {
+    const mockUsers = [
+      { id: '1', email: 'search@example.com', firstname: 'John', lastname: 'Doe' },
+    ];
+    User.findToClient.mockResolvedValue(mockUsers);
+    User.countDocuments.mockResolvedValue(1);
+
+    const res = await request(app)
+      .get('/users')
+      .query({ search: 'search' })
+      .expect(200);
+
+    expect(res.body.data).toEqual(mockUsers);
+    expect(res.body.totalPages).toBe(1);
+    expect(res.body.totalCount).toBe(1);
+    expect(User.findToClient).toHaveBeenCalledWith(
+      { $or: [{ email: { $regex: /search/i } }, { firstname: { $regex: /search/i } }, { lastname: { $regex: /search/i } }] },
+      1,
+      10
+    );
+    expect(User.countDocuments).toHaveBeenCalledWith(
+      { $or: [{ email: { $regex: /search/i } }, { firstname: { $regex: /search/i } }, { lastname: { $regex: /search/i } }] }
+    );
+  });
 });

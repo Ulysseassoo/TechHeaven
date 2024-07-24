@@ -7,6 +7,8 @@ import jwt from 'jsonwebtoken';
 import moment from 'moment';
 import * as dotenv from "dotenv";
 import { sendNotificationEmail, sendPasswordResetEmail } from '../src/utils/mailer.mjs';
+import { shouldBeAuthenticate } from '../src/middlewares/authentication.mjs';
+import { shouldBeAdmin } from '../src/middlewares/authentication.mjs';
 
 dotenv.config();
 const app = express();
@@ -15,11 +17,14 @@ app.use('/api/auth', AuthRouter);
 
 
 jest.mock('../src/middlewares/authentication.mjs', () => ({
-    shouldBeAdmin: (req, res, next) => next(),
-    shouldBeAuthenticate: (req, res, next) => {
-      req.user = { id: 'user123', role: 'ROLE_ADMIN' };
-      next();
-    }
+  shouldBeAuthenticate: (req, res, next) => {
+    req.user = { id: '1', role: 'ROLE_USER' }; 
+    next();
+  },
+  shouldBeAdmin: (req, res, next) => {
+    req.user = { role: 'ROLE_ADMIN' };
+    next();
+  },
 }));
 
 jest.mock('../src/utils/db.server.mjs', () => ({
