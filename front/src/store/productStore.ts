@@ -8,6 +8,7 @@ export const useProductStore = defineStore("products", () => {
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
   const productDetailSelected = ref<Product | null>(null);
+  const productSearch = ref("");
 
   const fetchProducts = async (params: string) => {
     isLoading.value = true;
@@ -37,5 +38,6 @@ export const useProductStore = defineStore("products", () => {
     error,
     setSelectedProduct,
     productDetailSelected,
+    productSearch,
   };
 });
