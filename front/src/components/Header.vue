@@ -21,7 +21,7 @@ const searchBar = ref("");
 
 const handleSubmit = () => {
   productStore.fetchProducts(
-    `name=${searchBar.value}&description=${searchBar.value}`
+    `name=${searchBar.value}&description=${searchBar.value}`,
   );
 };
 </script>

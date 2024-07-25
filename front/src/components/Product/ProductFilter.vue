@@ -9,7 +9,7 @@ const category = ref(null);
 
 const handleSubmit = () => {
   productStore.fetchProducts(
-    `maxPrice=${maxPrice.value}&brand=${brand.value}&category=${category.value}`
+    `maxPrice=${maxPrice.value}&brand=${brand.value}&category=${category.value}`,
   );
 };
 </script>
