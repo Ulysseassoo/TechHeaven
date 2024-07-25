@@ -27,9 +27,7 @@ const goDetailPage = (product: Product) => {
       <div class="product-image">
         <img :src="airpods" alt="" />
       </div>
-      <div class="product-name">
-        {{ product.name }}
-      </div>
+      <div class="product-name">{{ product.name }}</div>
       <div class="product-description">{{ product.description }}</div>
       <div class="product-price">
         <div class="product-price-label">À partir de :</div>
@@ -41,9 +39,16 @@ const goDetailPage = (product: Product) => {
       <v-btn @click="goDetailPage(product)" color="#F1F2F5">
         Voir l'article
       </v-btn>
-      <v-btn v-if="user" color="#3281ED" @click="addItemToBasket(product)">
+      <v-btn
+        v-if="user && product.quantity > 0"
+        color="#3281ED"
+        @click="addItemToBasket(product)"
+      >
         Ajouter au panier
       </v-btn>
+      <p class="product-buttons-connection" v-else-if="product.quantity == 0">
+        Victime de son succès
+      </p>
       <p class="product-buttons-connection" v-else>
         Vueillez vous connecter pour ajouter au panier
       </p>
