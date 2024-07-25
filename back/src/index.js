@@ -9,8 +9,6 @@ import InvoiceRoutes from "./routes/invoice.mjs";
 import SecurityRoutes from "./routes/auth.mjs";
 import AddressRoutes from "./routes/addresses.mjs";
 import BasketRoutes from "./routes/cart.mjs"
-import DeliveryRoutes from "./routes/delivery.mjs";
-import deliveryRoutes from "./routes/delivery.mjs";
 import PromotionRoutes from "./routes/promotion.mjs";
 import StockHistoryRoutes from "./routes/stockHistory.mjs";
 import AlertRoutes from "./routes/alert.mjs";
