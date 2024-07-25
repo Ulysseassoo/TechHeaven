@@ -106,7 +106,13 @@ onMounted(() => fetchCategories());
 <template>
   <VForm @submit.prevent="handleSubmit">
     <v-row dense>
-      <v-col v-for="field in fields" :key="field.field" cols="12" md="12" sm="12">
+      <v-col
+        v-for="field in fields"
+        :key="field.field"
+        cols="12"
+        md="12"
+        sm="12"
+      >
         <VNumberInput
           v-if="field.type === 'number' && field.field === 'price'"
           variant="outlined"
@@ -160,7 +166,9 @@ onMounted(() => fetchCategories());
           :readonly="disabled"
           placeholder="-"
           persistent-placeholder
-          :disabled="store?.user?.role === 'ROLE_STORE_KEEPER' && product !== undefined"
+          :disabled="
+            store?.user?.role === 'ROLE_STORE_KEEPER' && product !== undefined
+          "
         ></VSelect>
         <v-text-field
           v-else
@@ -174,7 +182,9 @@ onMounted(() => fetchCategories());
           :type="field.type"
           placeholder="-"
           persistent-placeholder
-          :disabled="store?.user?.role === 'ROLE_STORE_KEEPER' && product !== undefined"
+          :disabled="
+            store?.user?.role === 'ROLE_STORE_KEEPER' && product !== undefined
+          "
         ></v-text-field>
       </v-col>
     </v-row>

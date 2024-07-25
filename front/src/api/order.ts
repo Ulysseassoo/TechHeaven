@@ -1,5 +1,11 @@
 import type { Order } from "@/interfaces/Order";
-import { deleteApi, postApi, putApi, type ApiSuccess, type UpdateProps } from ".";
+import {
+  deleteApi,
+  postApi,
+  putApi,
+  type ApiSuccess,
+  type UpdateProps,
+} from ".";
 import { getApi } from ".";
 import { HOST } from "@/constants";
 
@@ -41,7 +47,6 @@ export const getOrders = async ({
     page: page.toString(),
     limit: limit.toString(),
   }).toString();
-
 
   const url = `${HOST}/orders?${queryParams}`;
   const token = localStorage.getItem("token");
