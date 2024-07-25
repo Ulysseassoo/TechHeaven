@@ -398,7 +398,7 @@ router.delete("/users/:id", shouldBeAuthenticate, async (req, res) => {
         .json({ status: 400, message: "Utilisateur inexistant." });
     }
 
-    if (user.id !== req.user.id && user.role !== "ROLE_ADMIN") {
+    if (user.id !== req.user.id && req.user.role !== "ROLE_ADMIN") {
       return res
         .status(401)
         .json({ status: 401, message: "Vous n'avez pas accès à cette route." });
