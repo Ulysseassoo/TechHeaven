@@ -78,17 +78,30 @@ router.post("/products", shouldBeAdmin, productValidator, async (req, res) => {
 
 router.get("/products", async (req, res) => {
   try {
-    const { page = 1, limit = 10, search } = req.query;
+    const { page = 1, limit = 10, name, description, brand, maxPrice } = req.query;
     const query = {};
+    const queries = []
 
-    if (search !== undefined && search !== "") {
-      const searchQuery = new RegExp(search, "i");
-      query.$or = [
-        { name: { $regex: searchQuery } },
-        { description: { $regex: searchQuery } },
-      ];
+    if (name !== undefined && name !== "") {
+      const nameQuery = new RegExp(name, "i");
+      queries.push({ name: { $regex: nameQuery } })
     }
 
+    if (description !== undefined && description !== "") {
+      const descriptionQuery = new RegExp(description, "i");
+      queries.push({ description: { $regex: descriptionQuery } })
+    }
+
+    if (brand !== undefined && brand !== "") {
+      const brandQuery = new RegExp(brand, "i");
+      queries.push({ brand: { $regex: brandQuery } })
+    }
+
+    if (maxPrice !== undefined && maxPrice !== "" && !isNaN(maxPrice)) {
+      queries.push({ price: { $lt: parseFloat(maxPrice) } });
+    }
+
+    if (queries.length) query.$or = queries
     const products = await Product.findToClient(query, page, limit);
 
     const count = await Product.countDocuments(query);

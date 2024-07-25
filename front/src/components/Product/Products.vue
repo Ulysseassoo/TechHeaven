@@ -5,7 +5,6 @@ import Product from "./Product.vue";
 
 const productStore = useProductStore();
 const products = computed(() => productStore.products);
-console.log(products.value, "produit");
 </script>
 
 <template>

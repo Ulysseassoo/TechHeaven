@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 import User from "@/components/Icons/User.vue";
 import Basket from "@/components/Icons/Basket.vue";
 import { useUserStore } from "@/store/UserStore";
 import { useBasketStore } from "@/store/basketStore";
+import { useProductStore } from "@/store/productStore";
+
+import { useWindowSize } from "../hooks/useWindowSize";
+const BREAKPOINT_FOR_SEARCHBAR = 820;
+const { width } = useWindowSize();
 
 const store = useUserStore();
 
 const basketStore = useBasketStore();
 const basketProductCount = computed(() => basketStore.basketProductCount);
+const productStore = useProductStore();
+
+const searchBar = ref("");
+
+const handleSubmit = () => {
+  productStore.fetchProducts(
+    `name=${searchBar.value}&description=${searchBar.value}`
+  );
+};
 </script>
 
 <template>
@@ -24,18 +38,21 @@ const basketProductCount = computed(() => basketStore.basketProductCount);
       </RouterLink>
       <div class="search-section">
         <RouterLink class="router-link" to="/products">Nos produits</RouterLink>
-        <!-- <VTextField
-          :style="{
-            display: width > BREAKPOINT_FOR_SEARCHBAR ? 'initial' : 'none',
-          }"
-          variant="outlined"
-          label="Qu'est ce que vous cherchez"
-          v-model="searchBar"
-          :error="false"
-          type="input"
-          :hide-details="true"
-          density="compact"
-        /> -->
+        <v-form style="flex: 1" @submit.prevent="handleSubmit">
+          <v-text-field
+            :style="{
+              display: width > BREAKPOINT_FOR_SEARCHBAR ? 'initial' : 'none',
+            }"
+            variant="outlined"
+            label="Qu'est-ce que vous cherchez"
+            v-model="searchBar"
+            :error="false"
+            type="text"
+            :hide-details="true"
+            density="compact"
+            @keyup.enter="handleSubmit"
+          />
+        </v-form>
       </div>
       <div style="display: flex">
         <RouterLink
@@ -58,20 +75,23 @@ const basketProductCount = computed(() => basketStore.basketProductCount);
         </div>
       </div>
     </section>
-    <!-- <section class="search-section-mobile">
-      <VTextField
-        :style="{
-          display: width > BREAKPOINT_FOR_SEARCHBAR ? 'none' : 'initial',
-        }"
-        variant="outlined"
-        label="Qu'est ce que vous cherchez"
-        v-model="searchBar"
-        :error="false"
-        type="input"
-        :hide-details="true"
-        density="compact"
-      />
-    </section> -->
+    <section class="search-section-mobile">
+      <v-form style="flex: 1" @submit.prevent="handleSubmit">
+        <v-text-field
+          :style="{
+            display: width > BREAKPOINT_FOR_SEARCHBAR ? 'none' : 'initial',
+          }"
+          variant="outlined"
+          label="Qu'est-ce que vous cherchez"
+          v-model="searchBar"
+          :error="false"
+          type="text"
+          :hide-details="true"
+          density="compact"
+          @keyup.enter="handleSubmit"
+        />
+      </v-form>
+    </section>
   </header>
 </template>
 

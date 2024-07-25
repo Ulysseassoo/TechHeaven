@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Products from "./Products.vue";
 import BasketPreview from "./../Basket/BasketPreview.vue";
+import ProductFilter from "./ProductFilter.vue";
 
 import { useUserStore } from "@/store/UserStore";
 
@@ -10,8 +11,8 @@ const { user } = useStore;
 
 <template>
   <section class="products-container">
-    <section class="product-filter"></section>
-    <Products class="" />
+    <ProductFilter class="product-filter" />
+    <Products class="product-section" />
     <BasketPreview v-if="user" class="" />
   </section>
 </template>
@@ -22,6 +23,10 @@ const { user } = useStore;
 }
 
 .product-filter {
-  width: 500px;
+  flex: 1;
+}
+
+.product-section {
+  flex: 4;
 }
 </style>
