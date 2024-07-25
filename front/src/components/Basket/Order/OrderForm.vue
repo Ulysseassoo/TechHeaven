@@ -18,14 +18,17 @@ const validationSchema = z.object({
 const userStore = useUserStore();
 const { user } = userStore;
 
-const addresseSelected = user?.addresses.filter((address) => address.is_selected);
+const addresseSelected = user?.addresses.filter(
+  (address) => address.is_selected,
+);
 
 const initialValues = {
   firstname: user?.firstname ?? "",
   lastname: user?.lastname ?? "",
   street: addresseSelected !== undefined ? addresseSelected[0].address : "",
   city: addresseSelected !== undefined ? addresseSelected[0].city : "",
-  postalCode: addresseSelected !== undefined ? addresseSelected[0].postal_code : "",
+  postalCode:
+    addresseSelected !== undefined ? addresseSelected[0].postal_code : "",
   other: addresseSelected !== undefined ? addresseSelected[0].other : "",
 };
 

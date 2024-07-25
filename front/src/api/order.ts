@@ -1,9 +1,5 @@
 import type { Order } from "@/interfaces/Order";
-import {
-  postApi,
-  putApi,
-  type UpdateProps,
-} from ".";
+import { postApi, putApi, type UpdateProps } from ".";
 import { getApi } from ".";
 import { HOST } from "@/constants";
 
