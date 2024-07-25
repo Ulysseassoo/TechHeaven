@@ -186,7 +186,7 @@ router.put("/products/:id", shouldBeAdminOrKeeper, productValidator, async (req,
   }
 });
 
-router.delete("/products/:id", async (req, res) => {
+router.delete("/products/:id", shouldBeAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {

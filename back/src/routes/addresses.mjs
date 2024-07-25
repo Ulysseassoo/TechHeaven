@@ -45,7 +45,7 @@ router.get("/addresses", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.post("/users/:userId/addresses", addressValidator, async (req, res) => {
+router.post("/users/:userId/addresses", addressValidator, shouldBeAuthenticate, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
