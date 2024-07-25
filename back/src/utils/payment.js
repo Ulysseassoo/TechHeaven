@@ -9,8 +9,8 @@ export const generatePaymentLink = async (products) => {
       payment_method_types: ['card'],
       line_items: products,
       mode: 'payment',
-      success_url: `http://localhost:5173/payment/success`, // A changer au moment de la prod les gars ! 
-      cancel_url: `http://localhost:5173/order`// A changer au moment de la prod les gars ! 
+      success_url: `${process.env.WEBSITE_URL}/payment/success`, 
+      cancel_url: `${process.env.WEBSITE_URL}/order`
     });
   
     return session.url;
