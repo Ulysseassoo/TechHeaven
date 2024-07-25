@@ -130,7 +130,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: "orders",
-        name: "Orders",
+        name: "UserOrders",
         component: UserOrdersView,
       },
       {
