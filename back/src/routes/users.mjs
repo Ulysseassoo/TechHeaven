@@ -376,7 +376,7 @@ router.put(
   }
 );
 
-router.delete("/users/:id", shouldBeAuthenticate, async (req, res) => {
+router.delete("/users/:id", shouldBeAdmin, async (req, res) => {
   const id = req.params.id;
 
   try {
