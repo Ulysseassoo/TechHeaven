@@ -8,12 +8,7 @@ import OrderRoutes from "./routes/order.mjs";
 import InvoiceRoutes from "./routes/invoice.mjs";
 import SecurityRoutes from "./routes/auth.mjs";
 import AddressRoutes from "./routes/addresses.mjs";
-import BasketRoutes from "./routes/cart.mjs"
-import PromotionRoutes from "./routes/promotion.mjs";
-import StockHistoryRoutes from "./routes/stockHistory.mjs";
-import AlertRoutes from "./routes/alert.mjs";
-import deliveryRouter from "./routes/delivery.mjs";
-import PaymentRoutes  from "./routes/payment.mjs"
+import deliveryRouter from "./routes/deliveryRoutes.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification, sendNewsletterEmail } from "./utils/mailer.mjs";

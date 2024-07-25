@@ -112,38 +112,16 @@ router.post("/users/:userId/addresses", addressValidator, shouldBeAuthenticate, 
     }
 })
 
-router.get("/addresses/:id", shouldBeAuthenticate, async (req, res) => {
+router.get('/addresses/:id', async (req, res) => {
+    const { id } = req.params;
     try {
-        const { id } = req.params;
-        const user = req.user;
-
-        const address = await db.address.findUnique({
-            where: {
-                id
-            }
-        });
-
-        if (!address) {
-            return res.status(404).send({
-                status: 404,
-                message: "Address not found"
-            });
-        }
-
-        if (address.user_id !== user.id) {
-            return res.status(400).json({ status: 400, message: "You don't have access to this ressource" });
-        }
-
-        return res.status(200).json({
-            status: 200,
-            data: address
-        });
-
+      const address = await db.address.findUnique({ where: { id } });
+      if (!address) {
+        return res.status(404).json({ status: 404, message: 'Address not found' });
+      }
+      res.json({ status: 200, data: address });
     } catch (error) {
-        return res.status(401).send({
-            status: 401,
-            message: error.message || error,
-        });
+      res.status(400).json({ status: 400, message: 'Bad Request' });
     }
 });
 
@@ -233,7 +211,23 @@ router.put("/addresses/:id", shouldBeAuthenticate, addressValidator, async (req,
             message: error.message || error,
         });
     }
-});
+  
+    try {
+      const existingAddress = await db.address.findUnique({ where: { id } });
+      if (!existingAddress) {
+        return res.status(404).json({ status: 404, message: 'Address not found' });
+      }
+  
+      const updatedAddress = await db.address.update({
+        where: { id },
+        data: { city, country, postal_code, address, is_selected, other }
+      });
+  
+      res.json({ status: 200, data: updatedAddress });
+    } catch (error) {
+      res.status(422).json({ status: 422, message: 'Unprocessable Entity' });
+    }
+  });
 
 router.delete("/addresses/:id", shouldBeAuthenticate, async (req, res) => {
     const id = req.params.id

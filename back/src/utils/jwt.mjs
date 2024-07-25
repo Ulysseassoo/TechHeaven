@@ -15,3 +15,15 @@ export const generateSessionToken = (userId, role) => {
 export const verifyUserToken = async (token, callback) => {
     return jwt.verify(token, process.env.JWT_SECRET, callback)
 }
+
+
+function generateTestToken(userId) {
+    const payload = {
+      id: userId,
+      role: 'ROLE_ADMIN', 
+    };
+  
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+  }
+
+export { generateTestToken };
