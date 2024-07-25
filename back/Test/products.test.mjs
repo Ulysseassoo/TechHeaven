@@ -20,6 +20,7 @@ jest.mock('../src/models/Product.mjs');
 
 jest.mock('../src/middlewares/authentication.mjs', () => ({
   shouldBeAdmin: (req, res, next) => next(),
+  shouldBeAdminOrKeeper: (req, res, next) => next(),
   shouldBeAuthenticate: (req, res, next) => {
     req.user = { id: 'user123', role: 'ROLE_ADMIN' };
     next();
@@ -37,7 +38,7 @@ describe('Product Routes', () => {
   });
 
   it('should create a new product', async () => {
-    const mockProductInput = { name: 'Test Product', description: 'Test Description', price: 100, stock_quantity: 10, brand: 'Test Brand' };
+    const mockProductInput = { name: 'Test Product', description: 'Test Description', price: 100, quantity: 10, brand: 'Test Brand' };
     const mockProduct = { id: '1', ...mockProductInput };
     db.product.create.mockResolvedValue(mockProduct);
 
@@ -51,45 +52,53 @@ describe('Product Routes', () => {
   });
 
   it('should get all products', async () => {
-    const mockProducts = [{ id: '1', name: 'Test Product', description: 'Test Description', price: 100, stock_quantity: 10, brand: 'Test Brand' }];
+    const mockProducts = [{ id: '1', name: 'Test Product', description: 'Test Description', price: 100, quantity: 10, brand: 'Test Brand' }];
     Product.findToClient.mockResolvedValue(mockProducts);
+    Product.countDocuments.mockResolvedValue(1);
 
     const res = await request(app)
       .get('/products')
       .expect(200);
 
-    expect(res.body).toEqual({ status: 200, data: mockProducts });
-    expect(Product.findToClient).toHaveBeenCalledWith({});
+    expect(res.body).toEqual({ 
+      status: 200,
+      totalPages: 1,
+      currentPage: 1,
+      totalCount: 1,
+      data: mockProducts
+    });
+    expect(Product.findToClient).toHaveBeenCalledWith({}, 1, 10);
   });
 
   it('should get a product by ID', async () => {
-    const mockProduct = { id: '1', name: 'Test Product', description: 'Test Description', price: 100, stock_quantity: 10, brand: 'Test Brand' };
+    const mockProduct = { id: '1', name: 'Test Product', description: 'Test Description', price: 100, quantity: 10, brand: 'Test Brand' };
     Product.findOne.mockResolvedValue(mockProduct);
-
+  
     const res = await request(app)
       .get('/products/1')
       .expect(200);
-
+  
     expect(res.body).toEqual({ status: 200, data: mockProduct });
-    expect(Product.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
+    expect(Product.findOne).toHaveBeenCalledWith({ id: '1' });
   });
 
-  it('should update a product', async () => {
-    const mockProductInput = { name: 'Updated Product', description: 'Updated Description', price: 150, stock_quantity: 20, brand: 'Updated Brand' };
-    const mockProduct = { id: '1', ...mockProductInput };
-    db.product.update.mockResolvedValue(mockProduct);
+it('should update a product', async () => {
+  const mockProductInput = { name: 'Updated Product', description: 'Updated Description', price: 150, quantity: 20, brand: 'Updated Brand' };
+  const mockProduct = { id: '1', ...mockProductInput };
+  db.product.findUnique.mockResolvedValue(mockProduct);
+  db.product.update.mockResolvedValue(mockProduct);
 
-    const res = await request(app)
-      .put('/products/1')
-      .send(mockProductInput)
-      .expect(200);
+  const res = await request(app)
+    .put('/products/1')
+    .send(mockProductInput)
+    .expect(200);
 
-    expect(res.body).toEqual({ status: 200, data: mockProduct });
-    expect(db.product.update).toHaveBeenCalledWith({
-      where: { id: '1' },
-      data: mockProductInput
-    });
+  expect(res.body).toEqual({ status: 200, data: mockProduct });
+  expect(db.product.update).toHaveBeenCalledWith({
+    where: { id: '1' },
+    data: mockProductInput
   });
+});
 
   it('should delete a product', async () => {
     db.product.delete.mockResolvedValue({});

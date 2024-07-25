@@ -1,12 +1,6 @@
 import express from 'express';
 import request from 'supertest';
-import mongoose from 'mongoose';
-import PDFDocument from 'pdfkit';
-import Stripe from 'stripe';
-import { sendInvoiceEmail } from '../src/utils/mailer.mjs';
-import Invoice from '../src/models/Invoice.mjs';
-import User from '../src/models/User.mjs';
-import Product from '../src/models/Product.mjs';
+import { db } from '../src/utils/db.server.mjs';  // Assurez-vous que ce module est correctement exporté dans votre projet
 import invoiceRouter from '../src/routes/invoice.mjs';
 
 // Configuration du serveur de test
@@ -14,6 +8,14 @@ const app = express();
 app.use(express.json());
 app.use('/api', invoiceRouter);
 
+jest.mock('../src/middlewares/authentication.mjs', () => ({
+  shouldBeAuthenticate: (req, res, next) => {
+    req.user = { id: 'user123', role: 'ROLE_ADMIN' };
+    next();
+  },
+  shouldBeAdmin: (req, res, next) => next(),
+  shouldBeAdminOrKeeper: (req, res, next) => next(),
+}));
 // Mock des modules avec Jest
 jest.mock('../src/utils/db.server.mjs', () => ({
   db: {
@@ -21,7 +23,15 @@ jest.mock('../src/utils/db.server.mjs', () => ({
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
-      delete: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    orderDetail: {
+      createMany: jest.fn(),
+      deleteMany: jest.fn(),
+    },
+    invoice: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
     },
   },
 }));
@@ -30,126 +40,98 @@ jest.mock('stripe');
 jest.mock('../src/utils/mailer.mjs');
 jest.mock('../src/models/User.mjs');
 jest.mock('../src/models/Product.mjs');
-jest.mock('../src/models/Invoice.mjs');
-jest.mock('pdfkit');
 
-const mockStripe = {
-  paymentIntents: {
-    create: jest.fn().mockResolvedValue({ client_secret: 'secret' })
-  }
-};
-Stripe.mockImplementation(() => mockStripe);
-
-const fakeUser = { _id: 'user123', email: 'user@example.com' };
-const fakeProduct = { _id: 'product123', price: 100 };
-const fakeInvoice = {
-  _id: 'invoice123',
-  userId: fakeUser._id,
-  productId: fakeProduct._id,
-  amount: 100,
-  status: 'pending',
-  toClient: () => ({ _id: 'invoice123' })
-};
-
-User.findById.mockResolvedValue(fakeUser);
-Product.findById.mockResolvedValue(fakeProduct);
-Invoice.findById.mockResolvedValue(fakeInvoice);
-Invoice.prototype.save.mockResolvedValue(fakeInvoice);
-sendInvoiceEmail.mockResolvedValue();
-PDFDocument.prototype.end.mockImplementation(function() { return this; });
-
+// Configuration des données de test
 describe('Invoice API', () => {
-  afterEach(() => {
-    jest.clearAllMocks(); 
+  let orderId = 'order123';
+  let userId = 'user1';
+
+  beforeAll(async () => {
+
+    db.order.findUnique.mockResolvedValue({
+      id: orderId,
+      user_id: userId,
+      total_amount: 1000,
+    });
+
+  
+    db.invoice.create.mockResolvedValue({
+      id: 'invoice123',
+      user_id: userId,
+      order_id: orderId,
+      user_firstname: 'John',
+      user_lastname: 'Doe',
+      amount: 1000,
+    });
+
+  
+    db.orderDetail.createMany.mockResolvedValue([]);
+    db.orderDetail.findMany = jest.fn().mockResolvedValue([
+      { order_id: orderId, product_name: 'Product1', product_description: 'Description1', quantity: 2, unit_price: 500, id: 'product1' },
+      { order_id: orderId, product_name: 'Product2', product_description: 'Description2', quantity: 1, unit_price: 500, id: 'product2' }
+    ]);
   });
 
-  it('should create a new invoice', async () => {
-    const response = await request(app)
-      .post('/api/invoices')
-      .send({
-        userId: fakeUser._id,
-        productId: fakeProduct._id,
-        quantity: 1
-      });
-
-    expect(response.status).toBe(201);
-    expect(response.body.data._id).toBe(fakeInvoice._id.toString());
+  afterAll(async () => {
+    jest.clearAllMocks();
   });
 
-  it('should generate PDF for an invoice', async () => {
+  test('should create an invoice successfully', async () => {
     const response = await request(app)
-      .get(`/api/invoices/${fakeInvoice._id}/pdf`); 
+      .post(`/api/invoices/${orderId}`)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(201);
 
-    expect(response.status).toBe(200);
-    expect(response.headers['content-type']).toBe('application/pdf');
+    expect(response.body.status).toBe(201);
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data.user_id).toBe(userId);
+    expect(response.body.data.order_id).toBe(orderId);
   });
 
-  it('should send invoice email', async () => {
+  test('should return 401 if user does not own the order', async () => {
+    jest.mock('../src/middlewares/authentication.mjs', () => ({
+      shouldBeAuthenticate: (req, res, next) => {
+        req.user = { id: 'differentUserId', firstname: 'Jane', lastname: 'Doe' };
+        next();
+      }
+    }));
+
     const response = await request(app)
-      .post(`/api/invoices/${fakeInvoice._id}/email`);
-    expect(response.status).toBe(200);
-    expect(sendInvoiceEmail).toHaveBeenCalledTimes(1);
+      .post(`/api/invoices/${orderId}`)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(401);
+
+    expect(response.body.status).toBe(401);
+    expect(response.body.message).toBe("Vous n'avez pas les droits");
   });
 
-  it('should create a payment intent', async () => {
-    const response = await request(app)
-      .post(`/api/invoices/${fakeInvoice._id}/pay`)
-      .send();
+  test('should return 400 if no products are found', async () => {
+    db.orderDetail.findMany.mockResolvedValue([]);
 
-    expect(response.status).toBe(201);
-    expect(response.body.clientSecret).toBe('secret');
+    const response = await request(app)
+      .post(`/api/invoices/${orderId}`)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(400);
+
+    expect(response.body.status).toBe(400);
+    expect(response.body.message).toBe("Produits inexistants.");
   });
 
-  it('should generate a payment link', async () => {
+  test('should return 500 if there is an error creating the invoice', async () => {
+    db.invoice.create.mockImplementation(() => {
+      throw new Error('Database error');
+    });
+
     const response = await request(app)
-      .post(`/api/invoices/${fakeInvoice._id}/paylink`)
-      .send();
+      .post(`/api/invoices/${orderId}`)
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(500);
 
-    expect(response.status).toBe(200);
-    expect(response.body.paymentLink).toBeDefined();
-  });
-
-  it('should handle successful payment', async () => {
-    const response = await request(app)
-      .get(`/api/success/${fakeInvoice._id}`); 
-    expect(response.status).toBe(200);
-    expect(response.text).toBe('Paiement réussi !');
-  });
-
-  it('should handle payment cancellation', async () => {
-    const response = await request(app)
-      .get('/api/cancel');
-
-    expect(response.status).toBe(200);
-    expect(response.text).toBe('Paiement annulé.');
-  });
-
-  it('should create a payment intent for refunds', async () => {
-    const response = await request(app)
-      .post(`/api/create-payment-intent`) 
-      .send({ invoiceId: fakeInvoice._id });
-
-    expect(response.status).toBe(200);
-    expect(response.body.clientSecret).toBe('secret');
-  });
-
-  it('should process refunds', async () => {
-    const response = await request(app)
-      .post(`/api/refund`)
-      .send({
-        invoiceId: fakeInvoice._id,
-        paymentIntentId: 'pi_123'
-      });
-
-    expect(response.status).toBe(200);
-    expect(response.body.message).toBe('Remboursement effectué avec succès');
-  });
-
-  it('should handle webhook events', async () => {
-    const response = await request(app)
-      .post(`/api/webhook`)
-      .send({ type: 'payment_intent.succeeded', data: { object: { id: 'evt_1FbnPo2eZvKYlo2CYp1Vw0tt' } } });
-
-    expect(response.status).toBe(200);
+    expect(response.body.status).toBe(500);
+    expect(response.body.message).toBe("Erreur lors de la création de la facture");
   });
 });

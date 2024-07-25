@@ -21,7 +21,7 @@ jest.mock('../src/utils/db.server.mjs', () => ({
 jest.mock('../src/middlewares/authentication.mjs', () => ({
   shouldBeAdmin: (req, res, next) => next(),
   shouldBeAuthenticate: (req, res, next) => {
-    req.user = { id: 'user123', role: 'ROLE_ADMIN' }; 
+    req.user = { id: 'user123', role: 'ROLE_USER' }; 
     next();
   }
 }));
@@ -46,7 +46,7 @@ describe('Address Routes', () => {
       country: 'USA',
       postal_code: '10001',
       address: '123 Main St',
-      is_selected: 'true',  // Assurez-vous que c'est un booléen
+      is_selected: 'true',
       other: 'Apt 4B',
       user_id: 'user123'
     };
@@ -54,7 +54,7 @@ describe('Address Routes', () => {
     db.address.create.mockResolvedValue({ id: '1', ...mockAddressInput });
 
     const res = await request(app)
-      .post('/addresses')
+      .post('/users/user123/addresses')
       .send(mockAddressInput)
       .expect(201);
 
@@ -120,7 +120,7 @@ describe('Address Routes', () => {
       other: 'Suite 300'
     };
     const mockAddress = { id: '1', ...mockAddressUpdate };
-    db.address.findUnique.mockResolvedValue(mockAddress);
+    db.address.findUnique.mockResolvedValue({ id: '1', user_id: 'user123' });
     db.address.update.mockResolvedValue(mockAddress);
 
     const res = await request(app)

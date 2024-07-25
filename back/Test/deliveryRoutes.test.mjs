@@ -1,7 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import Delivery from '../src/models/Delivery.mjs';
-import deliveryRoutes from '../src/routes/deliveryRoutes.mjs';
+import deliveryRoutes from '../src/routes/delivery.mjs';
 import { shouldBeAuthenticate } from '../src/middlewares/authentication.mjs';
 //import { save } from 'pdfkit';
 
@@ -20,9 +20,10 @@ const mockFind = jest.fn();
 const mockFindById = jest.fn();
 
 jest.mock('../src/models/Delivery.mjs', () => {
-    return jest.fn().mockImplementation(() => {
+    return jest.fn().mockImplementation((data) => {
         return {
-            save: mockSave,
+            ...data,
+            save: mockSave
         };
     });
 });
