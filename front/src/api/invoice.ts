@@ -1,5 +1,5 @@
 import { HOST } from "@/constants";
-import { postApi, type CreateProps } from ".";
+import { postApi } from ".";
 
 export const createInvoice = async (orderId: string) => {
   const url = `${HOST}/invoices/${orderId}`;

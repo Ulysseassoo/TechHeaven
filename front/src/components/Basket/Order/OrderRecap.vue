@@ -2,12 +2,10 @@
 import { computed } from "vue";
 import BasketRecapProduct from "./../BasketRecapProduct.vue";
 import { useBasketStore } from "@/store/basketStore";
-import { useRouter } from "vue-router";
 import { createOrder } from "@/api/order";
 import { createInvoice } from "@/api/invoice";
 import { getPaymentLink } from "@/api/payment";
 
-const router = useRouter();
 const basketStore = useBasketStore();
 const basketProducts = computed(() => basketStore.basket);
 

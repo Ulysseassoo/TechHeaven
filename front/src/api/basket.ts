@@ -37,6 +37,7 @@ export const updateProductInBasket = async (
   const url = `${HOST}/basket`;
   const response = await putApi<Basket>(
     url,
+    // @ts-ignore
     { product_id: productId, action },
     {
       headers: {

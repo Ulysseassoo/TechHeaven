@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CustomModal from "@/components/CustomModal.vue";
 import OrderForm from "@/components/Admin/OrderForm.vue";
-import type { Order } from "@/interfaces/Product";
+import type { Order } from "@/interfaces/Order";
 import { ref } from "vue";
 import type { Ref } from "vue";
 
@@ -25,8 +25,7 @@ const submitAction = async () => {
   try {
     if (orderFormRef.value) {
       const OrderFormSubmit = await orderFormRef.value.handleSubmit();
-      if (props.callback && OrderFormSubmit !== undefined)
-        await props.callback();
+      if (props.callback && OrderFormSubmit !== undefined) await props.callback();
       return OrderFormSubmit !== undefined;
     }
   } catch (error) {
@@ -44,18 +43,14 @@ const submitAction = async () => {
       type === 'create'
         ? 'Créer une commande'
         : type === 'edit'
-          ? 'Modifier une commande'
-          : 'Commande'
+        ? 'Modifier une commande'
+        : 'Commande'
     "
     :btnContent="btnContent"
     :color="color"
   >
     <template v-slot:ModalContent>
-      <OrderForm
-        :product="product"
-        ref="orderFormRef"
-        :disabled="type === 'detail'"
-      />
+      <OrderForm :order="order" ref="orderFormRef" :disabled="type === 'detail'" />
     </template>
   </CustomModal>
 </template>

@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { useForm } from "@/hooks/useForm";
-import type { AxiosRequestConfig } from "axios";
 import { z } from "zod";
 import { useUserStore } from "@/store/UserStore";
 import { createOrder } from "@/api/order";
 import { createInvoice } from "@/api/invoice";
 import { getPaymentLink } from "@/api/payment";
-import router from "@/router";
 
 const validationSchema = z.object({
   firstname: z.string().min(1, "Le nom de famille doit être renseigné"),
@@ -20,22 +18,18 @@ const validationSchema = z.object({
 const userStore = useUserStore();
 const { user } = userStore;
 
-const addresseSelected = user?.addresses.filter(
-  (address) => address.is_selected,
-);
+const addresseSelected = user?.addresses.filter((address) => address.is_selected);
 
 const initialValues = {
   firstname: user?.firstname ?? "",
   lastname: user?.lastname ?? "",
-  street: addresseSelected[0].address ?? "",
-  city: addresseSelected[0].city ?? "",
-  postalCode: addresseSelected[0].postal_code ?? "",
-  other: addresseSelected[0].other ?? "",
+  street: addresseSelected !== undefined ? addresseSelected[0].address : "",
+  city: addresseSelected !== undefined ? addresseSelected[0].city : "",
+  postalCode: addresseSelected !== undefined ? addresseSelected[0].postal_code : "",
+  other: addresseSelected !== undefined ? addresseSelected[0].other : "",
 };
 
-type FormValues = z.infer<typeof validationSchema>;
-
-const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
+const onSubmit = async () => {
   try {
     const order = await createOrder();
     await createInvoice(order.data.id);

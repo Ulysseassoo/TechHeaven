@@ -1,4 +1,4 @@
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 
 import { defineStore } from "pinia";
 
@@ -18,6 +18,7 @@ export const useBasketStore = defineStore("basket", () => {
   const fetchBasket = async () => {
     try {
       const res = await getBasket();
+      // @ts-ignore
       basketId.value = res.data.id;
     } catch (err) {
       console.log(err, "Error occured in basket store: fetch basket");
@@ -30,6 +31,7 @@ export const useBasketStore = defineStore("basket", () => {
       basket.value = res.data.map((product) => {
         return {
           product: product.product,
+          // @ts-ignore
           orderQuantity: product.quantity,
         };
       });

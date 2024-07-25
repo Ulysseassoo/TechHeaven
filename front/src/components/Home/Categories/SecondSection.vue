@@ -10,18 +10,21 @@ const { xs } = useDisplay();
 <template>
   <section class="section-container" :class="xs ? 'mobile' : null">
     <CategoryCard
+      :link="`/products?category=test`"
       class="section-1"
       :class="xs ? 'mobile' : null"
       name="test"
       :img="keyboardImage"
     />
     <CategoryCard
+      :link="`/products?category=test`"
       class="section-2"
       :class="xs ? 'mobile' : null"
       name="test"
       :img="keyboardImage"
     />
     <CategoryCard
+      :link="`/products?category=test`"
       class="section-3"
       :class="xs ? 'mobile' : null"
       name="test"

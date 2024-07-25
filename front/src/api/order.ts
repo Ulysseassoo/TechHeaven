@@ -1,9 +1,7 @@
 import type { Order } from "@/interfaces/Order";
 import {
-  deleteApi,
   postApi,
   putApi,
-  type ApiSuccess,
   type UpdateProps,
 } from ".";
 import { getApi } from ".";
