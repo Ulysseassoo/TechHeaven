@@ -10,26 +10,15 @@ import {
 import { HOST } from "@/constants";
 import type { Product } from "@/interfaces/Product";
 
-interface SearchQueryParams {
-  search?: string;
-  page?: number;
-  limit?: number;
-}
-
-export const getProducts = async ({
-  search = "",
-  page = 1,
-  limit = 10,
-}: SearchQueryParams) => {
+export const getProducts = async ({ params = "", page = 1, limit = 10 }) => {
   const token = localStorage.getItem("token");
 
   const queryParams = new URLSearchParams({
-    search,
     page: page.toString(),
     limit: limit.toString(),
   }).toString();
 
-  const url = `${HOST}/products?${queryParams}`;
+  const url = `${HOST}/products?${queryParams}&${params}`;
   const response = await getApi<Product[]>(url, {
     headers: {
       Authorization: `Bearer ${token}`,
