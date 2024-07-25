@@ -7,6 +7,7 @@ import { generateConfirmationToken } from "../utils/jwt.mjs";
 import {
   shouldBeAdmin,
   shouldBeAuthenticate,
+  checkFields,
 } from "../middlewares/authentication.mjs";
 import { anonymizeUserData } from "../utils/anonym.mjs";
 import User from "../models/User.mjs";
@@ -295,6 +296,7 @@ router.get("/users/:id", shouldBeAdmin, async (req, res) => {
 router.put(
   "/users/:id",
   shouldBeAuthenticate,
+  checkFields(["email", "firstname", "lastname", "phone"]),
   userValidator,
   async (req, res) => {
     const id = req.params.id;
@@ -302,8 +304,8 @@ router.put(
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-      return res.status(401).send({
-        status: 401,
+      return res.status(422).send({
+        status: 422,
         message: errors
           .formatWith(({ msg, path }) => {
             return {
@@ -315,18 +317,6 @@ router.put(
       });
     }
 
-    const {
-      email,
-      firstname,
-      lastname,
-      phone,
-      has_confirmed_account,
-      number_connexion_attempts,
-      role,
-    } = req.body;
-
-    // Check if email is unique...
-    // Check if user can edit it...
     try {
       const user = await db.user.findUnique({
         where: {
@@ -340,18 +330,27 @@ router.put(
           .json({ status: 400, message: "Utilisateur inexistant." });
       }
 
+      if(user.id !== req.user.id && req.user.role !== "ROLE_ADMIN") {
+        return res
+         .status(403)
+         .json({ status: 403, message: "Vous n'avez pas accès à cette ressource" });
+      }
+
       const updatedUser = await db.user.update({
         where: {
           id,
         },
         data: {
-          email,
-          firstname,
-          lastname,
-          phone: phone ?? null,
-          has_confirmed_account,
-          number_connexion_attempts,
-          role,
+          email: req.body.email,
+          firstname: req.body.firstname,
+          lastname: req.body.lastname,
+          phone: req.body.phone ?? null,
+          has_confirmed_account: req.body.has_confirmed_account ?? req.user.has_confirmed_account,
+          created_at: req.body.created_at ?? req.user.created_at,
+          deleted_at: req.body.deleted_at ?? req.user.deleted_at,
+          blocked_until: req.body.blocked_until ?? req.user.blocked_until,
+          number_connexion_attempts: req.body.number_connexion_attempts ?? req.user.number_connexion_attempts,
+          role: req.body.role ?? req.user.role,
         },
         select: {
           email: true,
