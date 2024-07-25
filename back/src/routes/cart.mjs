@@ -1,122 +1,341 @@
-// // Importations nécessaires
-// import express from 'express';
-// import { validationResult } from 'express-validator';
-// import { db } from '../utils/db.server.mjs';
-// import { shouldBeAdmin } from '../middlewares/authentication.mjs';
-// import Cart from '../models/Cart.mjs';
-// import { cartValidator } from '../validator/cartValidator.mjs';
+import express from "express";
+import { validationResult } from "express-validator";
+import { db } from "../utils/db.server.mjs";
+import { shouldBeAuthenticate } from "../middlewares/authentication.mjs";
+import { basketValidator } from '../validator/basketValidator.mjs'
 
-// const router = express.Router();
+const router = express.Router();
 
-// // Créer un nouveau panier
-// router.post("/carts", cartValidator, async (req, res) => {
-//     try {
-//         const errors = validationResult(req);
-//         if (!errors.isEmpty()) {
-//             return res.status(401).send({
-//                 status: 401,
-//                 message: errors.formatWith(({ msg, path }) => ({ msg, path })).array()
-//             });
-//         }
+router.get("/basket", shouldBeAuthenticate, async (req, res) => {
+    try {
+        const user = req.user
 
-//         const { status, user_id } = req.body;
+        const basket = await db.cart.findFirst({
+            where: {
+                user_id: user.id
+            }
+        })
 
-//         const cart = await db.cart.create({
-//             data: {
-//                 created_at: new Date(),
-//                 status,
-//                 user_id
-//             }
-//         });
+        if (!basket) {
+            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
+        }
 
-//         return res.status(201).json({ status: 201, data: cart });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        if (!(req.user.id === basket.user_id)) {
+            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
+        }
 
-// // Récupérer tous les paniers
-// router.get("/carts", async (req, res) => {
-//     try {
-//         const carts = await db.cart.findMany();
-//         return res.status(200).json({ status: 200, data: carts });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        return res.status(200).json({
+            status: 200,
+            data: basket
+        })
+    } catch (error) {
+        console.log("🚀 ~ router.get ~ error:", error)
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
 
-// // Récupérer un panier spécifique par son ID
-// router.get("/carts/:id", async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
-//     try {
-//         const cart = await db.cart.findUnique({
-//             where: { id }
-//         });
+router.get('/basket/:id/products', shouldBeAuthenticate, async (req, res) => {
+    try {
+        const user = req.user
+        const basket = await db.cart.findFirst({
+            where: {
+                user_id: user.id
+            }
+        })
 
-//         if (!cart) {
-//             return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
-//         }
+        if (!basket) {
+            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
+        }
 
-//         return res.status(200).json({ status: 200, data: cart });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        if (!(req.user.id === basket.user_id)) {
+            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
+        }
 
-// // Mettre à jour un panier spécifique par son ID
-// router.put("/carts/:id", cartValidator, async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
+        const basketProducts = await db.cartHasProducts.findMany({
+            where: {
+                cart_id: basket.id
+            },
+            include: {
+                product: true
+            }
+        })
 
-//     try {
-//         const errors = validationResult(req);
-//         if (!errors.isEmpty()) {
-//             return res.status(401).send({
-//                 status: 401,
-//                 message: errors.formatWith(({ msg, path }) => ({ msg, path })).array()
-//             });
-//         }
+        return res.status(200).json({
+            status: 200,
+            data: basketProducts
+        })
+    } catch (error) {
+        console.log("🚀 ~ router.get ~ error:", error)
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
 
-//         const { status, user_id } = req.body;
+router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) => {
+    const errors = validationResult(req);
 
-//         const cart = await db.cart.update({
-//             where: { id },
-//             data: { status, user_id }
-//         });
+    if (!errors.isEmpty()) {
+        return res.status(401).send({
+            status: 401,
+            message: errors.formatWith(({ msg, path }) => {
+                return {
+                    msg,
+                    path
+                }
+            }).array()
+        });
+    } 
+    
+    try {
+        const user = req.user
+        const { product_id, action } = req.body
 
-//         return res.status(200).json({ status: 200, data: cart });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        const basket = await db.cart.findFirst({
+            where: {
+                user_id: user.id
+            }
+        })
 
-// // Supprimer un panier spécifique par son ID
-// router.delete("/carts/:id", async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
+        if (!basket) {
+            return res.status(400).json({ status: 400, message: "Panier non trouvé" });
+        }
 
-//     try {
-//         await db.cart.delete({
-//             where: { id }
-//         });
+        const productInCart = await db.cartHasProducts.findFirst({
+            where: {
+                product_id
+            },
+            include: {
+                product: true
+            }
+        })
 
-//         return res.status(200).json({ status: 200, message: 'Panier supprimé avec succès.' });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        const p = await db.cartHasProducts.findFirst({
+            where: {
+                product_id
+            },
+        })
+        if (productInCart) {
 
-// export default router;
+            if (action === "delete") {
+                await db.cartHasProducts.delete({
+                    where: {
+                        id: productInCart.id
+                    }
+                })
+
+                await db.cart.update({
+                    where: {
+                        id: basket.id
+                    },
+                    data: {
+                        ...basket,
+                        total: basket.total - (productInCart.product.price * productInCart.quantity)
+                    }
+                })
+
+                await db.product.update({
+                    where: {
+                        id: productInCart.product.id
+                    },
+                    data: {
+                        ...productInCart.product,
+                        quantity: productInCart.product.quantity + productInCart.quantity
+                    }
+                })
+                return res.status(200).json({ status: 200, message: 'Produit supprimé du panier'});
+            }
+
+            if (action === 'remove'){
+                if (productInCart.quantity === 1) {
+                    await db.cartHasProducts.delete({
+                        where: {
+                            id: productInCart.id
+                        }
+                    })
+                    return res.status(200).json({ status: 200, message: 'Produit supprimé du panier'});
+                }
+                const basketProductUpdated = await db.cartHasProducts.update({
+                    where: {
+                        id: productInCart.id
+                    },
+                    data: {
+                        ...p,
+                        quantity: productInCart.quantity - 1
+                    }
+                })
+
+                await db.cart.update({
+                    where: {
+                        id: basket.id
+                    },
+                    data: {
+                        ...basket,
+                        total: basket.total - productInCart.product.price
+                    }
+                })
+
+                await db.product.update({
+                    where: {
+                        id: productInCart.product.id
+                    },
+                    data: {
+                        ...productInCart.product,
+                        quantity: productInCart.product.quantity + 1
+                    }
+                })
+
+                return res.status(200).json({
+                    status: 200,
+                    data: basketProductUpdated
+                })
+            }
+
+            if (action === 'add') {
+                if (productInCart.product.quantity) {
+                    const basketProductUpdated = await db.cartHasProducts.update({
+                        where: {
+                            id: productInCart.id,
+                        },
+                        data: {
+                            ...p,
+                            quantity: productInCart.quantity + 1
+                        }
+                    })
+
+                    await db.cart.update({
+                        where: {
+                            id: basket.id
+                        },
+                        data: {
+                            ...basket,
+                            total: basket.total + productInCart.product.price
+                        }
+                    })
+
+                    await db.product.update({
+                        where: {
+                            id: productInCart.product.id
+                        },
+                        data: {
+                            ...productInCart.product,
+                            quantity: productInCart.product.quantity - 1
+                        }
+                    })
+                    return res.status(200).json({ status: 200, data:  basketProductUpdated});
+                } else {
+                    return res.status(409).json({ status: 409, message: "Le produit n'est plus en stock." });
+                }
+            }
+        }
+
+        if (action === 'add') {
+            const productToAdd = await db.product.findUnique({
+                where: {
+                    id: product_id
+                }
+            })
+
+            if (productToAdd) {
+                if (productToAdd.quantity) {
+
+                    const productAdded = await db.cartHasProducts.create({
+                        data: {
+                            cart_id: basket.id,
+                            product_id: productToAdd.id,
+                            quantity: 1,
+                            unit_price: productToAdd.price.toString()
+                        }
+                    })
+
+                    await db.cart.update({
+                        where: {
+                            id: basket.id
+                        },
+                        data: {
+                            ...basket,
+                            total: basket.total + productToAdd.price
+                        }
+                    })
+
+                    await db.product.update({
+                        where: {
+                            id: productToAdd.id
+                        },
+                        data: {
+                            ...productToAdd,
+                            quantity: productToAdd.quantity - 1
+                        }
+                    })
+
+                    return res.status(200).json({
+                        status: 200,
+                        data: productAdded
+                    })
+                } else {
+                    return res.status(409).json({ status: 409, message: "Le produit n'est plus en stock." });
+                }
+
+            }
+
+            return res.status(400).json({
+                status: 400,
+                message: 'Produit inconnu.'
+            })
+        }
+
+        if (action === 'remove' || action === "delete") {
+            return res.status(400).json({
+                status: 400,
+                message: 'Action non effectuable.'
+            })
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: basket
+        })
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+})
+
+router.delete("/basket", shouldBeAuthenticate, async (req, res) => {
+    const user = req.user
+    try {
+        const basket = await db.cart.findFirst({
+            where: {
+                user_id: user.id
+            }
+        })
+
+        if (!basket) {
+            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
+        }
+
+        await db.cartHasProducts.deleteMany({
+            where: {
+                cart_id: basket.id
+            }
+        })
+
+        return res.status(200).json({
+            status: 200,
+            message: "Panier vidé avec succès"
+        })
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message,
+        });
+    }
+})
+
+export default router;

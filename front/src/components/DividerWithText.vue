@@ -16,6 +16,7 @@ defineProps<{
         background: white;
         padding: 0.1rem 0.5rem;
         z-index: 10;
+        background: #f8f9fc;
       "
     >
       {{ content }}

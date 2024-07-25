@@ -20,8 +20,10 @@ const props = defineProps<Props>();
 const submitAction = async () => {
   try {
     if (userFormRef.value) {
-      await userFormRef.value.handleSubmit();
-      if (props.callback) await props.callback();
+      const userFormSubmit = await userFormRef.value.handleSubmit();
+      if (props.callback && userFormSubmit !== undefined)
+        await props.callback();
+      return userFormSubmit !== undefined;
     }
   } catch (error) {
     console.log("erreur", error);

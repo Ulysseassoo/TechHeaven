@@ -45,7 +45,7 @@ router.get("/addresses", shouldBeAdmin, async (req, res) => {
     }
 })
 
-router.post("/addresses", addressValidator, async (req, res) => {
+router.post("/users/:userId/addresses", addressValidator, shouldBeAuthenticate, async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -60,7 +60,8 @@ router.post("/addresses", addressValidator, async (req, res) => {
             });
         }
 
-        const { city, country, postal_code, address, is_selected, other, user_id } = req.body;
+        const { userId } = req.params;
+        const { city, country, postal_code, address, is_selected, other } = req.body;
 
         const newAddress = await db.address.create({
             data: {
@@ -68,11 +69,35 @@ router.post("/addresses", addressValidator, async (req, res) => {
                 country,
                 postal_code,
                 address,
-                is_selected: is_selected ?? false, 
+                is_selected: Boolean(is_selected) ?? false, 
                 other,
-                user_id
+                user_id: userId
             }
         })
+
+        if(Boolean(is_selected)) {
+            const addresses = await db.address.findMany({
+                where: {
+                    user_id: newAddress.user_id,
+                    id: {
+                        not: newAddress.id
+                    }
+                }
+            })
+
+            for (let i = 0; i < addresses.length; i++) {
+                const element = addresses[i];
+                await db.address.update({
+                    where: {
+                        id: element.id
+                    },
+                    data: {
+                        ...element,
+                        is_selected: false
+                    }
+                })
+            }
+        }
 
         return res.status(201).json({
             status: 201,
@@ -100,13 +125,91 @@ router.get('/addresses/:id', async (req, res) => {
     }
 });
 
-router.put('/addresses/:id', async (req, res) => {
-    const { id } = req.params;
-    const { city, country, postal_code, address, is_selected, other } = req.body;
-  
-    // Validation des données
-    if (!city || !country || !postal_code || !address) {
-      return res.status(422).json({ status: 422, message: 'Validation error' });
+router.put("/addresses/:id", shouldBeAuthenticate, addressValidator, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = req.user;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).send({
+                status: 422,
+                message: errors.formatWith(({ msg, path }) => {
+                    return {
+                        msg,
+                        path
+                    }
+                }).array()
+            });
+        }
+
+        const { city, country, postal_code, address, is_selected, other } = req.body;
+
+        const existingAddress = await db.address.findUnique({
+            where: {
+                id
+            }
+        });
+
+        if (!existingAddress) {
+            return res.status(404).send({
+                status: 404,
+                message: "Address not found"
+            });
+        }
+
+        if (existingAddress.user_id !== user.id && user.role !== "ROLE_ADMIN") {
+            return res.status(400).json({ status: 400, message: "You don't have access to this ressource" });
+        }
+
+        const updatedAddress = await db.address.update({
+            where: {
+                id
+            },
+            data: {
+                ...existingAddress,
+                city,
+                country,
+                postal_code,
+                address,
+                is_selected: Boolean(is_selected) ?? existingAddress.is_selected, 
+                other
+            }
+        });
+
+        if(Boolean(is_selected)) {
+            const addresses = await db.address.findMany({
+                where: {
+                    user_id: existingAddress.user_id,
+                    id: {
+                        not: id
+                    }
+                }
+            })
+
+            for (let i = 0; i < addresses.length; i++) {
+                const element = addresses[i];
+                await db.address.update({
+                    where: {
+                        id: element.id
+                    },
+                    data: {
+                        ...element,
+                        is_selected: false
+                    }
+                })
+            }
+        }
+
+        return res.status(200).json({
+            status: 200,
+            data: updatedAddress
+        });
+
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
     }
   
     try {

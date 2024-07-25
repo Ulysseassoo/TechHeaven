@@ -6,6 +6,7 @@ import { db } from "../utils/db.server.mjs";
 import moment from 'moment';
 import {  sendNotificationEmail, sendPasswordResetEmail } from "../utils/mailer.mjs";
 import {  generateSessionToken, verifyUserToken } from "../utils/jwt.mjs";
+import { hasAuthenticate } from "../middlewares/authentication.mjs";
 
 
 const generateRandomCode = (length) => {
@@ -90,7 +91,6 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
 router.post("/auth", async (req, res) => {
     const { email, password } = req.body;
     const user = await db.user.findUnique({ where: { email } });
-
     if (!user) {
         return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
     }
@@ -273,7 +273,7 @@ router.post("/verify/code", verifyValidator, async (req, res) => {
     }
 })
 
-router.post("/change/password", changePasswordValidator, async (req, res) => {
+router.put("/change/password", hasAuthenticate, changePasswordValidator, async (req, res) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -288,55 +288,79 @@ router.post("/change/password", changePasswordValidator, async (req, res) => {
         });
     }
 
-    const { password, email } = req.body;
+    const { password, email, oldPassword, confirmPassword, code } = req.body;
 
     try {
-        const user = await db.user.findUnique({
-            where: {
-                email,
+        if(req.user !== undefined && req.user !== null) {
+            const user = req.user;
+
+            const validPassword = await bcrypt.compare(oldPassword, user.password);
+
+            if (!validPassword) {
+                return res.status(401).json({ status: 401, message: "Le mot de passe rentré ne correspond pas à l'ancien" });
             }
-        })
 
-        if (!user) {
-            return res.status(400).json({ status: 400, message: "L'utilisateur est inexistant" });
-        }
-
-        const passwordRecovery = await db.passwordRecovery.findUnique({
-            where: {
-                user_id: user.id,
+            if (password !== confirmPassword) {
+                return res.status(401).json({ status: 401, message: "Les mots de passe ne correspondent pas" });
             }
-        })
 
-        if (!passwordRecovery) {
-            return res.status(401).send({
-                status: 401,
-                message: "Le code a expiré",
+            await db.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    password,
+                    last_updated_password: new Date(),
+                }
+            });
+        } else {
+            const user = await db.user.findUnique({
+                where: {
+                    email,
+                }
+            })
+    
+            if (!user) {
+                return res.status(400).json({ status: 400, message: "L'utilisateur est inexistant" });
+            }
+    
+            const passwordRecovery = await db.passwordRecovery.findUnique({
+                where: {
+                    user_id: user.id,
+                }
+            })
+    
+            if (!passwordRecovery) {
+                return res.status(401).send({
+                    status: 401,
+                    message: "Le code a expiré",
+                });
+            }
+    
+            if (code && passwordRecovery.verification_code !== code) {
+                return res.status(401).send({
+                    status: 401,
+                    message: "Le code a expiré",
+                });
+            }
+    
+            if (passwordRecovery.code_validation_time !== null && moment().utc().isAfter(moment.utc(passwordRecovery.code_validation_time))) {
+                return res.status(401).send({
+                    status: 401,
+                    message: "Le code a expiré",
+                });
+            }
+    
+            await db.user.update({
+                where: {
+                    id: user.id
+                },
+                data: {
+                    password,
+                    last_updated_password: new Date(),
+                }
             });
         }
-
-        if (passwordRecovery.verification_code !== code) {
-            return res.status(401).send({
-                status: 401,
-                message: "Le code a expiré",
-            });
-        }
-
-        if (passwordRecovery.code_validation_time !== null && moment().utc().isAfter(moment.utc(passwordRecovery.code_validation_time))) {
-            return res.status(401).send({
-                status: 401,
-                message: "Le code a expiré",
-            });
-        }
-
-        await db.user.update({
-            where: {
-                id: user.id
-            },
-            data: {
-                password,
-                last_updated_password: new Date(),
-            }
-        });
 
         return res.status(200).json({ status: 200, message: 'Mot de passe mis à jour avec succès.' });
     } catch (error) {

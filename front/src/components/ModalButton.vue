@@ -8,6 +8,7 @@ interface Props {
   title?: string;
   description?: string;
   content?: string;
+  color?: string;
 }
 
 const props = defineProps<Props>();
@@ -31,7 +32,7 @@ const executeAction = async () => {
 </script>
 
 <template>
-  <v-btn @click="dialog = true">
+  <v-btn :color="color ?? 'initial'" @click="dialog = true">
     <v-tooltip v-if="tooltipLabel" activator="parent" location="top">{{
       tooltipLabel
     }}</v-tooltip>

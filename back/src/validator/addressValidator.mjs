@@ -7,5 +7,4 @@ export const addressValidator = [
     body('address').isString().trim().notEmpty().withMessage('Address is required'),
     body('is_selected').optional().trim().notEmpty().withMessage('Is selected is required').isBoolean().withMessage('Is selected must be a boolean'),
     body('other').isString().optional().trim(),
-    body('user_id').trim().notEmpty().withMessage('User is required'),
 ];

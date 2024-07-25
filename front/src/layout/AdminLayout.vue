@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { logoutUser } from "@/api/auth";
+import { useUserStore } from "@/store/UserStore";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { VListItem } from "vuetify/components";
@@ -15,14 +16,25 @@ const items = ref([
   },
   { icon: "fa-solid fa-box", title: "Commandes", route: "/admin/orders" },
   {
-    icon: "fa-solid fa-file-invoice",
-    title: "Factures",
-    route: "/admin/invoices",
+    icon: "fa-solid fa-bell",
+    title: "Alertes",
+    route: "/admin/alerts",
+  },
+  {
+    icon: "fa-solid fa-list",
+    title: "Catégories",
+    route: "/admin/categories",
+  },
+  {
+    icon: "fa-brands fa-product-hunt",
+    title: "Produits",
+    route: "/admin/products",
   },
 ]);
 
 const route = useRoute();
 const router = useRouter();
+const store = useUserStore();
 
 const isRouteActive = (routeName: string) =>
   computed(() => route.path === routeName);
@@ -33,6 +45,7 @@ const logout = async () => {
     name: "Login",
     replace: true,
   });
+  store.setUser(null);
 };
 </script>
 
@@ -82,18 +95,6 @@ const logout = async () => {
         "
       >
         <v-list variant="flat" nav class="mt-16">
-          <VListItem
-            style="
-              background-color: transparent;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            "
-            :ripple="false"
-          >
-            <v-tooltip activator="parent" location="end">Paramètres</v-tooltip>
-            <v-icon color="white" class="icon">fas fa-cog </v-icon>
-          </VListItem>
           <VListItem
             style="
               background-color: transparent;

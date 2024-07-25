@@ -66,3 +66,7 @@ h6 {
 #app {
   isolation: isolate;
 }
+
+.uniform-v-card-height {
+  height: 250px;
+}

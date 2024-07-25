@@ -101,9 +101,9 @@ async function fetchAddresses() {
 }
 
 const debouncedSearchedAddresses = useDebounce(fetchAddresses, 500);
-const deleteAllAddressesSelected = async (ids: string[]) => {
+const deleteAllAddressesSelected = async (ids: Address[]) => {
   try {
-    const deletePromises = ids.map((userId) => deleteAddress(userId));
+    const deletePromises = ids.map((row) => deleteAddress(row.id));
     const responses = await Promise.all(deletePromises);
     const allDeleted = responses.every((response) => response.status === 200);
     if (allDeleted) {
@@ -165,7 +165,6 @@ onMounted(() => {
           v-model="search"
           @input="debouncedSearchedAddresses"
         ></v-text-field>
-        <v-btn color="tertiary">Nouvelle Adresse</v-btn>
       </template>
     </DataTable>
   </div>

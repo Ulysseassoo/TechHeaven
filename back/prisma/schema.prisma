@@ -15,26 +15,35 @@ datasource db {
 }
 
 model User {
-  id                        String                @id @unique @default(uuid())
+  id                        String             @id @unique @default(uuid())
   firstname                 String?
   lastname                  String?
-  email                     String                @unique @db.VarChar(255)
+  email                     String             @unique @db.VarChar(255)
   phone                     String?
   password                  String
   role                      String
-  has_confirmed_account     Boolean               @default(false)
-  created_at                DateTime              @default(now())
+  has_confirmed_account     Boolean            @default(false)
+  created_at                DateTime           @default(now())
   deleted_at                DateTime?
   last_updated_password     DateTime?
-  number_connexion_attempts Int                   @default(0)
+  number_connexion_attempts Int                @default(0)
   blocked_until             DateTime?
   addresses                 Address[]
   preferences               Preference[]
   passwordRecovery          PasswordRecovery?
   Cart                      Cart[]
   Order                     Order[]
-  ProductHasPromotion       ProductHasPromotion[]
+  UsedPromotions            UserHasPromotion[]
   invoices                  Invoice[]
+}
+
+model UserHasPromotion {
+  user_id      String
+  promotion_id String
+  user         User      @relation(fields: [user_id], references: [id])
+  promotion    Promotion @relation(fields: [promotion_id], references: [id])
+
+  @@id([user_id, promotion_id])
 }
 
 model Address {
@@ -58,13 +67,14 @@ model Alert {
 }
 
 model Preference {
-  user_id  String
-  alert_id String
-  status   Boolean
-  user     User    @relation(fields: [user_id], references: [id])
-  alert    Alert   @relation(fields: [alert_id], references: [id])
+  id        String  @id @unique @default(uuid())
+  user_id   String
+  alert_id  String
+  isEnabled Boolean
+  user      User    @relation(fields: [user_id], references: [id])
+  alert     Alert   @relation(fields: [alert_id], references: [id])
 
-  @@id([user_id, alert_id])
+  @@unique([user_id, alert_id])
 }
 
 model PasswordRecovery {
@@ -84,69 +94,75 @@ model Category {
 }
 
 model Product {
-  id                  String                @id @unique @default(uuid())
-  name                String
-  description         String
-  brand               String
-  price               Float
-  promo               Float?
-  photo               String?
-  stock_quantity      Int
-  categoryId          String?
-  lowStockAlert       Boolean               @default(false)
-  category            Category?             @relation(fields: [categoryId], references: [id])
-  CartHasProducts     CartHasProducts[]
-  ProductHasCategory  ProductHasCategory[]
-  ProductHasPromotion ProductHasPromotion[]
-  invoices            Invoice[]
+  id                 String               @id @unique @default(uuid())
+  name               String
+  description        String
+  brand              String
+  price              Float
+  promotion          Float?
+  promotion_type     String?
+  categoryId         String?
+  quantity           Int
+  category           Category?            @relation(fields: [categoryId], references: [id])
+  CartHasProducts    CartHasProducts[]
+  ProductHasCategory ProductHasCategory[]
+  stockHistory       StockHistory[]
 }
 
 model Cart {
-  id                 Int               @id @default(autoincrement())
-  created_at         DateTime
-  status             String
+  id                 String            @id @unique @default(uuid())
+  created_at         DateTime          @default(now())
+  promotion_id       String?
   user_id            String
+  total              Int               @default(0)
   user               User              @relation(fields: [user_id], references: [id])
+  promotion          Promotion?        @relation(fields: [promotion_id], references: [id])
   carts_has_products CartHasProducts[]
 }
 
 model CartHasProducts {
-  cart_id    Int
+  id         String  @id @unique @default(uuid())
+  cart_id    String
   product_id String
   quantity   Int
   unit_price String
   cart       Cart    @relation(fields: [cart_id], references: [id])
   product    Product @relation(fields: [product_id], references: [id])
 
-  @@id([cart_id, product_id])
+  @@unique([cart_id, product_id])
 }
 
 model Order {
   id            String        @id @unique @default(uuid())
-  date          DateTime
-  status        String
+  created_at    DateTime      @default(now())
+  status        String        @default("En cours")
   total_amount  Int
   user_id       String
   user          User          @relation(fields: [user_id], references: [id])
   order_details OrderDetail[]
-  deliveries    Delivery[]
-  payments      Payment[]
+  delivery      Delivery?
+  payment       Payment?
+  Invoice       Invoice?
 }
 
 model OrderDetail {
-  id         String @id @unique @default(uuid())
-  quantity   Int
-  unit_price Int
-  order_id   String
-  order      Order  @relation(fields: [order_id], references: [id])
+  id                  String @id @unique @default(uuid())
+  quantity            Int
+  product_id          String
+  product_name        String
+  product_description String
+  unit_price          Int
+  order_id            String
+  order               Order  @relation(fields: [order_id], references: [id])
 }
 
 model Delivery {
-  id               Int    @id @default(autoincrement())
+  id               String @id @unique @default(uuid())
   address          String
-  status           String
+  status           String @default("En cours")
   following_number String
-  order_id         String
+  client_name      String
+  order_id         String @unique
   order            Order  @relation(fields: [order_id], references: [id])
 }
 
@@ -155,7 +171,7 @@ model Payment {
   paid_amount    Int
   payment_method String
   status         String
-  order_id       String
+  order_id       String @unique
   order          Order  @relation(fields: [order_id], references: [id])
 }
 
@@ -169,34 +185,46 @@ model ProductHasCategory {
 }
 
 model Promotion {
-  id                      Int                   @id @default(autoincrement())
-  type                    String
-  created_at              DateTime
-  expiry_date             DateTime
-  is_one_time             Boolean
-  products_has_promotions ProductHasPromotion[]
-}
-
-model ProductHasPromotion {
-  product_id   String
-  promotion_id Int
-  user_id      String
-  product      Product   @relation(fields: [product_id], references: [id])
-  promotion    Promotion @relation(fields: [promotion_id], references: [id])
-  user         User      @relation(fields: [user_id], references: [id])
-
-  @@id([product_id, promotion_id, user_id])
+  id               String             @id @unique @default(uuid())
+  type             String
+  created_at       DateTime           @default(now())
+  expiry_date      DateTime
+  is_one_time      Boolean
+  UserHasPromotion UserHasPromotion[]
+  Cart             Cart[]
 }
 
 model Invoice {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  productId String
-  amount    Float
-  status    String   @default("pending") // "pending", "paid", "cancelled"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String          @id @unique @default(uuid())
+  user_id         String
+  user_firstname  String
+  user_lastname   String
+  order_id        String          @unique
+  amount          Float
+  status          String          @default("pending") // "pending", "paid", "cancelled"
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
   paymentIntentId String?
-  user    User    @relation(fields: [userId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  user            User            @relation(fields: [user_id], references: [id])
+  order           Order?          @relation(fields: [order_id], references: [id])
+  invoice_details InvoiceDetail[]
+}
+
+model InvoiceDetail {
+  id                  String   @id @unique @default(uuid())
+  quantity            Int
+  product_id          String
+  product_name        String
+  product_description String
+  unit_price          Int
+  invoice_id          String
+  invoice             Invoice? @relation(fields: [invoice_id], references: [id])
+}
+
+model StockHistory {
+  id         String   @id @unique @default(uuid())
+  product_id String
+  product    Product  @relation(fields: [product_id], references: [id])
+  date       DateTime @default(now())
+  quantity   Int
 }

@@ -33,6 +33,9 @@ const stats = ref<Stats>({
   totalUsers: 0,
   newUsers: [],
   totalRevenue: 0,
+  averageOrder: 0,
+  userConversionRate: 0,
+  totalUsersByNotificationType: [],
 });
 const getStats = async () => {
   const response = await getUsersStats();
@@ -74,6 +77,33 @@ onMounted(() => getStats());
         <v-card-text>
           <span class="display-1 text-h3 font-weight-bold"
             >{{ stats.totalRevenue }} €</span
+          >
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
+
+  <v-row class="mt-8">
+    <v-col cols="12" md="6" sm="12">
+      <v-card class="py-4 px-4">
+        <v-card-title>
+          <span class="headline">Taux de conversion</span>
+        </v-card-title>
+        <v-card-text>
+          <span class="display-1 text-h3 font-weight-bold"
+            >{{ stats.userConversionRate.toFixed(2) }} %
+          </span>
+        </v-card-text>
+      </v-card>
+    </v-col>
+    <v-col cols="12" md="6" sm="12">
+      <v-card class="py-4 px-4">
+        <v-card-title>
+          <span class="headline">Prix moyen d'une commande</span>
+        </v-card-title>
+        <v-card-text>
+          <span class="display-1 text-h3 font-weight-bold"
+            >{{ stats.averageOrder.toFixed(2) }} €</span
           >
         </v-card-text>
       </v-card>

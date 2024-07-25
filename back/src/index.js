@@ -11,8 +11,9 @@ import AddressRoutes from "./routes/addresses.mjs";
 import deliveryRouter from "./routes/deliveryRoutes.mjs";
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
-import { sendPasswordRenewalNotification } from "./utils/mailer.mjs";
+import { sendPasswordRenewalNotification, sendNewsletterEmail } from "./utils/mailer.mjs";
 import mongoose from "./middlewares/mongooseConfig.mjs";
+import { findUsersWithNewsletterPreference } from "./cron/sendNewsletterAlert.mjs";
 
 dotenv.config();
 
@@ -27,7 +28,8 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: process.env.WEBSITE_URL,
+  // origin: process.env.WEBSITE_URL,
+  origin: '*',
   optionsSuccessStatus: 200
 };
 
@@ -42,7 +44,12 @@ app.use("/api", OrderRoutes);
 app.use("/api", InvoiceRoutes);
 app.use("/api", SecurityRoutes);
 app.use("/api", AddressRoutes);
+app.use("/api", PromotionRoutes);
+app.use("/api", StockHistoryRoutes);
+app.use("/api", AlertRoutes);
 app.use('/api', deliveryRouter);
+app.use("/api", BasketRoutes);
+app.use("/api", PaymentRoutes)
 
 const checkPasswordRenewal = async () => {
   const accountsToRenew = await db.user.findMany();
@@ -73,12 +80,23 @@ cron.schedule("0 0 * * *", () => {
   checkPasswordRenewal();
 });
 
+// Send Newsletter every week 
+cron.schedule("0 0 * * 0", async () => {
+  console.log("Sending weekly newsletter...");
+  const users = await findUsersWithNewsletterPreference();
+  users.forEach(async (user) => {
+    await sendNewsletterEmail(user.email);
+  });
+});
+
 // Connect to mongo database
 mongoose.connect(process.env.DATABASE_URL_MONGODB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-  .then(() => console.log("Connected to MongoDB"))
+  .then(() => {
+    console.log("Connected to MongoDB")
+  })
   .catch((err) => console.error("MongoDB connection error:", err));
 
 app.listen(PORT, "0.0.0.0", () => {

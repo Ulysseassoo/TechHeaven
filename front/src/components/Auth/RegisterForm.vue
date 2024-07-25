@@ -130,7 +130,7 @@ const fields = computed<Field[]>(() => [
 </script>
 
 <template>
-  <VSheet>
+  <VSheet style="background: #f8f9fc">
     <VAlert
       type="success"
       title="Succès"
@@ -178,11 +178,11 @@ const fields = computed<Field[]>(() => [
           flat
           type="submit"
           :loading="isSubmitting"
-          >Register</VBtn
+          >S'enregistrer</VBtn
         >
         <span
-          >Already have an account ?
-          <RouterLink to="/login">Log in here</RouterLink></span
+          >Vous avez déjà un compte ?
+          <RouterLink to="/login">Connectez vous ici</RouterLink></span
         >
       </Stack>
     </VForm>

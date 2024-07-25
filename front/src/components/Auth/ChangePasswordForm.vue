@@ -3,6 +3,7 @@ import type { AxiosRequestConfig } from "axios";
 import { z } from "zod";
 import { useForm } from "@/hooks/useForm";
 import { changeUserPassword } from "@/api/auth";
+import { toast } from "vue3-toastify";
 
 const props = defineProps<{
   onSubmit: () => void;
@@ -14,12 +15,18 @@ const validationSchema = z
     password: z
       .string()
       .min(12, "Le mot de passe doit contenir au moins 12 caractères.")
-      .regex(/[a-z]/, "Le mot de passe doit contenir au moins une lettre minuscule.")
-      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une lettre majuscule.")
+      .regex(
+        /[a-z]/,
+        "Le mot de passe doit contenir au moins une lettre minuscule.",
+      )
+      .regex(
+        /[A-Z]/,
+        "Le mot de passe doit contenir au moins une lettre majuscule.",
+      )
       .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre.")
       .regex(
         /[!@#$%^&*(),.?":{}|<>]/,
-        "Le mot de passe doit contenir au moins un symbole."
+        "Le mot de passe doit contenir au moins un symbole.",
       ),
     confirmPassword: z.string(),
   })
@@ -46,6 +53,7 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
       config,
     });
     props.onSubmit();
+    toast.success("Your password has been changed successfully.");
   } catch (error) {
     console.log(error);
     throw error;
@@ -58,12 +66,13 @@ const transform = {
   },
 };
 
-const { data, handleSubmit, isSubmitting, errors, validateField, serverError } = useForm({
-  initialValues,
-  validationSchema,
-  onSubmit,
-  transform,
-});
+const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
+  useForm({
+    initialValues,
+    validationSchema,
+    onSubmit,
+    transform,
+  });
 </script>
 
 <template>
@@ -118,7 +127,8 @@ const { data, handleSubmit, isSubmitting, errors, validateField, serverError } =
           >Submit</VBtn
         >
         <span
-          >Already have an account ? <RouterLink to="/login">Login here</RouterLink></span
+          >Already have an account ?
+          <RouterLink to="/login">Login here</RouterLink></span
         >
       </Stack>
     </VForm>
