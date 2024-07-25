@@ -18,7 +18,6 @@ const loading = ref<boolean>(false);
 const errorMessage = ref<string | undefined>(props.description);
 
 const executeAction = async () => {
-  loading.value = true;
   try {
     await props.action();
     loading.value = false;
@@ -58,7 +57,16 @@ const executeAction = async () => {
           Fermer
         </v-btn>
 
-        <v-btn @click="executeAction" :loading="loading" variant="elevated">
+        <v-btn
+          @click="
+            () => {
+              dialog = false;
+              executeAction();
+            }
+          "
+          :loading="loading"
+          variant="elevated"
+        >
           Confirmer
         </v-btn>
       </template>

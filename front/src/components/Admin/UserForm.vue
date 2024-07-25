@@ -31,7 +31,7 @@ const validationSchema = z.object({
     .number()
     .refine((value) => !isNaN(value), "Veuillez entrer un nombre valide"),
   blocked_until: z.string().nullable(),
-  selected_address: z.string(),
+  selected_address: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof validationSchema>;
@@ -52,6 +52,49 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
   }
 };
 
+const transform = {
+  created_at: (oldValue: string | number | boolean | null | undefined) => {
+    if (typeof oldValue === "string") {
+      const trimmedValue = oldValue.trim();
+      const date = new Date(trimmedValue);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+    }
+    return oldValue;
+  },
+  deleted_at: (oldValue: string | number | boolean | null | undefined) => {
+    if (typeof oldValue === "string") {
+      const trimmedValue = oldValue.trim();
+      const date = new Date(trimmedValue);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+    }
+    return oldValue;
+  },
+  last_updated_password: (oldValue: string | number | boolean | null | undefined) => {
+    if (typeof oldValue === "string") {
+      const trimmedValue = oldValue.trim();
+      const date = new Date(trimmedValue);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+    }
+    return oldValue;
+  },
+  blocked_until: (oldValue: string | number | boolean | null | undefined) => {
+    if (typeof oldValue === "string") {
+      const trimmedValue = oldValue.trim();
+      const date = new Date(trimmedValue);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString();
+      }
+    }
+    return oldValue;
+  },
+};
+
 const { data, errors, validateField, handleSubmit } = useForm({
   initialValues: {
     ...props.user,
@@ -59,14 +102,13 @@ const { data, errors, validateField, handleSubmit } = useForm({
       ? props.user.blocked_until.split("Z")[0]
       : null,
     created_at: props.user.created_at.split("Z")[0],
-    deleted_at: props.user.deleted_at
-      ? props.user.deleted_at.split("Z")[0]
-      : null,
+    deleted_at: props.user.deleted_at ? props.user.deleted_at.split("Z")[0] : null,
     last_updated_password: props.user.last_updated_password
       ? props.user.last_updated_password.split("Z")[0]
       : null,
     selected_address: props.user.addresses.find((a) => a.is_selected)?.id!,
   },
+  transform,
   validationSchema,
   onSubmit,
 });

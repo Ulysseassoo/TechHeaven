@@ -10,7 +10,7 @@ export const useProductStore = defineStore("products", () => {
   const productDetailSelected = ref<Product | null>(null);
   const productSearch = ref("");
 
-  const fetchProducts = async (params: string) => {
+  const fetchProducts = async (params?: string) => {
     isLoading.value = true;
 
     try {
