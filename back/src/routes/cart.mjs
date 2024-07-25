@@ -127,6 +127,26 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
                         id: productInCart.id
                     }
                 })
+
+                await db.cart.update({
+                    where: {
+                        id: basket.id
+                    },
+                    data: {
+                        ...basket,
+                        total: basket.total - (productInCart.product.price * productInCart.quantity)
+                    }
+                })
+
+                await db.product.update({
+                    where: {
+                        id: productInCart.product.id
+                    },
+                    data: {
+                        ...productInCart.product,
+                        quantity: productInCart.product.quantity + productInCart.quantity
+                    }
+                })
                 return res.status(200).json({ status: 200, message: 'Produit supprimé du panier'});
             }
 
@@ -149,6 +169,26 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
                     }
                 })
 
+                await db.cart.update({
+                    where: {
+                        id: basket.id
+                    },
+                    data: {
+                        ...basket,
+                        total: basket.total - productInCart.product.price
+                    }
+                })
+
+                await db.product.update({
+                    where: {
+                        id: productInCart.product.id
+                    },
+                    data: {
+                        ...productInCart.product,
+                        quantity: productInCart.product.quantity + 1
+                    }
+                })
+
                 return res.status(200).json({
                     status: 200,
                     data: basketProductUpdated
@@ -166,6 +206,26 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
                             quantity: productInCart.quantity + 1
                         }
                     })
+
+                    await db.cart.update({
+                        where: {
+                            id: basket.id
+                        },
+                        data: {
+                            ...basket,
+                            total: basket.total + productInCart.product.price
+                        }
+                    })
+
+                    await db.product.update({
+                        where: {
+                            id: productInCart.product.id
+                        },
+                        data: {
+                            ...productInCart.product,
+                            quantity: productInCart.product.quantity - 1
+                        }
+                    })
                     return res.status(200).json({ status: 200, data:  basketProductUpdated});
                 } else {
                     return res.status(409).json({ status: 409, message: "Le produit n'est plus en stock." });
@@ -181,19 +241,45 @@ router.put("/basket", basketValidator, shouldBeAuthenticate, async (req, res) =>
             })
 
             if (productToAdd) {
-                const productAdded = await db.cartHasProducts.create({
-                    data: {
-                        cart_id: basket.id,
-                        product_id: productToAdd.id,
-                        quantity: 1,
-                        unit_price: productToAdd.price.toString()
-                    }
-                })
+                if (productToAdd.quantity) {
 
-                return res.status(200).json({
-                    status: 200,
-                    data: productAdded
-                })
+                    const productAdded = await db.cartHasProducts.create({
+                        data: {
+                            cart_id: basket.id,
+                            product_id: productToAdd.id,
+                            quantity: 1,
+                            unit_price: productToAdd.price.toString()
+                        }
+                    })
+
+                    await db.cart.update({
+                        where: {
+                            id: basket.id
+                        },
+                        data: {
+                            ...basket,
+                            total: basket.total + productToAdd.price
+                        }
+                    })
+
+                    await db.product.update({
+                        where: {
+                            id: productToAdd.id
+                        },
+                        data: {
+                            ...productToAdd,
+                            quantity: productToAdd.quantity - 1
+                        }
+                    })
+
+                    return res.status(200).json({
+                        status: 200,
+                        data: productAdded
+                    })
+                } else {
+                    return res.status(409).json({ status: 409, message: "Le produit n'est plus en stock." });
+                }
+
             }
 
             return res.status(400).json({

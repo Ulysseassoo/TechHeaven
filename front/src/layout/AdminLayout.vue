@@ -16,11 +16,6 @@ const items = ref([
   },
   { icon: "fa-solid fa-box", title: "Commandes", route: "/admin/orders" },
   {
-    icon: "fa-solid fa-file-invoice",
-    title: "Factures",
-    route: "/admin/invoices",
-  },
-  {
     icon: "fa-solid fa-bell",
     title: "Alertes",
     route: "/admin/alerts",

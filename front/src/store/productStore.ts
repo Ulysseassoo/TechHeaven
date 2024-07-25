@@ -16,9 +16,8 @@ export const useProductStore = defineStore("products", () => {
       const res = await getProducts({
         search: "",
         page: 1,
-        limit: 10,
+        limit: 40,
       });
-      console.log(res, "res");
       products.value = res.data;
     } catch (err) {
       console.log(err, "Error occured in product store");

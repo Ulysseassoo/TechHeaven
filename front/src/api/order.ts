@@ -1,7 +1,19 @@
 import type { Order } from "@/interfaces/Order";
-import { postApi } from ".";
+import {
+  deleteApi,
+  postApi,
+  putApi,
+  type ApiSuccess,
+  type UpdateProps,
+} from ".";
 import { getApi } from ".";
 import { HOST } from "@/constants";
+
+interface SearchQueryParams {
+  search?: string;
+  page?: number;
+  limit?: number;
+}
 
 export const getUserOrders = async ({
   search = "",
@@ -25,6 +37,28 @@ export const getUserOrders = async ({
   return response;
 };
 
+export const getOrders = async ({
+  search = "",
+  page = 1,
+  limit = 10,
+}: SearchQueryParams) => {
+  const queryParams = new URLSearchParams({
+    search,
+    page: page.toString(),
+    limit: limit.toString(),
+  }).toString();
+
+  const url = `${HOST}/orders?${queryParams}`;
+  const token = localStorage.getItem("token");
+  const response = await getApi<Order[]>(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response;
+};
+
 export const createOrder = async () => {
   const url = `${HOST}/orders`;
   const token = localStorage.getItem("token");
@@ -37,6 +71,19 @@ export const createOrder = async () => {
       },
     },
   );
+
+  return response;
+};
+
+export const updateOrder = async ({ id, data, config }: UpdateProps<Order>) => {
+  const url = `${HOST}/orders/${id}`;
+  const token = localStorage.getItem("token");
+  const response = await putApi<Order>(url, data, {
+    ...config,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response;
 };

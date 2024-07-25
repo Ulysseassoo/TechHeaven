@@ -103,7 +103,7 @@ onMounted(() => getStats());
         </v-card-title>
         <v-card-text>
           <span class="display-1 text-h3 font-weight-bold"
-            >{{ stats.averageOrder }} €</span
+            >{{ stats.averageOrder.toFixed(2) }} €</span
           >
         </v-card-text>
       </v-card>

@@ -73,6 +73,8 @@ router.get("/orders", shouldBeAdmin, async (req, res) => {
         if (search !== undefined && search !== "") {
             const searchQuery = new RegExp(search, 'i');
             query.$or = [
+                { id: { $regex: searchQuery } },
+                { "order_details.product_name": { $regex: searchQuery } },
                 { 'user.firstname': { $regex: searchQuery } },
                 { 'user.lastname': { $regex: searchQuery } }
             ]
@@ -126,51 +128,34 @@ router.get("/orders", shouldBeAdmin, async (req, res) => {
 //     }
 // });
 
-// // Mettre à jour une commande spécifique par son ID
-// router.put("/orders/:id", orderValidator, async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
+// Mettre à jour une commande spécifique par son ID
+router.put("/orders/:id", shouldBeAdmin, async (req, res) => {
+    const id = req.params.id;
 
-//     try {
-//         const errors = validationResult(req);
-//         if (!errors.isEmpty()) {
-//             return res.status(401).send({
-//                 status: 401,
-//                 message: errors.formatWith(({ msg, path }) => ({ msg, path })).array()
-//             });
-//         }
+    try {
 
-//         const { date, status, total_amount, user_id } = req.body;
+        const { status } = req.body;
 
-//         const order = await db.order.update({
-//             where: { id },
-//             data: { date, status, total_amount, user_id }
-//         });
+        const order = await db.order.findUnique({
+            where: { id }
+        });
 
-//         return res.status(200).json({ status: 200, data: order });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        if(!order) {
+            return res.status(400).json({ status: 400, message: 'Commande inexistante.' });
+        }
 
-// // Supprimer une commande spécifique par son ID
-// router.delete("/orders/:id", async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
+        const updatedOrder = await db.order.update({
+            where: { id },
+            data: { status }
+        });
 
-//     try {
-//         await db.order.delete({
-//             where: { id }
-//         });
-
-//         return res.status(200).json({ status: 200, message: 'Commande supprimée avec succès.' });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        return res.status(200).json({ status: 200, data: updatedOrder });
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+});
 
 export default router;

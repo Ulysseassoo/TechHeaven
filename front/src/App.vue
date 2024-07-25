@@ -9,7 +9,8 @@ const basketStore = useBasketStore();
 const userStore = useUserStore();
 
 const fetchData = async () => {
-  if (userStore.user) {
+  await productStore.fetchProducts();
+  if (userStore.user && userStore.user.role === "ROLE_USER") {
     await productStore.fetchProducts();
     await basketStore.fetchBasket();
     await basketStore.fetchBasketProducts();
