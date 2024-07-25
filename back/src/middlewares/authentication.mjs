@@ -198,3 +198,28 @@ export const hasAuthenticate = (req, res, next) => {
     next();
   });
 };
+
+
+export const checkFields = (allowedFieldsForConnectedUser) => {
+  return (req, res, next) => {
+    if (req.user) {
+      if (req.user.role === 'ROLE_ADMIN') {
+        return next();
+      } else {
+        const filteredBody = {};
+        Object.keys(req.body).forEach((key) => {
+          if (allowedFieldsForConnectedUser.includes(key)) {
+            filteredBody[key] = req.body[key];
+          }
+        });
+        req.body = filteredBody;
+        return next();
+      }
+    } else {
+      return res.status(401).send({
+        status: 401,
+        message: "Vous n'avez pas accès à cette ressource",
+      });
+    }
+  };
+};

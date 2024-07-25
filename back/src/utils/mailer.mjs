@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { COMPANY_MAIL } from "../constants/index.mjs";
 import { generateInvoicePDF } from './pdfGenerator.mjs';
+import User from "../models/User.mjs";
 import fs from 'fs';
 
 const storeKeeperEmail = 'storekeeper@prisma.io';
@@ -202,9 +203,11 @@ export const sendInvoiceEmail = async (userEmail, invoice) => {
 }
 
 export const sendEmailAlert = async ({ product }) => {
+    const adminUsers = await User.find({ role: ['ROLE_ADMIN', 'ROLE_STORE_KEEPER']});
+    const EMAILS = adminUsers.map(user => user.email).join(', ');
     const mailOptions = {
         from: COMPANY_MAIL,
-        to: `${storeKeeperEmail}, ${adminEmail}`,
+        to: EMAILS,
         subject: 'Alerte de Stock Bas',
         text: `Attention, le stock du produit ${product.name} est inférieur à 10. Veuillez prendre les mesures nécessaires.`,
       };

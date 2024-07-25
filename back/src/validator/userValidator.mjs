@@ -4,7 +4,7 @@ export const userValidator = [
   body("firstname").isString(),
   body("lastname").isString(),
   body("email").isEmail(),
-  body("phone").isString(),
+  body("phone").isString().optional({nullable: true }),
 ];
 
 export const authValidator = [
