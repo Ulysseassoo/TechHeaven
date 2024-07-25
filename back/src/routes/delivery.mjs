@@ -1,6 +1,6 @@
 import express from 'express';
-import Delivery from "../models/delivery.mjs";
-import {shouldBeAuthenticate, shouldBeAdmin} from "../middlewares/authentication.mjs";
+import Delivery from "../models/Delivery.mjs";
+import {shouldBeAuthenticate} from "../middlewares/authentication.mjs";
 
 const router = express.Router();
 
