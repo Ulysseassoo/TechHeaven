@@ -9,7 +9,7 @@ import Product from "../src/models/Product.mjs";
 
 const prisma = new PrismaClient();
 
-const categories = ["Ordinateurs", "Téléphones Mobiles", "Appareils Photo", "Audio & Vidéo", "Technologie Portable", "Accessoires"];
+const categories = ["Ordinateurs", "Téléphones Mobiles", "Appareils Photo", "Audio & Vidéo", "Technologie Portable", "Appareil pas cher"];
 
 const productNames = [
   "iPhone 14 Pro",
