@@ -16,7 +16,11 @@ const basketProductCount = computed(() => basketStore.basketProductCount);
   <header>
     <section class="header">
       <RouterLink to="/">
-        <img width="120px" style="object-fit: contain" src="../assets/logo.png" />
+        <img
+          width="120px"
+          style="object-fit: contain"
+          src="../assets/logo.png"
+        />
       </RouterLink>
       <div class="search-section">
         <RouterLink class="router-link" to="/products">Nos produits</RouterLink>
@@ -36,7 +40,11 @@ const basketProductCount = computed(() => basketStore.basketProductCount);
       <div style="display: flex">
         <RouterLink
           class="router-link"
-          :to="store.user !== undefined && store.user ? '/account/profile' : '/login'"
+          :to="
+            store.user !== undefined && store.user
+              ? '/account/profile'
+              : '/login'
+          "
         >
           <User />
         </RouterLink>
