@@ -39,7 +39,7 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
         data: formData as Alert,
         config,
       });
-      if (result.status === 200) {
+      if (result.status === 201) {
         toast.success("Alerte crée avec succès");
       }
     }

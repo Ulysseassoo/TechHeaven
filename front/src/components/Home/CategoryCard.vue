@@ -2,11 +2,12 @@
 defineProps<{
   img: string;
   name: string;
+  link: string;
 }>();
 </script>
 
 <template>
-  <div class="category-container">
+  <RouterLink :to="link" class="category-container">
     <img style="width: 100%; height: 100%; object-fit: cover" :src="img" />
     <div
       style="
@@ -18,7 +19,7 @@ defineProps<{
     >
       {{ name }}
     </div>
-  </div>
+  </RouterLink>
 </template>
 
 <style scoped>
@@ -28,5 +29,11 @@ defineProps<{
   display: flex;
   flex-direction: column;
   border-radius: 8px;
+  text-decoration: none;
+  color: black;
+  transition: opacity 0.3s ease;
+  &:hover {
+    opacity: 0.8;
+  }
 }
 </style>

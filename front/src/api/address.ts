@@ -1,8 +1,10 @@
 import {
   deleteApi,
   getApi,
+  postApi,
   putApi,
   type ApiSuccess,
+  type CreateProps,
   type UpdateProps,
 } from "@/api";
 import { HOST } from "@/constants";
@@ -37,8 +39,8 @@ export const getAddresses = async ({
   return response;
 };
 
-export const deleteAddress = async (userId: string) => {
-  const url = `${HOST}/addresses/${userId}`;
+export const deleteAddress = async (addressId: string) => {
+  const url = `${HOST}/addresses/${addressId}`;
   const token = localStorage.getItem("token");
   const response = await deleteApi<ApiSuccess>(url, {
     headers: {
@@ -61,6 +63,23 @@ export const updateAddress = async ({
   const url = `${HOST}/addresses/${id}`;
   const token = localStorage.getItem("token");
   const response = await putApi<Address>(url, data, {
+    ...config,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response;
+};
+
+export const createAddress = async ({
+  data,
+  config,
+  userId,
+}: CreateProps<Partial<Address>> & { userId?: string }) => {
+  const url = `${HOST}/users/${userId}/addresses`;
+  const token = localStorage.getItem("token");
+  const response = await postApi<Partial<Address>>(url, data, {
     ...config,
     headers: {
       Authorization: `Bearer ${token}`,

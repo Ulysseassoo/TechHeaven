@@ -15,10 +15,59 @@ import {
   getTotalRevenue,
   getTotalRevenuePerDate,
   getTotalUsers,
+  getCountUsersByNotificationType,
+  getAverageOrderValue,
+  getUserConversionRate
 } from "../utils/stats.mjs";
+import Order from "../models/Order.mjs";
 
 const router = express.Router();
 // -------------------------------------------------------------------------- ROUTES -------------------------------------------------------------
+
+router.get("/users/:id/orders", shouldBeAuthenticate, async (req, res) => {
+  try {
+    
+    const user = await User.findOne({
+      id: req.user.id,
+    });
+
+    if(req.params.id !== req.user.id) {
+      return res
+       .status(403)
+       .json({ status: 403, message: "Vous n'avez pas accès à cette ressource" });
+    }
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ status: 400, message: "Utilisateur inexistant." });
+    }
+
+
+    const { search } = req.query;
+    const query = {};
+
+    if (search !== undefined && search !== "") {
+      const searchQuery = new RegExp(search, "i");
+      query.$or = [
+        { id: { $regex: searchQuery } },
+        { "order_details.product_name": { $regex: searchQuery } },
+      ];
+    }
+
+    const orders = await Order.find({ user_id: user.id, ...query }).populate('order_details');
+
+    return res.status(200).json({
+      status: 200,
+      data: orders,
+    });
+  } catch (error) {
+    return res.status(401).send({
+      status: 401,
+      message: error.message || error,
+    });
+  }
+})
 
 router.get("/users/me", shouldBeAuthenticate, async (req, res) => {
   try {
@@ -99,6 +148,12 @@ router.post("/users", authValidator, async (req, res) => {
       },
     });
 
+    await db.cart.create({
+      data: {
+          user_id: user.id
+      }
+  })
+
     // Create preference for user
     const alert = await db.alert.findFirst({
       where: {
@@ -113,6 +168,25 @@ router.post("/users", authValidator, async (req, res) => {
           alert_id: alert.id,
           isEnabled: false,
         }
+      });
+    }
+
+    const alerts = await db.alert.findMany({
+      where: {
+        id: {
+          not: alert.id
+        }
+      }
+    });
+
+    for (let j = 0; j < alerts.length; j++) {
+      const z = alerts[j];
+      await db.preference.create({
+        data: {
+          user_id: user.id,
+          alert_id: z.id,
+          isEnabled: false,
+        },
       });
     }
 
@@ -167,6 +241,9 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
     const newUsers = await getNewUsersOverTime();
     const totalRevenue = await getTotalRevenue();
     const totalRevenuePerDate = await getTotalRevenuePerDate();
+    const totalUsersByNotificationType = await getCountUsersByNotificationType();
+    const averageOrder = await getAverageOrderValue();
+    const userConversionRate = await getUserConversionRate();
 
     return res.status(200).json({
       status: 200,
@@ -175,6 +252,9 @@ router.get("/users/stats", shouldBeAdmin, async (req, res) => {
         newUsers,
         totalRevenue,
         totalRevenuePerDate,
+        totalUsersByNotificationType,
+        averageOrder,
+        userConversionRate
       },
     });
   } catch (error) {

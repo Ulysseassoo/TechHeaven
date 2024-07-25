@@ -1,6 +1,8 @@
 import mongoose from "../middlewares/mongooseConfig.mjs";
 import Alert from "./Alert.mjs";
 
+import { productHasPromotionSchema } from './ProductHasPromotion.mjs'
+
 const addressSchema = new mongoose.Schema({
   city: { type: String, required: true },
   country: { type: String, required: true },
@@ -40,7 +42,7 @@ const passwordRecoverySchema = new mongoose.Schema({
   code_validation_time: { type: Date, default: null },
   last_request: { type: Date, default: null },
   verification_code: { type: String, default: null },
-  id: { type: String, unique: true, required: true },
+  id: { type: String, unique: true, required: true, sparse: true },
 });
 
 const userSchema = new mongoose.Schema({
@@ -58,6 +60,7 @@ const userSchema = new mongoose.Schema({
   number_connexion_attempts: { type: Number, default: 0 },
   blocked_until: { type: Date, default: null },
   addresses: { type: [addressSchema], default: [] },
+  used_promotions: [{ type: [productHasPromotionSchema], ref: 'ProductHasPromotion' }],
   preferences: { type: [preferenceSchema], default: [] },
   passwordRecovery: {
     type: passwordRecoverySchema,

@@ -1,7 +1,6 @@
 import mongoose from "../middlewares/mongooseConfig.mjs";
 
-const productHasPromotionSchema = new mongoose.Schema({
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+export const productHasPromotionSchema = new mongoose.Schema({
     promotion: { type: mongoose.Schema.Types.ObjectId, ref: 'Promotion' },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });

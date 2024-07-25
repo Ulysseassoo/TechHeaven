@@ -1,11 +1,15 @@
 import mongoose from "../middlewares/mongooseConfig.mjs";
 
 
-const orderDetailSchema = new mongoose.Schema({
-  id: { type: String, unique: true, required: true },
+export const orderDetailSchema = new mongoose.Schema({
+    id: { type: String, unique: true, required: true },
     quantity: Number,
+    product_name: String,
+    product_description: String,
     unit_price: Number,
-    order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    product_id: {type: String, required: true},
+    order_id: { type: String, required: true  },
 });
 
 const OrderDetail = mongoose.model('OrderDetail', orderDetailSchema);

@@ -91,7 +91,6 @@ router.post("/verify", confirmAccountValidator, async (req, res) => {
 router.post("/auth", async (req, res) => {
     const { email, password } = req.body;
     const user = await db.user.findUnique({ where: { email } });
-
     if (!user) {
         return res.status(401).json({ status: 401, message: "Email ou mot de passe invalide" });
     }
@@ -289,7 +288,7 @@ router.put("/change/password", hasAuthenticate, changePasswordValidator, async (
         });
     }
 
-    const { password, email, oldPassword, confirmPassword } = req.body;
+    const { password, email, oldPassword, confirmPassword, code } = req.body;
 
     try {
         if(req.user !== undefined && req.user !== null) {
@@ -338,7 +337,7 @@ router.put("/change/password", hasAuthenticate, changePasswordValidator, async (
                 });
             }
     
-            if (passwordRecovery.verification_code !== code) {
+            if (code && passwordRecovery.verification_code !== code) {
                 return res.status(401).send({
                     status: 401,
                     message: "Le code a expiré",

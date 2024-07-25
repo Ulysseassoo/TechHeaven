@@ -8,8 +8,14 @@ import OrderRoutes from "./routes/order.mjs";
 import InvoiceRoutes from "./routes/invoice.mjs";
 import SecurityRoutes from "./routes/auth.mjs";
 import AddressRoutes from "./routes/addresses.mjs";
+import BasketRoutes from "./routes/cart.mjs"
+import DeliveryRoutes from "./routes/delivery.mjs";
+import deliveryRoutes from "./routes/delivery.mjs";
+import PromotionRoutes from "./routes/promotion.mjs";
+import StockHistoryRoutes from "./routes/stockHistory.mjs";
 import AlertRoutes from "./routes/alert.mjs";
-import deliveryRouter from "./routes/deliveryRoutes.mjs";
+import deliveryRouter from "./routes/delivery.mjs";
+import PaymentRoutes  from "./routes/payment.mjs"
 import cron from "node-cron";
 import { db } from "./utils/db.server.mjs";
 import { sendPasswordRenewalNotification, sendNewsletterEmail } from "./utils/mailer.mjs";
@@ -29,7 +35,8 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: process.env.WEBSITE_URL,
+  // origin: process.env.WEBSITE_URL,
+  origin: '*',
   optionsSuccessStatus: 200
 };
 
@@ -44,8 +51,12 @@ app.use("/api", OrderRoutes);
 app.use("/api", InvoiceRoutes);
 app.use("/api", SecurityRoutes);
 app.use("/api", AddressRoutes);
+app.use("/api", PromotionRoutes);
+app.use("/api", StockHistoryRoutes);
 app.use("/api", AlertRoutes);
 app.use('/api', deliveryRouter);
+app.use("/api", BasketRoutes);
+app.use("/api", PaymentRoutes)
 
 const checkPasswordRenewal = async () => {
   const accountsToRenew = await db.user.findMany();

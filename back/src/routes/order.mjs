@@ -1,41 +1,69 @@
 import express from 'express';
 import Order from '../models/Order.mjs';
-import { shouldBeAdmin } from '../middlewares/authentication.mjs';
+import { db } from "../utils/db.server.mjs";
+import { shouldBeAdmin, shouldBeAuthenticate } from '../middlewares/authentication.mjs';
 
 const router = express.Router();
 
-// ------------------------------- ROUTES -------------------------------
+router.post('/orders', shouldBeAuthenticate, async (req, res) => {
+    const user = req.user
+    try {
+        const basket = await db.cart.findFirst({
+            where: {
+                user_id: user.id
+            }
+        })
 
-// // Créer une nouvelle commande
-// router.post("/orders", orderValidator, async (req, res) => {
-//     try {
-//         const errors = validationResult(req);
-//         if (!errors.isEmpty()) {
-//             return res.status(401).send({
-//                 status: 401,
-//                 message: errors.formatWith(({ msg, path }) => ({ msg, path })).array()
-//             });
-//         }
+        if (!basket) {
+            return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
+        }
 
-//         const { date, status, total_amount, user_id } = req.body;
+        if (!(req.user.id === basket.user_id)) {
+            return res.status(401).json({ status: 401, message: "Vous ne pouvez pas intéragir avec ce panier." });
+        }
 
-//         const order = await db.order.create({
-//             data: {
-//                 date,
-//                 status,
-//                 total_amount,
-//                 user_id
-//             }
-//         });
+        const productsOrdered = await db.cartHasProducts.findMany({
+            where: {
+                cart_id: basket.id
+            },
+            include: {
+                product: true
+            }
+        })
 
-//         return res.status(201).json({ status: 201, data: order });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        const order = await db.order.create({
+            data: {
+                user_id: user.id,
+                total_amount: basket.total
+            }
+        })
+
+        await Promise.all(productsOrdered.map(async (cartProduct) => {
+            await db.orderDetail.create({
+                data: {
+                    quantity: cartProduct.quantity,
+                    product_name: cartProduct.product.name,
+                    product_description: cartProduct.product.description,
+                    unit_price: parseInt(cartProduct.unit_price),
+                    order_id: order.id,
+                    product_id: cartProduct.product.id
+                }
+            });
+        }));
+
+
+        return res.status(200).json({
+            status: 200,
+            data: order
+        })
+
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message,
+        });
+    }
+})
 
 router.get("/orders", shouldBeAdmin, async (req, res) => {
     try {
@@ -45,6 +73,8 @@ router.get("/orders", shouldBeAdmin, async (req, res) => {
         if (search !== undefined && search !== "") {
             const searchQuery = new RegExp(search, 'i');
             query.$or = [
+                { id: { $regex: searchQuery } },
+                { "order_details.product_name": { $regex: searchQuery } },
                 { 'user.firstname': { $regex: searchQuery } },
                 { 'user.lastname': { $regex: searchQuery } }
             ]
@@ -98,51 +128,34 @@ router.get("/orders", shouldBeAdmin, async (req, res) => {
 //     }
 // });
 
-// // Mettre à jour une commande spécifique par son ID
-// router.put("/orders/:id", orderValidator, async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
+// Mettre à jour une commande spécifique par son ID
+router.put("/orders/:id", shouldBeAdmin, async (req, res) => {
+    const id = req.params.id;
 
-//     try {
-//         const errors = validationResult(req);
-//         if (!errors.isEmpty()) {
-//             return res.status(401).send({
-//                 status: 401,
-//                 message: errors.formatWith(({ msg, path }) => ({ msg, path })).array()
-//             });
-//         }
+    try {
 
-//         const { date, status, total_amount, user_id } = req.body;
+        const { status } = req.body;
 
-//         const order = await db.order.update({
-//             where: { id },
-//             data: { date, status, total_amount, user_id }
-//         });
+        const order = await db.order.findUnique({
+            where: { id }
+        });
 
-//         return res.status(200).json({ status: 200, data: order });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        if(!order) {
+            return res.status(400).json({ status: 400, message: 'Commande inexistante.' });
+        }
 
-// // Supprimer une commande spécifique par son ID
-// router.delete("/orders/:id", async (req, res) => {
-//     const id = parseInt(req.params.id, 10);
+        const updatedOrder = await db.order.update({
+            where: { id },
+            data: { status }
+        });
 
-//     try {
-//         await db.order.delete({
-//             where: { id }
-//         });
-
-//         return res.status(200).json({ status: 200, message: 'Commande supprimée avec succès.' });
-//     } catch (error) {
-//         return res.status(401).send({
-//             status: 401,
-//             message: error.message || error,
-//         });
-//     }
-// });
+        return res.status(200).json({ status: 200, data: updatedOrder });
+    } catch (error) {
+        return res.status(401).send({
+            status: 401,
+            message: error.message || error,
+        });
+    }
+});
 
 export default router;

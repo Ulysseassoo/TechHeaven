@@ -5,6 +5,9 @@ import Order from '../models/Order.mjs';
 import Promotion from '../models/Promotion.mjs';
 import Payment from '../models/Payment.mjs';
 import Cart from '../models/Cart.mjs';
+import Category from '../models/Category.mjs';
+import StockHistory from '../models/StockHistory.mjs';
+import Invoice from '../models/Invoice.mjs'
 
 const Models = {
   User,
@@ -14,6 +17,9 @@ const Models = {
   Payment,
   Promotion,
   Cart,
+  Category,
+  StockHistory,
+  Invoice
 };
 
 const SubModels = {
@@ -32,14 +38,9 @@ const SubModels = {
     sub: "preferences",
     sub_key: "user_id"
   },
-  Category: {
-    main: Product,
-    sub: "categories",
-    sub_key: "product_id"
-  },
   OrderDetail: {
     main: Order,
-    sub: "orderDetails",
+    sub: "order_details",
     sub_key: "order_id"
   },
   ProductHasCategory: {
@@ -57,9 +58,9 @@ const SubModels = {
     sub: "delivery",
     sub_key: "order_id"
   },
-  CartHasProduct: {
+  CartHasProducts: {
     main: Cart,
-    sub: "cartHasProducts",
+    sub: "carts_has_products",
     sub_key: "cart_id"
   },
   Payment: {
@@ -71,6 +72,11 @@ const SubModels = {
     main: User,
     sub: "preferences",
     sub_key: "user_id"
+  },
+  InvoiceDetail: {
+    main: Invoice,
+    sub: "invoice_details",
+    sub_key: "invoice_id"
   }
 }
 

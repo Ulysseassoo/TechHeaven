@@ -70,8 +70,8 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
     });
     dialog.value = false;
     toast.success("Le mot de passe a été modifié avec succès");
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    toast.error(error.response.data.message || "Une erreur s'est produite");
     throw error;
   }
 };

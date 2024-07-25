@@ -3,6 +3,7 @@ import type { AxiosRequestConfig } from "axios";
 import { z } from "zod";
 import { useForm } from "@/hooks/useForm";
 import { changeUserPassword } from "@/api/auth";
+import { toast } from "vue3-toastify";
 
 const props = defineProps<{
   onSubmit: () => void;
@@ -52,6 +53,7 @@ const onSubmit = async (formData: FormValues, config: AxiosRequestConfig) => {
       config,
     });
     props.onSubmit();
+    toast.success("Your password has been changed successfully.");
   } catch (error) {
     console.log(error);
     throw error;

@@ -1,25 +1,21 @@
 import { Schema, model } from 'mongoose';
+import mongoose from "../middlewares/mongooseConfig.mjs";
+import { invoiceDetailSchema } from "./InvoiceDetail.mjs"
 
 
-const invoiceSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
-  productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true }, 
+const invoiceSchema = new mongoose.Schema({
+  id: { type: String, unique: true, required: true },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+  user_id: {type: String, required: true},
+  order_id: {type: String, required: true},
+  user_firstname:  {type: String, required: true},
+  user_lastname:  {type: String, required: true},
   amount: { type: Number, required: true },
   status: { type: String, enum: ['pending', 'paid', 'cancelled'], default: 'pending' },
   paymentIntentId: { type: String, default: null },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  invoice_details:  { type: [invoiceDetailSchema], default: [] },
 }, { timestamps: true });
-
-
-invoiceSchema.method('toClient', function() {
-  const obj = this.toObject();
-  obj.id = obj._id;
-  delete obj._id;
-  delete obj.__v;
-  return obj;
-});
-
 
 const Invoice = model('Invoice', invoiceSchema);
 

@@ -58,13 +58,14 @@ export const changeUserPassword = async ({
   config,
 }: ChangePasswordProps) => {
   const token = localStorage.getItem("token");
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const response = await putApi<ChangeOldPasswordProps>(
     HOST + "/change/password",
     data,
     {
       ...config,
       headers: {
-        Authorization: `Bearer ${token}`,
+        ...headers,
       },
     },
   );
@@ -73,7 +74,9 @@ export const changeUserPassword = async ({
 };
 
 export const verifyUser = async (token: string) => {
-  const response = await postApi<any>(HOST + "/verify", token);
+  const response = await postApi<any>(HOST + "/verify", {
+    token,
+  });
 
   return response;
 };

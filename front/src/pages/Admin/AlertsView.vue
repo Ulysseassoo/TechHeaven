@@ -99,9 +99,9 @@ async function fetchAlerts() {
 }
 
 const debouncedSearchedAlerts = useDebounce(fetchAlerts, 500);
-const deleteAllAlertsSelected = async (ids: string[]) => {
+const deleteAllAlertsSelected = async (ids: Alert[]) => {
   try {
-    const deletePromises = ids.map((id) => deleteAlert(id));
+    const deletePromises = ids.map((row) => deleteAlert(row.id));
     const responses = await Promise.all(deletePromises);
     const allDeleted = responses.every((response) => response.status === 200);
     if (allDeleted) {
