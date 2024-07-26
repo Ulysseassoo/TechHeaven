@@ -24,9 +24,34 @@ et des options de livraison variées.
   - Intégration des pages d'authentifications
   - Intégration de la suppresion de compte
   - Panel Admin CRUD 
-  - Dashboard Admin
+  - Dashboard Admin (KPI, Graphiques)
+  - Intégration gestion de stock
+  - Intégration du rôle du gestionnaire de stock
+  - Gestion des alertes emails avec visibilité côté client (inscription newsletter & sur des nouveaux produits d'une catégorie)
+  - Création du composant table en vue js avec export CSV
+  - Création dʼun composable permettant de gérer un formulaire rapidement et efficacement
+  - Montrer l'historique de commande côté client
+  - Rechercher dans l'historique de commande
+  - Ajouter / Supprimer des addresses pour un utilisateur
+  - Intégration page profil
+  - Mettre à jour les informations de l'utilisateur
 - [@fabian222222](fzuo@myges.fr) - ZUO Fabian
+  - Recherches produits
+  - Recherche via description produit / nom
+  - Recherche facettée (nom, catégorie, marque, prix)
+  - Création & Gestion du panier
+  - Intégration stripe côté front
+  - Passer une commande & payer la commande
+  - Ajout de promotions & CRUD promotions
 - [@jphayek](jhayek@myges.fr) - HAYEK Jean Paul
+  - Test unitaires
+  - Développement de la partie livraison en côté serveur
+  - Développement de la partie stripe côté serveur 
+  - CRUD Produit
+  - CRUD Catégorie
+  - Implémentation de la générationd de facture
+  - CRUD Facture
+  - Envoie de facture côté back + PDF
 
 
 ## Installation
