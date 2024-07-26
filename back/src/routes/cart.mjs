@@ -337,8 +337,6 @@ router.delete("/basket", shouldBeAuthenticate, async (req, res) => {
             include: {product: true}
         })
   
-        console.log(productsInCartToDelete, 'products in cart')
-
         for (let i = 0; i < productsInCartToDelete.length; i++) {
             await db.cartHasProducts.delete({
                 where: {
