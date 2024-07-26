@@ -17,7 +17,7 @@ const userStore = useUserStore();
 const { user } = userStore;
 
 const addresseSelected = user?.addresses.filter(
-  (address) => address.is_selected
+  (address) => address.is_selected,
 );
 
 const initialValues = {
