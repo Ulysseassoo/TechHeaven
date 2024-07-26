@@ -2,9 +2,10 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const filename = __filename;
-const dirname = __dirname;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const generateInvoicePDF = (invoice) => {
     const doc = new PDFDocument();
