@@ -42,7 +42,7 @@ export const useBasketStore = defineStore("basket", () => {
 
   const findItemIndexInBasket = (product: Product) => {
     const productKey = basket.value.findIndex(
-      (item) => item.product.id === product.id,
+      (item) => item.product.id === product.id
     );
 
     return productKey;
@@ -106,12 +106,15 @@ export const useBasketStore = defineStore("basket", () => {
   const getTotalPrice = (): number => {
     return basket.value.reduce(
       (total, item) => total + item.product.price * item.orderQuantity,
-      0,
+      0
     );
   };
 
   const emptyBasket = () => {
-    basket.value = [];
+    return new Promise<void>((resolve) => {
+      basket.value = [];
+      resolve();
+    });
   };
 
   const getTotalPriceOfOneProduct = (product: Product) => {
@@ -127,7 +130,7 @@ export const useBasketStore = defineStore("basket", () => {
   const basketProductCount = computed(() =>
     basket.value.reduce((accumulator, currentValue) => {
       return accumulator + currentValue.orderQuantity;
-    }, 0),
+    }, 0)
   );
 
   return {
