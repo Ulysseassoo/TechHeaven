@@ -15,7 +15,7 @@ const NotShowNavRoutes = ["/account/delete-account"];
 
 const logout = async () => {
   await logoutUser();
-  basketStore.emptyBasket();
+  await basketStore.emptyBasket();
   await router.push({
     name: "Login",
     replace: true,

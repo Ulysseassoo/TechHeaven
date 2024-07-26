@@ -320,11 +320,30 @@ router.delete("/basket", shouldBeAuthenticate, async (req, res) => {
             return res.status(400).json({ status: 400, message: 'Panier inexistant.' });
         }
 
-        await db.cartHasProducts.deleteMany({
+        await db.cart.update({
             where: {
-                cart_id: basket.id
+                id: basket.id
+            }, 
+            data: {
+                ...basket,
+                total: 0
             }
         })
+
+        const productsInCartToDelete = await db.cartHasProducts.findMany({
+            where: {
+                cart_id: basket.id
+            },
+            include: {product: true}
+        })
+  
+        for (let i = 0; i < productsInCartToDelete.length; i++) {
+            await db.cartHasProducts.delete({
+                where: {
+                    id: productsInCartToDelete[i].id
+                }
+            });
+        }
 
         return res.status(200).json({
             status: 200,
