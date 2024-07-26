@@ -2,8 +2,6 @@
 import { useForm } from "@/hooks/useForm";
 import { z } from "zod";
 import { useUserStore } from "@/store/UserStore";
-import { createOrder } from "@/api/order";
-import { createInvoice } from "@/api/invoice";
 import { getPaymentLink } from "@/api/payment";
 
 const validationSchema = z.object({
@@ -19,7 +17,7 @@ const userStore = useUserStore();
 const { user } = userStore;
 
 const addresseSelected = user?.addresses.filter(
-  (address) => address.is_selected,
+  (address) => address.is_selected
 );
 
 const initialValues = {
@@ -34,8 +32,6 @@ const initialValues = {
 
 const onSubmit = async () => {
   try {
-    const order = await createOrder();
-    await createInvoice(order.data.id);
     const paymentLink = await getPaymentLink();
     window.location.replace(paymentLink.data.link);
   } catch (error) {

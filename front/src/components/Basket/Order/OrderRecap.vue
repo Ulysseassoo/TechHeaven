@@ -2,8 +2,6 @@
 import { computed } from "vue";
 import BasketRecapProduct from "./../BasketRecapProduct.vue";
 import { useBasketStore } from "@/store/basketStore";
-import { createOrder } from "@/api/order";
-import { createInvoice } from "@/api/invoice";
 import { getPaymentLink } from "@/api/payment";
 
 const basketStore = useBasketStore();
@@ -11,8 +9,6 @@ const basketProducts = computed(() => basketStore.basket);
 
 const goOrderPage = async () => {
   try {
-    const order = await createOrder();
-    await createInvoice(order.data.id);
     const paymentLink = await getPaymentLink();
     window.location.replace(paymentLink.data.link);
   } catch (error) {
