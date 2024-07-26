@@ -52,22 +52,4 @@ const router = express.Router();
     }
   });
 
-  // router.put('/invoices/:invoiceId/success', shouldBeAuthenticate, async (req, res) => {
-  //   const { invoiceId } = req.params;
-  
-  //   try {
-  //     // Mettez à jour le statut de la facture à "paid" dans la base de données
-  //     const updatedInvoice = await Invoice.findByIdAndUpdate(invoiceId, { status: 'paid' }, { new: true });
-  
-  //     if (!updatedInvoice) {
-  //       return res.status(404).send('Facture non trouvée');
-  //     }
-  
-  //     res.send('Paiement réussi !');
-  //   } catch (error) {
-  //     console.error(`Erreur lors de la mise à jour de la facture: ${error.message}`);
-  //     res.status(500).send(`Erreur lors de la mise à jour de la facture: ${error.message}`);
-  //   }
-  // });
-
   export default router
