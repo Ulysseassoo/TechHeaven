@@ -9,6 +9,8 @@ services:
       - 5173:5173
     volumes:
       - ./front:/home/node
+    env_file:
+      - ./front/.env
 
   server:
     image: node:20.0.0-alpine

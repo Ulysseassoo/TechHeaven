@@ -55,7 +55,7 @@ et des options de livraison variées.
 
 
 ## Installation
-Il ne faut pas oublier de créer votre fichier .env à la racine du projet et rajouter les clés tel que le fichier .env.example
+Il ne faut pas oublier de créer votre fichier .env à la racine du projet & le .env dans le .front et rajouter les clés tel que le fichier .env.example
 Lancer les commandes ci-dessous dans l'ordre donnée.
 
 
