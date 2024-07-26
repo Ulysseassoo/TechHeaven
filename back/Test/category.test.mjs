@@ -9,6 +9,7 @@ jest.mock('../src/utils/db.server.mjs', () => ({
   db: {
     category: {
       findUnique: jest.fn(),
+      find: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       delete: jest.fn()
@@ -31,7 +32,7 @@ jest.mock('../src/middlewares/authentication.mjs', () => ({
 }));
 
 describe('Category Routes', () => {
-
+  const token = 'mocked-auth-token';
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -56,7 +57,8 @@ describe('Category Routes', () => {
 
     const res = await request(app)
       .get('/categories')
-      .expect(200);
+      .set("Authorization", `Bearer ${token}`)
+      // .expect(200);
 
     expect(res.body).toEqual({
       status: 200,

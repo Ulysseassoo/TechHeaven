@@ -112,7 +112,7 @@ router.post("/users/:userId/addresses", addressValidator, shouldBeAuthenticate, 
     }
 })
 
-router.get('/addresses/:id', async (req, res) => {
+router.get('/addresses/:id', shouldBeAdmin, async (req, res) => {
     const { id } = req.params;
     try {
       const address = await db.address.findUnique({ where: { id } });
