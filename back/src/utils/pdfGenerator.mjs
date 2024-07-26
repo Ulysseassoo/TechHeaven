@@ -3,14 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filename = __filename;
+const dirname = __dirname;
 
 export const generateInvoicePDF = (invoice) => {
     const doc = new PDFDocument();
-    const filePath = path.resolve(__dirname, `../../invoices/invoice_${invoice.id}.pdf`);
+    const filePath = path.resolve(dirname, `../../invoices/invoice_${invoice.id}.pdf`);
 
-    doc.pipe(fs.createWriteStream(filePath));
+    doc.pipe(fs.createWriteStream(filename));
 
     doc.fontSize(25).text('Invoice', {
         align: 'center'
